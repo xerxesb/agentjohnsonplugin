@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentJohnson", "AgentJohnson.csproj", "{4223E1C5-7AC8-4B81-942F-F331B972028C}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "AgentJohnson.Setup", "..\AgentJohnson.Setup\AgentJohnson.Setup.vdproj", "{39257EF3-0317-4305-8A2E-51772B0C2134}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4223E1C5-7AC8-4B81-942F-F331B972028C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4223E1C5-7AC8-4B81-942F-F331B972028C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4223E1C5-7AC8-4B81-942F-F331B972028C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4223E1C5-7AC8-4B81-942F-F331B972028C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39257EF3-0317-4305-8A2E-51772B0C2134}.Debug|Any CPU.ActiveCfg = Debug
+		{39257EF3-0317-4305-8A2E-51772B0C2134}.Debug|Any CPU.Build.0 = Debug
+		{39257EF3-0317-4305-8A2E-51772B0C2134}.Release|Any CPU.ActiveCfg = Release
+		{39257EF3-0317-4305-8A2E-51772B0C2134}.Release|Any CPU.Build.0 = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
