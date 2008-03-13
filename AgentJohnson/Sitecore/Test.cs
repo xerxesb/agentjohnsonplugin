@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using JetBrains.Util;
 
 namespace AgentJohnson.Test {
   /// <summary>
@@ -21,7 +22,7 @@ namespace AgentJohnson.Test {
     /// Values the analysis.
     /// </summary>
     /// <param name="pipper">The pipper.</param>
-    public void ValueAnalysis(string pipper) {
+    public void ValueAnalysis([Nullable] string pipper) {
     }
 
     #endregion

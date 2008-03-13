@@ -135,49 +135,6 @@ namespace AgentJohnson.ValueAnalysis {
       }
 
       return null;
-
-      /*
-      IList<IAttribute> attributes = metaInfoTargetDeclaration.Attributes;
-      if(attributes == null || attributes.Count == 0){
-        return null;
-      }
-
-      foreach(IAttribute attribute in attributes){
-        ResolveResult resolveResult = attribute.Reference.Resolve();
-
-        string name = string.Empty;
-
-        IConstructor constructor = resolveResult.DeclaredElement as IConstructor;
-        if(constructor != null){
-          ITypeElement containingType = constructor.GetContainingType();
-
-          if(containingType != null){
-            name = containingType.CLRName;
-          }
-        }
-
-        if(string.IsNullOrEmpty(name)){
-          IClassDeclaration classDeclaration = resolveResult.DeclaredElement as IClassDeclaration;
-
-          if(classDeclaration == null){
-            continue;
-          }
-
-          ICSharpNamespaceDeclaration namespaceDeclaration = classDeclaration.GetContainingNamespaceDeclaration();
-          if(namespaceDeclaration != null){
-            name = namespaceDeclaration.ShortName;
-          }
-
-          name += classDeclaration.DeclaredName;
-        }
-
-        if(attributeName == name){
-          return attribute;
-        }
-      }
-
-      return null;
-        */
     }
 
     /// <summary>
@@ -185,12 +142,12 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="parameterStatement">The parameter statement.</param>
     void FindAttributes(ParameterStatement parameterStatement) {
-      string nullableValueAttributeTypeName = CodeInspectionSettings.GetInstance(Solution).NotNullableValueAttributeTypeName;
-      if(string.IsNullOrEmpty(nullableValueAttributeTypeName)){
+      string notNullableValueAttributeTypeName = CodeInspectionSettings.GetInstance(Solution).NotNullableValueAttributeTypeName;
+      if(string.IsNullOrEmpty(notNullableValueAttributeTypeName)){
         return;
       }
 
-      CLRTypeName notNullableAttributeName = new CLRTypeName(nullableValueAttributeTypeName);
+      CLRTypeName notNullableAttributeName = new CLRTypeName(notNullableValueAttributeTypeName);
 
       IList<IAttributeInstance> instances = parameterStatement.Parameter.GetAttributeInstances(notNullableAttributeName, true);
       if (instances != null && instances.Count > 0){
@@ -199,12 +156,12 @@ namespace AgentJohnson.ValueAnalysis {
         return;
       }
 
-      string beNullValueAttributeTypeName = CodeInspectionSettings.GetInstance(Solution).CanBeNullValueAttributeTypeName;
-      if(!string.IsNullOrEmpty(beNullValueAttributeTypeName)){
+      string canBeNullValueAttributeTypeName = CodeInspectionSettings.GetInstance(Solution).CanBeNullValueAttributeTypeName;
+      if(string.IsNullOrEmpty(canBeNullValueAttributeTypeName)){
         return;
       }
 
-      CLRTypeName canBeNullAttributeName = new CLRTypeName(beNullValueAttributeTypeName);
+      CLRTypeName canBeNullAttributeName = new CLRTypeName(canBeNullValueAttributeTypeName);
       instances = parameterStatement.Parameter.GetAttributeInstances(canBeNullAttributeName, true);
       if(instances != null && instances.Count > 0) {
         parameterStatement.Nullable = true;
