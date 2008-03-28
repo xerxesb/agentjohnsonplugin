@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using JetBrains.Annotations;
+using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Daemon.CSharp.ContextActions.Util;
+using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Caches;
 using JetBrains.ReSharper.Psi.CodeStyle;
@@ -23,8 +25,8 @@ namespace AgentJohnson.ValueAnalysis {
   internal class ValueAnalysisRefactoring {
     #region Fields
 
-    [Nullable]
-    readonly ICSharpContextActionDataProvider _contextActionDataProvider = null;
+    [CanBeNull]
+    readonly ICSharpContextActionDataProvider _contextActionDataProvider;
     [NotNull]
     readonly ITypeMemberDeclaration _typeMemberDeclaration;
 
@@ -105,7 +107,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="attributeName">Name of the attribute.</param>
     /// <returns>The attribute.</returns>
-    public IAttributeInstance FindAttribute([Nullable] string attributeName) {
+    public IAttributeInstance FindAttribute([CanBeNull] string attributeName) {
       IMetaInfoTargetDeclaration metaInfoTargetDeclaration = TypeMemberDeclaration as IMetaInfoTargetDeclaration;
       if(metaInfoTargetDeclaration == null){
         return null;
@@ -120,7 +122,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// <param name="attributeName">Name of the attribute.</param>
     /// <param name="metaInfoTargetDeclaration">The meta info target declaration.</param>
     /// <returns>The attribute.</returns>
-    [Nullable]
+    [CanBeNull]
     static IAttributeInstance FindAttribute(string attributeName, IMetaInfoTargetDeclaration metaInfoTargetDeclaration) {
       IAttributesOwner attributesOwner = metaInfoTargetDeclaration as IAttributesOwner;
       if(attributesOwner == null){
@@ -142,7 +144,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="parameterStatement">The parameter statement.</param>
     void FindAttributes(ParameterStatement parameterStatement) {
-      string notNullableValueAttributeTypeName = CodeInspectionSettings.GetInstance(Solution).NotNullableValueAttributeTypeName;
+      string notNullableValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.NotNullAttributeShortName);
       if(string.IsNullOrEmpty(notNullableValueAttributeTypeName)){
         return;
       }
@@ -156,7 +158,7 @@ namespace AgentJohnson.ValueAnalysis {
         return;
       }
 
-      string canBeNullValueAttributeTypeName = CodeInspectionSettings.GetInstance(Solution).CanBeNullValueAttributeTypeName;
+      string canBeNullValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.CanBeNullAttributeShortName);
       if(string.IsNullOrEmpty(canBeNullValueAttributeTypeName)){
         return;
       }
@@ -203,8 +205,8 @@ namespace AgentJohnson.ValueAnalysis {
     /// Executes the attribute.
     /// </summary>
     void ExecuteAttribute() {
-      string notNullableValueAttribute = CodeInspectionSettings.GetInstance(Solution).NotNullableValueAttributeTypeName;
-      string canBeNullValueAttribute = CodeInspectionSettings.GetInstance(Solution).CanBeNullValueAttributeTypeName;
+      string notNullableValueAttribute = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.NotNullAttributeShortName);
+      string canBeNullValueAttribute = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.CanBeNullAttributeShortName);
       if(string.IsNullOrEmpty(notNullableValueAttribute) && string.IsNullOrEmpty(canBeNullValueAttribute)){
         return;
       }
@@ -256,12 +258,16 @@ namespace AgentJohnson.ValueAnalysis {
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(Solution);
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(functionDeclaration.GetProject());
 
       IBlock body = functionDeclaration.Body;
 
       foreach(ParameterStatement assertion in assertions){
         if (assertion.Nullable){
+          continue;
+        }
+
+        if (!assertion.NeedsStatement) {
           continue;
         }
 
@@ -301,7 +307,9 @@ namespace AgentJohnson.ValueAnalysis {
 
         IStatement result = body.AddStatementBefore(assertion.Statement, anchor);
 
-        codeFormatter.Optimize(result.GetContainingFile(), result.GetDocumentRange(), false, true, NullProgressIndicator.INSTANCE);
+        DocumentRange range = result.GetDocumentRange();
+        IPsiRangeMarker marker = result.GetManager().CreatePsiRangeMarker(range);
+        codeFormatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.INSTANCE);
       }
 
       if(anchor != null){
@@ -366,7 +374,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="body">The body.</param>
     /// <returns>The anchor.</returns>
-    [Nullable]
+    [CanBeNull]
     static IStatement GetAnchor(IBlock body) {
       IList<IStatement> list = body.Statements;
 
@@ -374,23 +382,6 @@ namespace AgentJohnson.ValueAnalysis {
         return list[0];
       }
       return null;
-    }
-
-    /// <summary>
-    /// Gets the assertion methods.
-    /// </summary>
-    Dictionary<string, int> GetAssertionMethods() {
-      Dictionary<string, int> result = new Dictionary<string, int>();
-
-      ICollection<CodeInspectionSettings.AssertionMethod> methods = CodeInspectionSettings.GetInstance(Solution).AssertionMethods;
-
-      foreach(CodeInspectionSettings.AssertionMethod method in methods){
-        if(method.AssertionType == CodeInspectionSettings.AssertionType.IS_NOT_NULL){
-          result[method.MethodFullName] = method.ParameterNumber;
-        }
-      }
-
-      return result;
     }
 
     /// <summary>
@@ -423,7 +414,7 @@ namespace AgentJohnson.ValueAnalysis {
       IList<IAttributeInstance> instances = attributesOwner.GetAttributeInstances(typeName, true);
       if(instances != null && instances.Count > 0){
         foreach(IAttributeInstance instance in instances){
-          ConstantValue2 positionParameter = instance.PositionParameter(0);
+          ConstantValue2 positionParameter = instance.PositionParameter(0).ConstantValue;
           if(!positionParameter.IsString()){
             continue;
           }
@@ -445,15 +436,11 @@ namespace AgentJohnson.ValueAnalysis {
           continue;
         }
 
-        if(parameter.Kind == ParameterKind.OUTPUT){
-          continue;
-        }
-
         if (allowNullParameters.Contains(parameter.ShortName)){
           continue;
         }
 
-        if(!CLRTypeConversionUtil.IsReferenceType(parameter.Type)){
+        if(!parameter.Type.IsReferenceType()){
           continue;
         }
 
@@ -462,6 +449,22 @@ namespace AgentJohnson.ValueAnalysis {
         parameterStatement.Parameter = parameter;
 
         FindAttributes(parameterStatement);
+
+        if(parameter.Kind == ParameterKind.OUTPUT) {
+          parameterStatement.NeedsStatement = false;
+        } else {
+          string parameterName = parameter.Type.GetPresentableName(functionDeclaration.Language);
+
+          string code = ValueAnalysisSettings.Instance.TypeAssertions[parameterName];
+
+          if(string.IsNullOrEmpty(code)) {
+            code = ValueAnalysisSettings.Instance.TypeAssertions["*"] ?? string.Empty;
+          }
+
+          if(string.IsNullOrEmpty(code)) {
+            parameterStatement.NeedsStatement = false;
+          }
+        }
 
         result.Add(parameterStatement);
       }
@@ -493,7 +496,7 @@ namespace AgentJohnson.ValueAnalysis {
         return;
       }
 
-      Dictionary<string, int> assertionMethods = GetAssertionMethods();
+      CodeAnnotationsCache codeAnnotationsCache = CodeAnnotationsCache.GetInstance(Solution);
 
       foreach(IStatement statement in functionDeclaration.Body.Statements){
         IExpressionStatement expressionStatement = statement as IExpressionStatement;
@@ -506,12 +509,12 @@ namespace AgentJohnson.ValueAnalysis {
           continue;
         }
 
-        IReference reference = invocationExpression.InvokedExpression as IReference;
+        IReferenceExpression reference = invocationExpression.InvokedExpression as IReferenceExpression;
         if(reference == null){
           continue;
         }
 
-        ResolveResult resolveResult = reference.Resolve();
+        ResolveResult resolveResult = reference.Reference.Resolve();
 
         IMethod method = null;
 
@@ -528,14 +531,23 @@ namespace AgentJohnson.ValueAnalysis {
           continue;
         }
 
-        string methodName = GetFullMethodName(method);
-        if(string.IsNullOrEmpty(methodName)){
+        if (!codeAnnotationsCache.IsAssertionMethod(method)) {
           continue;
         }
 
-        int parameterIndex;
-        if(!assertionMethods.TryGetValue(methodName, out parameterIndex)){
-          continue;
+        int parameterIndex = -1;
+
+        for(int index = 0; index < method.Parameters.Count; index++) {
+          IParameter parameter = method.Parameters[index];
+
+          AssertionConditionType? assertionConditionType = codeAnnotationsCache.GetParameterAssertionCondition(parameter);
+          if(assertionConditionType == null) {
+            continue;
+          }
+
+          parameterIndex = index;
+
+          break;
         }
 
         if(parameterIndex < 0){
@@ -578,9 +590,13 @@ namespace AgentJohnson.ValueAnalysis {
         return null;
       }
 
-      if(!TypeFactory.CreateType(typeElement).IsSubtypeOf(PredefinedType.GetInstance(Solution).Attribute)){
+      /*
+      PredefinedType predefinedType = new PredefinedType(Solution.SolutionProject);
+
+      if(!TypeFactory.CreateType(typeElement).IsSubtypeOf(predefinedType.Attribute)) {
         return null;
       }
+      */
 
       return typeElement;
     }
@@ -589,7 +605,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// Gets the code formatter.
     /// </summary>
     /// <returns>The code formatter.</returns>
-    [Nullable]
+    [CanBeNull]
     static CodeFormatter GetCodeFormatter() {
       LanguageService languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
       if(languageService == null){
@@ -618,26 +634,6 @@ namespace AgentJohnson.ValueAnalysis {
     }
 
     /// <summary>
-    /// Gets the full name of the method.
-    /// </summary>
-    /// <param name="method">The method.</param>
-    /// <returns>The fully qualified name of the method.</returns>
-    static string GetFullMethodName(IDeclaredElement method) {
-      string result = method.ShortName;
-
-      ITypeElement typeElement = method.GetContainingType();
-      if(typeElement != null){
-        result = typeElement.ShortName + "." + result;
-
-        INamespace ns = typeElement.GetContainingNamespace();
-
-        result = ns.QualifiedName + "." + result;
-      }
-
-      return result;
-    }
-
-    /// <summary>
     /// Inserts the blank line.
     /// </summary>
     /// <param name="anchor">The anchor.</param>
@@ -662,7 +658,9 @@ namespace AgentJohnson.ValueAnalysis {
 
       LowLevelModificationUtil.AddChildBefore(anchorTreeNode, element);
 
-      formatter.Optimize(element.GetContainingFile(), element.GetDocumentRange(), false, true, NullProgressIndicator.INSTANCE);
+      DocumentRange range = element.GetDocumentRange();
+      IPsiRangeMarker marker = element.GetManager().CreatePsiRangeMarker(range);
+      formatter.Optimize(element.GetContainingFile(), marker, false, true, NullProgressIndicator.INSTANCE);
     }
 
     /// <summary>
@@ -672,8 +670,8 @@ namespace AgentJohnson.ValueAnalysis {
     /// 	<c>true</c> if [is available internal]; otherwise, <c>false</c>.
     /// </returns>
     bool IsAvailableAttribute() {
-      string notNullableValueAttribute = CodeInspectionSettings.GetInstance(Solution).NotNullableValueAttributeTypeName;
-      string canBeNullValueAttribute = CodeInspectionSettings.GetInstance(Solution).CanBeNullValueAttributeTypeName;
+      string notNullableValueAttribute = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.NotNullAttributeShortName);
+      string canBeNullValueAttribute = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.CanBeNullAttributeShortName);
 
       if(string.IsNullOrEmpty(notNullableValueAttribute) && string.IsNullOrEmpty(canBeNullValueAttribute)){
         return false;
@@ -729,11 +727,8 @@ namespace AgentJohnson.ValueAnalysis {
       }
 
       IType returnType = method.ReturnType;
-      if(returnType == null){
-        return false;
-      }
 
-      if(!CLRTypeConversionUtil.IsReferenceType(returnType)){
+      if(!returnType.IsReferenceType()){
         return false;
       }
 
@@ -821,7 +816,7 @@ namespace AgentJohnson.ValueAnalysis {
           continue;
         }
 
-        if (parameterStatement.Statement == null){
+        if (parameterStatement.Statement == null && parameterStatement.NeedsStatement){
           return true;
         }
 
@@ -838,7 +833,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="assertion">The assertion.</param>
     void MarkParameterWithAttribute(ParameterStatement assertion) {
-      string notNullableValueAttribute = CodeInspectionSettings.GetInstance(Solution).NotNullableValueAttributeTypeName;
+      string notNullableValueAttribute = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.NotNullAttributeShortName);
       if(string.IsNullOrEmpty(notNullableValueAttribute)){
         return;
       }
@@ -879,7 +874,7 @@ namespace AgentJohnson.ValueAnalysis {
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(Solution);
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(metaInfoTargetDeclaration.GetProject());
 
       IAttribute attribute = factory.CreateTypeMemberDeclaration("[$0]void Foo(){}", new object[] {typeElement}).Attributes[0];
 
@@ -893,7 +888,12 @@ namespace AgentJohnson.ValueAnalysis {
       IReferenceName referenceName = factory.CreateReferenceName(name.Substring(0, name.Length - "Attribute".Length), new object[0]);
       referenceName = attribute.Name.ReplaceBy(referenceName);
 
-      if(referenceName.Reference.Resolve().DeclaredElement != typeElement){
+      IDeclaredElement declaredElement = referenceName.Reference.Resolve().DeclaredElement;
+      if(declaredElement == null) {
+        return;
+      }
+
+      if(declaredElement.Equals(typeElement)){
         referenceName.Reference.BindTo(typeElement);
       }
     }

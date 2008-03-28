@@ -1,15 +1,16 @@
 using System.Collections.Generic;
+using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Daemon;
-using JetBrains.ReSharper.Daemon.CSharp.ContextActions.Util;
+using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Caches;
 using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.ReSharper.TextControl;
 using JetBrains.Shell.Progress;
+using JetBrains.TextControl;
 
 namespace AgentJohnson.ValueAnalysis {
   /// <summary>
@@ -99,7 +100,7 @@ namespace AgentJohnson.ValueAnalysis {
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(typeMemberDeclaration.GetManager().Solution);
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(typeMemberDeclaration.GetProject());
 
       IAttribute attribute = factory.CreateTypeMemberDeclaration("[" + ValueAnalysisSettings.Instance.AllowNullAttribute + "(\"" + parameter.ShortName + "\")]void Foo(){}", new object[] { }).Attributes[0];
 
@@ -113,11 +114,15 @@ namespace AgentJohnson.ValueAnalysis {
       IReferenceName referenceName = factory.CreateReferenceName(name.Substring(0, name.Length - "Attribute".Length), new object[0]);
       referenceName = attribute.Name.ReplaceBy(referenceName);
 
+      /*
       if (referenceName.Reference.Resolve().DeclaredElement != typeElement) {
         referenceName.Reference.BindTo(typeElement);
       }
+      */
 
-      codeFormatter.Optimize(attribute.GetContainingFile(), attribute.GetDocumentRange(), false, true, NullProgressIndicator.INSTANCE);
+      DocumentRange range = attribute.GetDocumentRange();
+      IPsiRangeMarker marker = (attribute as IElement).GetManager().CreatePsiRangeMarker(range);
+      codeFormatter.Optimize(attribute.GetContainingFile(), marker, false, true, NullProgressIndicator.INSTANCE);
     }
 
     /// <summary>
@@ -170,7 +175,7 @@ namespace AgentJohnson.ValueAnalysis {
       IList<IAttributeInstance> attributeInstances = attributesOwner.GetAttributeInstances(clrTypeName, true);
 
       foreach (IAttributeInstance instance in attributeInstances) {
-        ConstantValue2 allowNull = instance.PositionParameter(0);
+        ConstantValue2 allowNull = instance.PositionParameter(0).ConstantValue;
 
         if (allowNull.Value == null) {
           continue;
@@ -213,9 +218,13 @@ namespace AgentJohnson.ValueAnalysis {
         return null;
       }
 
-      if (!TypeFactory.CreateType(typeElement).IsSubtypeOf(PredefinedType.GetInstance(solution).Attribute)) {
+      /*
+      PredefinedType predefinedType = new PredefinedType(element.GetProject());
+
+      if (!TypeFactory.CreateType(typeElement).IsSubtypeOf(predefinedType.Attribute)) {
         return null;
       }
+      */
 
       return typeElement;
     }

@@ -2,7 +2,7 @@ using AgentJohnson;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Daemon;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.ReSharper.TextControl;
+using JetBrains.TextControl;
 
 namespace AgentJohnson.Strings {
   /// <summary>

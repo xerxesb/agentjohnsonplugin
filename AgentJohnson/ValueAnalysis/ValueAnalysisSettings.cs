@@ -243,11 +243,12 @@ namespace AgentJohnson.ValueAnalysis {
       _typeAssertions = new NameValueCollection();
 
       // _typeAssertions.Add("*", "Debug.Assert({0} != null, \"Parameter '{0}' cannot be null.\");");
-
+      /*
       _typeAssertions.Add("*", "Sitecore.Diagnostics.Assert.ArgumentNotNull({0}, \"{0}\");");
       _typeAssertions.Add("string", "Sitecore.Diagnostics.Assert.ArgumentNotNullOrEmpty({0}, \"{0}\");");
 
       _allowNullAttribute = "Sitecore.AllowNullAttribute";
+      */
     }
 
     #endregion

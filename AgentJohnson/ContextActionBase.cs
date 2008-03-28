@@ -1,12 +1,12 @@
 using System;
+using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Daemon;
-using JetBrains.ReSharper.Editor;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Shell;
-using JetBrains.ReSharper.TextControl;
+using JetBrains.TextControl;
 using JetBrains.Util;
 
 namespace AgentJohnson {

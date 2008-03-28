@@ -1,7 +1,8 @@
 ﻿using System;
-using JetBrains.Util;
+using JetBrains.Annotations;
+using Sitecore.Annotations;
 
-namespace Sitecore {
+namespace Sitecore.Annotations {
   /// <summary>
   /// 
   /// </summary>
@@ -47,9 +48,26 @@ namespace Sitecore {
 
     #endregion
   }
+
+  /// <summary>
+  /// 
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Delegate | AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+  public class CanBeNullAttribute: Attribute {
+  }
+
+  /// <summary>
+  /// 
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Delegate | AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+  public class NotNullAttribute: Attribute {
+  }
 }
 
 namespace Sitecore.Diagnostics {
+  /// <summary>
+  /// 
+  /// </summary>
   public static class Assert {
     #region Public methods
 
@@ -58,7 +76,8 @@ namespace Sitecore.Diagnostics {
     /// </summary>
     /// <param name="argument">The argument.</param>
     /// <param name="name">The name.</param>
-    public static void ArgumentNotNull(object argument, string name) {
+    [AssertionMethod]
+    public static void ArgumentNotNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] object argument, string name) {
     }
 
     /// <summary>
@@ -66,8 +85,9 @@ namespace Sitecore.Diagnostics {
     /// </summary>
     /// <param name="argument">The argument.</param>
     /// <param name="name">The name.</param>
+    [AssertionMethod]
     [AllowNull("argument")]
-    public static void ArgumentNotNullOrEmpty(string argument, string name) {
+    public static void ArgumentNotNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] string argument, string name) {
     }
 
     #endregion
@@ -79,7 +99,7 @@ namespace Sitecore.Diagnostics {
   public class Test {
     #region Fields
 
-    [NotNull]
+    [Annotations.NotNull]
     string _test;
 
     #endregion
@@ -96,7 +116,7 @@ namespace Sitecore.Diagnostics {
     /// Initializes a new instance of the <see cref="Test"/> class.
     /// </summary>
     /// <param name="test">The test.</param>
-    public Test([NotNull] string test) {
+    public Test([Annotations.NotNull] string test) {
       Assert.ArgumentNotNullOrEmpty(test, "test");
 
       _test = test;
@@ -135,8 +155,8 @@ namespace Sitecore.Diagnostics {
     /// Sets the test.
     /// </summary>
     /// <param name="value">The value.</param>
-    [Nullable]
-    public string SetTest([NotNull] string value) {
+    [Annotations.CanBeNull]
+    public string SetTest([Annotations.NotNull] string value) {
       Assert.ArgumentNotNullOrEmpty(value, "value");
 
       _test = value;
@@ -144,5 +164,11 @@ namespace Sitecore.Diagnostics {
     }
 
     #endregion
+  }
+
+  /// <summary>
+  /// 
+  /// </summary>
+  public static class Texts {
   }
 }

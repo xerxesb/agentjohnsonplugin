@@ -45,7 +45,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// <value></value>
     public override string AttributeId {
       get {
-        return HighlightingAttributeIds.GetDefaultAttribute(Severity.WARNING);
+        return HighlightingAttributeIds.WARNING_ATTRIBUTE;
       }
     }
 

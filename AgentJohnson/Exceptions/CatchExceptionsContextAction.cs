@@ -2,18 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Xml;
+using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Daemon;
-using JetBrains.ReSharper.Editor;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.ReSharper.TextControl;
 using JetBrains.Shell;
 using JetBrains.Shell.Progress;
+using JetBrains.TextControl;
 using JetBrains.Util;
 
 namespace AgentJohnson.Exceptions {
@@ -167,20 +167,18 @@ namespace AgentJohnson.Exceptions {
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(solution);
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(statement.GetProject());
       if(factory == null){
         return;
       }
 
-      IReference reference = invocationExpression.InvokedExpression as IReference;
-      if(reference == null){
+
+      IReferenceExpression reference = invocationExpression.InvokedExpression as IReferenceExpression;
+      if(reference == null) {
         return;
       }
 
-      ResolveResult resolveResult = reference.Resolve();
-      if(resolveResult == null){
-        return;
-      }
+      ResolveResult resolveResult = reference.Reference.Resolve();
 
       IDeclaredElement declaredElement = resolveResult.DeclaredElement;
       if(declaredElement == null){
@@ -224,7 +222,9 @@ namespace AgentJohnson.Exceptions {
         return;
       }
 
-      formatter.Optimize(result.GetContainingFile(), result.GetDocumentRange(), false, true, NullProgressIndicator.INSTANCE);
+      DocumentRange range = result.GetDocumentRange();
+      IPsiRangeMarker marker = result.GetManager().CreatePsiRangeMarker(range);
+      formatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.INSTANCE);
     }
 
     ///<summary>
@@ -394,12 +394,12 @@ namespace AgentJohnson.Exceptions {
         return false;
       }
 
-      IReference reference = invocationExpression.InvokedExpression as IReference;
+      IReferenceExpression reference = invocationExpression.InvokedExpression as IReferenceExpression;
       if(reference == null){
         return false;
       }
 
-      ResolveResult resolveResult = reference.Resolve();
+      ResolveResult resolveResult = reference.Reference.Resolve();
 
       IDeclaredElement declaredElement = resolveResult.DeclaredElement;
       if(declaredElement == null){

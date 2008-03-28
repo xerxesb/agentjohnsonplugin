@@ -24,7 +24,7 @@ namespace AgentJohnson {
     /// </summary>
     public void Init() {
       HighlightingSettingsManager manager = HighlightingSettingsManager.Instance;
-      string group = "Agent Johnson";
+      const string group = "Agent Johnson";
 
       manager.RegisterConfigurableSeverity(DocumentThrownExceptionWarning.NAME, group,
                                            "Undocumented thrown exception.",

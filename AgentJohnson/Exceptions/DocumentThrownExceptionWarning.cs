@@ -1,6 +1,6 @@
+using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Daemon;
-using JetBrains.ReSharper.Editor;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace AgentJohnson.Exceptions {
@@ -12,6 +12,7 @@ namespace AgentJohnson.Exceptions {
 
     #region Constants
 
+    /// <summary>"UndocumentedThrownException"</summary>
     public const string NAME = "UndocumentedThrownException";
 
     #endregion
@@ -38,16 +39,6 @@ namespace AgentJohnson.Exceptions {
     #endregion
 
     #region Public properties
-
-    /// <summary>
-    /// Attribute of this highlighting in the markup model
-    /// </summary>
-    /// <value></value>
-    public override string AttributeId {
-      get {
-        return HighlightingAttributeIds.GetDefaultAttribute(Severity.WARNING);
-      }
-    }
 
     /// <summary>
     /// Gets the solution.

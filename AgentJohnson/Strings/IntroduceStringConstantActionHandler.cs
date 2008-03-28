@@ -1,8 +1,7 @@
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper;
 using JetBrains.ActionManagement;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.ReSharper.TextControl;
+using JetBrains.TextControl;
 
 namespace AgentJohnson.Strings {
   /// <summary>
@@ -15,7 +14,7 @@ namespace AgentJohnson.Strings {
     /// <param name="context">The context.</param>
     /// <returns></returns>
     protected override bool Update(IDataContext context) {
-      if (!context.CheckAllNotNull(DataConstants.SOLUTION)){
+      if(!context.CheckAllNotNull(JetBrains.IDE.DataConstants.SOLUTION)) {
         return false;
       }
 
@@ -33,12 +32,12 @@ namespace AgentJohnson.Strings {
     /// <param name="solution">The solution.</param>
     /// <param name="context">The context.</param>
     protected override void Execute(ISolution solution, IDataContext context) {
-      ITextControl textcontrol = context.GetData(DataConstants.TEXT_CONTROL);
-      if(textcontrol == null){
+      ITextControl textControl = context.GetData(JetBrains.IDE.DataConstants.TEXT_CONTROL);
+      if(textControl == null){
         return;
       }
 
-      Refactoring refactoring = new Refactoring(solution, textcontrol);
+      Refactoring refactoring = new Refactoring(solution, textControl);
 
       refactoring.Execute();
     }

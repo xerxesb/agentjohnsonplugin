@@ -12,6 +12,7 @@ namespace AgentJohnson.ValueAnalysis {
     IStatement _statement;
     IAttributeInstance _attributeInstance;
     bool _nullable;
+    bool _needsStatement = true;
 
     #endregion
 
@@ -27,6 +28,19 @@ namespace AgentJohnson.ValueAnalysis {
       }
       set {
         _attributeInstance = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether [needs statement].
+    /// </summary>
+    /// <value><c>true</c> if [needs statement]; otherwise, <c>false</c>.</value>
+    public bool NeedsStatement {
+      get {
+        return _needsStatement;
+      }
+      set {
+        _needsStatement = value;
       }
     }
 

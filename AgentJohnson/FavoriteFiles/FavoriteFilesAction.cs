@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -7,32 +6,31 @@ using AgentJohnson.FavoriteFiles;
 using EnvDTE;
 using JetBrains.ActionManagement;
 using JetBrains.CommonControls;
+using JetBrains.DocumentModel;
+using JetBrains.IDE;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper;
-using JetBrains.ReSharper.Editor;
-using JetBrains.ReSharper.EditorManager;
-using JetBrains.Shell.VSIntegration;
 using JetBrains.UI.PopupMenu;
-using JetBrains.Util;
 using JetBrains.UI.RichText;
+using JetBrains.Util;
+using JetBrains.VSIntegration.Shell;
 
 namespace AgentJohnson.FavoriteFiles {
   /// <summary>
   /// Handles Find Text action, see Actions.xml
   /// </summary>
   [ActionHandler("FavoriteFiles")]
-  public class FavoriteFilesAction: IActionHandler {
+  public class FavoriteFilesAction : IActionHandler {
     #region Fields
 
     FavoriteFilePath _currentFile;
     ISolution _solution;
 
-    #endregion    
+    #endregion
 
     #region Protected methods
 
     /// <summary>
-    /// Executes action. Called after Update, that set ActionPresentation.Enabled to true.
+    /// Executes action. Called after Update, that set <c>ActionPresentation</c>.Enabled to true.
     /// </summary>
     /// <param name="solution">The solution.</param>
     /// <param name="context">The context.</param>
@@ -40,39 +38,54 @@ namespace AgentJohnson.FavoriteFiles {
       _solution = solution;
       _currentFile = GetCurrentFile(_solution, context);
 
-      ArrayList items = new ArrayList();
+      List<SimpleMenuItem> items = new List<SimpleMenuItem>();
 
       List<FavoriteFilePath> files = FavoriteFilesSettings.Instance.FavoriteFiles;
 
-      foreach(FavoriteFilePath favoriteFilePath in files){
-        if (string.IsNullOrEmpty(favoriteFilePath.ProjectName)){
-          items.Add(favoriteFilePath);
+      int index = 0;
+
+      foreach(FavoriteFilePath favoriteFilePath in files) {
+        FavoriteFilePath path = favoriteFilePath;
+
+        if(string.IsNullOrEmpty(favoriteFilePath.ProjectName)) {
+          SimpleMenuItem item = DescribeFavoriteFile(favoriteFilePath, index);
+
+          item.Clicked += delegate { menu_ItemClicked(path); };
+
+          items.Add(item);
+
+          index++;
+
           continue;
         }
 
         IProject project = solution.GetProject(favoriteFilePath.ProjectName);
 
-        if (project != null){
-          items.Add(favoriteFilePath);
+        if(project != null) {
+          SimpleMenuItem item = DescribeFavoriteFile(favoriteFilePath, index);
+
+          item.Clicked += delegate { menu_ItemClicked(path); };
+
+          items.Add(item);
+
+          index++;
+
           continue;
         }
       }
 
-      if (items.Count > 0){
-        items.Add("seperator");
+      if(items.Count > 0) {
+        items.Add(SimpleMenuItem.CreateSeparator());
       }
 
-      items.Add("add");
-      items.Add("more");
+      items.Add(DescribeAddMenuItem());
+      items.Add(DescribeOrganizeMenuItem());
 
       JetPopupMenu menu = new JetPopupMenu();
 
-      menu.Caption = new PresentableItem("Favorite Files");
-      menu.Items = items;
-      menu.KeyboardAcceleration = KeyboardAccelerationFlags.Mnemonics;
-
-      menu.DescribeItem += menu_DescribeItem;
-      menu.ItemClicked += menu_ItemClicked;
+      menu.Caption.Value = WindowlessControl.Create("Favorite Files");
+      menu.SetItems(items);
+      menu.KeyboardAcceleration.SetValue(KeyboardAccelerationFlags.Mnemonics);
 
       menu.Show();
     }
@@ -82,51 +95,18 @@ namespace AgentJohnson.FavoriteFiles {
     #region Events
 
     /// <summary>
-    /// Handles the Describe Item event of the menu control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="JetBrains.UI.PopupMenu.DescribeItemEventArgs"/> instance containing the event data.</param>
-    void menu_DescribeItem(object sender, DescribeItemEventArgs e) {
-      string key = e.Key as string;
-
-      if(key != null) {
-        switch(key) {
-          case "seperator":
-            DescribeSeperator(e);
-            break;
-          case "add":
-            DescribeAddMenuItem(e);
-            break;
-          case "more":
-            DescribeMoreMenuItem(e);
-            break;
-        }
-      }
-      else {
-        DescribeFavoriteFile(e);
-      }
-    }
-
-    /// <summary>
     /// Handles the ItemClicked event of the menu control.
     /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="JetBrains.UI.PopupMenu.ItemEventArgs"/> instance containing the event data.</param>
-    void menu_ItemClicked(object sender, ItemEventArgs e) {
-      string key = e.Key as string;
-
-      if(key != null) {
-        switch(key) {
-          case "add":
-            AddCurrentFile();
-            break;
-          case "more":
-            Organize();
-            break;
-        }
+    /// <param name="path">The path.</param>
+    void menu_ItemClicked(FavoriteFilePath path) {
+      if (path.Path == "__add") {
+        AddCurrentFile();
+      } 
+      else if(path.Path == "__more") {
+        Organize();
       }
       else {
-        OpenFavoriteFile(e);
+        OpenFavoriteFile(path);
       }
     }
 
@@ -167,68 +147,73 @@ namespace AgentJohnson.FavoriteFiles {
     /// <summary>
     /// Describes the add menu item.
     /// </summary>
-    /// <param name="e">The <see cref="JetBrains.UI.PopupMenu.DescribeItemEventArgs"/> instance containing the event data.</param>
-    void DescribeAddMenuItem(DescribeItemEventArgs e) {
-      e.Descriptor.Text = new RichText("Add Current File");
+    /// <returns>The add menu item.</returns>
+    SimpleMenuItem DescribeAddMenuItem() {
+      SimpleMenuItem result = new SimpleMenuItem();
+
+      result.Text = new RichText("Add Current File");
+
+      result.Clicked += delegate {
+        AddCurrentFile();
+      };
 
       if(_currentFile != null) {
-        e.Descriptor.Style = MenuItemStyle.Enabled;
+        result.Style = MenuItemStyle.Enabled;
       }
+
+      return result;
     }
 
     /// <summary>
     /// Describes the favorite file.
     /// </summary>
-    /// <param name="e">The <see cref="JetBrains.UI.PopupMenu.DescribeItemEventArgs"/> instance containing the event data.</param>
-    static void DescribeFavoriteFile(DescribeItemEventArgs e) {
-      FavoriteFilePath favoriteFilePath = e.Key as FavoriteFilePath;
+    /// <param name="favoriteFilePath">The favorite file path.</param>
+    /// <param name="index">The index.</param>
+    /// <returns>The favorite file.</returns>
+    static SimpleMenuItem DescribeFavoriteFile(FavoriteFilePath favoriteFilePath, int index) {
+      SimpleMenuItem result = new SimpleMenuItem();
 
       if(favoriteFilePath == null) {
-        e.Descriptor.Text = "<Error>";
-        return;
+        result.Text = "<Error>";
+        return result;
       }
 
       try{
-        e.Descriptor.Text = Path.GetFileName(favoriteFilePath.Path);
+        result.Text = Path.GetFileName(favoriteFilePath.Path);
       }
       catch{
-        e.Descriptor.Text = favoriteFilePath.Path;
+        result.Text = favoriteFilePath.Path;
       }
-      e.Descriptor.Style = MenuItemStyle.Enabled;
-      e.Descriptor.ShortcutText = new RichText("(" + favoriteFilePath + ")", TextStyle.FromForeColor(Color.LightGray));
-
-
-      ArrayList list = e.Menu.Items as ArrayList;
-      if(list == null){
-        return;
-      }
-
-      int index = list.IndexOf(e.Key);
+      result.Style = MenuItemStyle.Enabled;
+      result.ShortcutText = new RichText("(" + favoriteFilePath + ")", TextStyle.FromForeColor(Color.LightGray));
 
       if (index < 0 || index > 8){
-        return;
+        return result;
       }
 
-      index++;
+      result.Mnemonic = index.ToString();
 
-      e.Descriptor.Mnemonic = index.ToString();
+      return result;
     }
 
     /// <summary>
     /// Describes the more menu item.
     /// </summary>
-    /// <param name="e">The <see cref="JetBrains.UI.PopupMenu.DescribeItemEventArgs"/> instance containing the event data.</param>
-    static void DescribeMoreMenuItem(DescribeItemEventArgs e) {
-      e.Descriptor.Text = "Organize...";
-      e.Descriptor.Style = MenuItemStyle.Enabled;
-    }
+    /// <returns>The more menu item.</returns>
+    SimpleMenuItem DescribeOrganizeMenuItem() {
+      SimpleMenuItem result = new SimpleMenuItem();
 
-    /// <summary>
-    /// Describes the seperator.
-    /// </summary>
-    /// <param name="e">The <see cref="JetBrains.UI.PopupMenu.DescribeItemEventArgs"/> instance containing the event data.</param>
-    static void DescribeSeperator(DescribeItemEventArgs e) {
-      e.Descriptor.Style = MenuItemStyle.Separator;
+      result.Text = new RichText("Organize...");
+
+      result.Clicked += delegate {
+        Organize();
+      };
+
+      if(_currentFile != null) {
+        result.Style = MenuItemStyle.Enabled;
+      }
+
+      return result;
     }
 
     /// <summary>
@@ -272,13 +257,8 @@ namespace AgentJohnson.FavoriteFiles {
     /// <summary>
     /// Opens the favorite file.
     /// </summary>
-    /// <param name="e">The <see cref="JetBrains.UI.PopupMenu.ItemEventArgs"/> instance containing the event data.</param>
-    void OpenFavoriteFile(ItemEventArgs e) {
-      FavoriteFilePath favoriteFilePath = e.Key as FavoriteFilePath;
-      if(favoriteFilePath == null) {
-        return;
-      }
-
+    /// <param name="favoriteFilePath">The favorite file path.</param>
+    void OpenFavoriteFile(FavoriteFilePath favoriteFilePath) {
       FileSystemPath path = new FileSystemPath(favoriteFilePath.Path);
 
       if(string.IsNullOrEmpty(favoriteFilePath.ProjectName)){
@@ -328,7 +308,7 @@ namespace AgentJohnson.FavoriteFiles {
     /// Updates action visual presentation. If presentation.Enabled is set to false, Execute
     /// will not be called.
     ///</summary>
-    ///<param name="context">DataContext</param>
+    ///<param name="context"><c>DataContext</c></param>
     ///<param name="presentation">presentation to update</param>
     ///<param name="nextUpdate">delegate to call</param>
     public bool Update(IDataContext context, ActionPresentation presentation, DelegateUpdate nextUpdate) {
@@ -336,12 +316,9 @@ namespace AgentJohnson.FavoriteFiles {
     }
 
     ///<summary>
-    ///
-    ///            Executes action. Called after Update, that set ActionPresentation.Enabled to true.
-    ///            
+    /// Executes action. Called after Update, that set <see cref="ActionPresentation"/>.Enabled to true.
     ///</summary>
-    ///
-    ///<param name="context">DataContext</param>
+    ///<param name="context"><c>DataContext</c></param>
     ///<param name="nextExecute">delegate to call</param>
     public void Execute(IDataContext context, DelegateExecute nextExecute) {
       ISolution solution = context.GetData(DataConstants.SOLUTION);

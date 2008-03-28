@@ -1,11 +1,11 @@
+using JetBrains.DocumentModel;
 using JetBrains.ReSharper;
 using JetBrains.ActionManagement;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Editor;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.ReSharper.TextControl;
+using JetBrains.TextControl;
 
 namespace AgentJohnson {
   /// <summary>
@@ -27,12 +27,12 @@ namespace AgentJohnson {
     /// <param name="context">The context.</param>
     /// <returns>The element at caret.</returns>
     protected static IElement GetElementAtCaret(IDataContext context) {
-      ISolution solution = context.GetData(DataConstants.SOLUTION);
+      ISolution solution = context.GetData(JetBrains.IDE.DataConstants.SOLUTION);
       if(solution == null) {
         return null;
       }
 
-      ITextControl textControl = context.GetData(DataConstants.TEXT_CONTROL);
+      ITextControl textControl = context.GetData(JetBrains.IDE.DataConstants.TEXT_CONTROL);
       if(textControl == null) {
         return null;
       }
@@ -61,7 +61,7 @@ namespace AgentJohnson {
     /// <param name="context">The context.</param>
     /// <returns></returns>
     protected virtual bool Update(IDataContext context) {
-      return context.CheckAllNotNull(DataConstants.SOLUTION);
+      return context.CheckAllNotNull(JetBrains.IDE.DataConstants.SOLUTION);
     }
 
     #endregion
@@ -85,7 +85,7 @@ namespace AgentJohnson {
     /// <param name="context">DataContext</param>
     /// <param name="nextExecute">delegate to call</param>
     void IActionHandler.Execute(IDataContext context, DelegateExecute nextExecute) {
-      ISolution solution = context.GetData(DataConstants.SOLUTION);
+      ISolution solution = context.GetData(JetBrains.IDE.DataConstants.SOLUTION);
       if(solution == null) {
         return;
       }

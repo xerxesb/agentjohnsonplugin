@@ -39,16 +39,6 @@ namespace AgentJohnson.Strings {
     #region Public properties
 
     /// <summary>
-    /// Attribute of this highlighting in the markup model
-    /// </summary>
-    /// <value></value>
-    public override string AttributeId {
-      get {
-        return HighlightingAttributeIds.GetDefaultAttribute(Severity.SUGGESTION);
-      }
-    }
-
-    /// <summary>
     /// Gets the node.
     /// </summary>
     /// <value>The node.</value>

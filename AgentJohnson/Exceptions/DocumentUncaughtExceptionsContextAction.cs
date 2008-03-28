@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Daemon;
-using JetBrains.ReSharper.Editor;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.ReSharper.TextControl;
 using JetBrains.Shell;
+using JetBrains.TextControl;
 using JetBrains.Util;
 
 namespace AgentJohnson.Exceptions {
@@ -225,7 +225,7 @@ namespace AgentJohnson.Exceptions {
 
       text.Append("\nvoid foo(){}");
 
-      ICSharpTypeMemberDeclaration declaration = CSharpElementFactory.GetInstance(solution).CreateTypeMemberDeclaration(text.ToString());
+      ICSharpTypeMemberDeclaration declaration = CSharpElementFactory.GetInstance(typeMemberDeclaration.GetProject()).CreateTypeMemberDeclaration(text.ToString());
       if(declaration == null){
         return;
       }
@@ -395,12 +395,12 @@ namespace AgentJohnson.Exceptions {
     /// <param name="invocationExpression">The invocation expression.</param>
     /// <param name="exceptions">The exceptions.</param>
     static void ProcessInvocation(IInvocationExpression invocationExpression, List<string[]> exceptions) {
-      IReference reference = invocationExpression.InvokedExpression as IReference;
+      IReferenceExpression reference = invocationExpression.InvokedExpression as IReferenceExpression;
       if(reference == null) {
         return;
       }
 
-      ResolveResult resolveResult = reference.Resolve();
+      ResolveResult resolveResult = reference.Reference.Resolve();
 
       IDeclaredElement declaredElement = resolveResult.DeclaredElement;
       if(declaredElement == null) {

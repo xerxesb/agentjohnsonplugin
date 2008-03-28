@@ -35,21 +35,18 @@ namespace AgentJohnson {
 
       _declarationAnalyzers = new IDeclarationAnalyzer[]{};
       
-      _statementAnalyzers = new IStatementAnalyzer[]
-        {
+      _statementAnalyzers = new IStatementAnalyzer[] {
           new DocumentThrownExceptionAnalyzer(_process.Solution)
         };
 
-      _functionDeclarationAnalyzers = new IFunctionDeclarationAnalyzer[]
-        {
+      _functionDeclarationAnalyzers = new IFunctionDeclarationAnalyzer[] {
         };
 
-      _tokenTypeAnalyzers = new ITokenTypeAnalyzer[]
-        {
-          new StringEmptyAnalyzer(_process.Solution)
-        };
-      _typeMemberDeclarationAnalyzers = new ITypeMemberDeclarationAnalyzer[]
-        {
+      _tokenTypeAnalyzers = new ITokenTypeAnalyzer[] {
+                                new StringEmptyAnalyzer(_process.Solution)
+                              };
+
+      _typeMemberDeclarationAnalyzers = new ITypeMemberDeclarationAnalyzer[] {
           new ValueAnalysisAnalyzer(_process.Solution)
         };
     }

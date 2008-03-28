@@ -8,9 +8,9 @@
 
   <action id="AgentJohnson.IntroduceStringConstant" text="Introduce String Constant"/>
 
-  <insert group-id="RefactorThisMenu" position="last">
+<!--  <insert group-id="RefactorThisMenu" position="last">
     <action-ref id="AgentJohnson.IntroduceStringConstant"/>
-  </insert>
+  </insert> -->
   <insert group-id="Refactor" position="last">
     <action-ref id="AgentJohnson.IntroduceStringConstant"/>
   </insert>

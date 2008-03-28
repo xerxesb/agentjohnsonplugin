@@ -1,10 +1,9 @@
 using System.Drawing;
+using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Daemon;
-using JetBrains.ReSharper.Editor;
 using JetBrains.ReSharper.Psi.Tree;
 
 namespace AgentJohnson {
-
   /// <summary>
   /// Base suggestion for Agent Johnson suggestions.
   /// </summary>
@@ -73,16 +72,6 @@ namespace AgentJohnson {
     #region IHighlighting Members
 
     /// <summary>
-    /// Attribute of this highlighting in the markup model
-    /// </summary>
-    /// <value></value>
-    public virtual string AttributeId {
-      get {
-        return HighlightingAttributeIds.GetDefaultAttribute(Severity);
-      }
-    }
-
-    /// <summary>
     /// Color on gutter for this highlighting
     /// NOTE: Will be called only if Severity == INFO
     /// </summary>
@@ -104,16 +93,6 @@ namespace AgentJohnson {
     }
 
     /// <summary>
-    /// Get the overlap resolving policy for this highlighting
-    /// </summary>
-    /// <value></value>
-    public OverlapResolvePolicy OverlapResolvePolicy {
-      get {
-        return OverlapResolvePolicy.WARNING;
-      }
-    }
-
-    /// <summary>
     /// Get the severity of this highlighting
     /// </summary>
     /// <value></value>
@@ -124,7 +103,7 @@ namespace AgentJohnson {
     }
 
     /// <summary>
-    /// Message for this highlighting to show in tooltip and in status bar (if <see cref="P:JetBrains.ReSharper.Daemon.IHighlighting.ShowToolTipInStatusBar"/> is <c>true</c>)
+    /// Message for this highlighting to show in tooltip and in status bar (if <see cref="P:JetBrains.ReSharper.Daemon.HighlgihtingAttributeBase.ShowToolTipInStatusBar"/> is <c>true</c>)
     /// To override the default mechanism of tooltip, mark the implementation class with
     /// <see cref="T:JetBrains.ReSharper.Daemon.DaemonTooltipProviderAttribute"/> attribute, and then this property will not be called
     /// </summary>
@@ -136,7 +115,7 @@ namespace AgentJohnson {
     }
 
     /// <summary>
-    /// Message for this highlighting to show in tooltip and in status bar (if <see cref="P:JetBrains.ReSharper.Daemon.IHighlighting.ShowToolTipInStatusBar"/> is <c>true</c>)
+    /// Message for this highlighting to show in tooltip and in status bar (if <see cref="P:JetBrains.ReSharper.Daemon.HighlgihtingAttributeBase.ShowToolTipInStatusBar"/> is <c>true</c>)
     /// </summary>
     /// <value></value>
     public string ErrorStripeToolTip {
@@ -153,6 +132,29 @@ namespace AgentJohnson {
     public int NavigationOffsetPatch {
       get {
         return 0;
+      }
+    }
+
+    /// <summary>
+    /// Gets the attribute id.
+    /// </summary>
+    /// <value>The attribute id.</value>
+    public virtual string AttributeId {
+      get {
+        switch(Severity) {
+          case Severity.ERROR:
+            return HighlightingAttributeIds.ERROR_ATTRIBUTE;
+          case Severity.WARNING:
+            return HighlightingAttributeIds.WARNING_ATTRIBUTE;
+          case Severity.SUGGESTION:
+            return HighlightingAttributeIds.SUGGESTION_ATTRIBUTE;
+          case Severity.HINT:
+            return HighlightingAttributeIds.HINT_ATTRIBUTE;
+          case Severity.INFO:
+          case Severity.DO_NOT_SHOW:
+            return null;
+        }
+        return null;
       }
     }
 

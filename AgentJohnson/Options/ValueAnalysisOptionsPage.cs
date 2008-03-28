@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Specialized;
 using System.Windows.Forms;
-using JetBrains.UI.Options;
 using AgentJohnson.ValueAnalysis;
+using JetBrains.UI.Options;
 
 namespace AgentJohnson.Options {
   [OptionsPage(

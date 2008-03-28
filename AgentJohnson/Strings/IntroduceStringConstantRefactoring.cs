@@ -1,16 +1,14 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using AgentJohnson.Options;
 using JetBrains.CommonControls;
+using JetBrains.DocumentModel;
+using JetBrains.IDE;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Editor;
-using JetBrains.ReSharper.EditorManager;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Caches;
 using JetBrains.ReSharper.Psi.CodeStyle;
@@ -19,11 +17,10 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Parsing;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Shell;
-using JetBrains.ReSharper.TextControl;
 using JetBrains.Shell.Progress;
+using JetBrains.TextControl;
 using JetBrains.UI.PopupMenu;
 using JetBrains.Util;
-using JetBrains.UI.RichText;
 
 namespace AgentJohnson.Strings {
   /// <summary>
@@ -92,20 +89,38 @@ namespace AgentJohnson.Strings {
 
       JetPopupMenu menu = new JetPopupMenu();
 
-      ArrayList classes = new ArrayList(classNames.Count + 1);
-      classes.AddRange(classNames);
+      List<SimpleMenuItem> classes = new List<SimpleMenuItem>(classNames.Count + 1);
+
+      foreach(string className in classNames) {
+        SimpleMenuItem item = new SimpleMenuItem();
+
+        item.Text = className;
+        item.Style = MenuItemStyle.Enabled;
+
+        item.Clicked += delegate {
+          menu_ItemClicked(item.Text);
+        };
+
+        classes.Add(item);
+      }
 
       IClassDeclaration classDeclaration = GetClassDeclaration();
       if(classDeclaration != null) {
-        classes.Add("<Local>" + GetQualifiedClassDeclarationName(classDeclaration));
+        SimpleMenuItem item = new SimpleMenuItem();
+
+        item.Text = "<Local>" + GetQualifiedClassDeclarationName(classDeclaration);
+        item.Style = MenuItemStyle.Enabled;
+
+        item.Clicked += delegate {
+          menu_ItemClicked(item.Text);
+        };
+
+        classes.Add(item);
       }
 
-      menu.Caption = new PresentableItem("Introduce String Constant");
-      menu.Items = classes;
-      menu.KeyboardAcceleration = KeyboardAccelerationFlags.Mnemonics;
-
-      menu.DescribeItem += menu_DescribeItem;
-      menu.ItemClicked += menu_ItemClicked;
+      menu.Caption.Value = WindowlessControl.Create("Introduce String Constant");
+      menu.SetItems(classes);
+      menu.KeyboardAcceleration.SetValue(KeyboardAccelerationFlags.Mnemonics);
 
       menu.Show();
     }
@@ -158,8 +173,8 @@ namespace AgentJohnson.Strings {
         return null;
       }
 
-      IDeclaration[] declarations = typeElement.GetDeclarations();
-      if(declarations == null || declarations.Length == 0) {
+      IList<IDeclaration> declarations = typeElement.GetDeclarations();
+      if(declarations == null || declarations.Count == 0) {
         return null;
       }
 
@@ -248,7 +263,7 @@ namespace AgentJohnson.Strings {
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(Solution);
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetProject());
       if(factory == null) {
         return;
       }
@@ -309,7 +324,9 @@ namespace AgentJohnson.Strings {
         return;
       }
 
-      formatter.Optimize(result.GetContainingFile(), result.GetDocumentRange(), false, true, NullProgressIndicator.INSTANCE);
+      DocumentRange range = result.GetDocumentRange();
+      IPsiRangeMarker marker = result.GetManager().CreatePsiRangeMarker(range);
+      formatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.INSTANCE);
     }
 
     /// <summary>
@@ -550,8 +567,13 @@ namespace AgentJohnson.Strings {
     void IntroduceStringConstant(IClassDeclaration classDeclaration, bool isPublic) {
       Debug.Assert(classDeclaration != null);
 
-      IProjectFile[] files = classDeclaration.DeclaredElement.GetProjectFiles();
-      if(files == null || files.Length == 0) {
+      ITypeElement element = classDeclaration.DeclaredElement;
+      if(element == null) {
+        return;
+      }
+
+      IList<IProjectFile> files = element.GetProjectFiles();
+      if(files == null || files.Count == 0) {
         return;
       }
 
@@ -604,6 +626,7 @@ namespace AgentJohnson.Strings {
       return _removeTagsRegex.Replace(text, string.Empty);
     }
 
+    /*
     /// <summary>
     /// Handles the Describe Item event of the menu control.
     /// </summary>
@@ -672,20 +695,15 @@ namespace AgentJohnson.Strings {
 
       e.Descriptor.Mnemonic = index.ToString();
     }
+    */
 
     /// <summary>
     /// Handles the Item Clicked event of the menu control.
     /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="JetBrains.UI.PopupMenu.ItemEventArgs"/> instance containing the event data.</param>
-    void menu_ItemClicked(object sender, ItemEventArgs e) {
-      Debug.Assert(sender != null);
-      Debug.Assert(e != null);
-
+    /// <param name="className">Name of the class.</param>
+    void menu_ItemClicked(string className) {
       using(ReadLockCookie.Create()) {
         Shell.Instance.AssertReadAccessAllowed();
-
-        string className = e.Key.ToString();
 
         if(className.StartsWith("<Local>")) {
           IntroduceLocalStringConstant();

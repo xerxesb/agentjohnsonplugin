@@ -6,8 +6,8 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.ReSharper.TextControl;
 using JetBrains.Shell;
+using JetBrains.TextControl;
 using JetBrains.Util;
 
 namespace AgentJohnson.Strings {
@@ -86,7 +86,7 @@ namespace AgentJohnson.Strings {
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(_suggestion.Solution);
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(_suggestion.Node.GetProject());
       if(factory == null){
         return;
       }

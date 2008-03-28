@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using JetBrains.Util;
+using Sitecore.Annotations;
 
 namespace AgentJohnson.Test {
   /// <summary>
@@ -15,14 +15,21 @@ namespace AgentJohnson.Test {
     public void ThrowException() {
       File.Delete("c:\autoexec.bat");
 
-      throw new InvalidOperationException("");
+      throw new InvalidOperationException("Huba");
     }
 
     /// <summary>
     /// Values the analysis.
     /// </summary>
-    /// <param name="pipper">The pipper.</param>
-    public void ValueAnalysis([Nullable] string pipper) {
+    /// <param name="test">The test.</param>
+    public void ValueAnalysis([NotNull] string test) {
+    }
+
+    /// <summary>
+    /// Values the analysis.
+    /// </summary>
+    public void ValueAnalysis() {
+      ValueAnalysis(null);
     }
 
     #endregion

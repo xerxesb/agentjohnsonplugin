@@ -7,8 +7,8 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.ReSharper.TextControl;
 using JetBrains.Shell;
+using JetBrains.TextControl;
 using JetBrains.Util;
 
 namespace AgentJohnson.Exceptions {
@@ -102,7 +102,7 @@ namespace AgentJohnson.Exceptions {
 
       text.Append("\nvoid foo(){}");
 
-      ICSharpTypeMemberDeclaration declaration = CSharpElementFactory.GetInstance(_warning.Solution).CreateTypeMemberDeclaration(text.ToString());
+      ICSharpTypeMemberDeclaration declaration = CSharpElementFactory.GetInstance(throwStatement.GetProject()).CreateTypeMemberDeclaration(text.ToString());
       if(declaration == null) {
         return;
       }

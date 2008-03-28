@@ -1,9 +1,9 @@
+using JetBrains.Annotations;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Daemon;
-using JetBrains.ReSharper.Daemon.CSharp.ContextActions.Util;
+using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.ReSharper.TextControl;
-using JetBrains.Util;
+using JetBrains.TextControl;
 
 namespace AgentJohnson.ValueAnalysis {
   /// <summary>
@@ -74,7 +74,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// Gets the type member declaration.
     /// </summary>
     /// <returns>The type member declaration.</returns>
-    [Nullable]
+    [CanBeNull]
     ITypeMemberDeclaration GetTypeMemberDeclaration() {
       ITypeMemberDeclaration typeMemberDeclaration;
 
