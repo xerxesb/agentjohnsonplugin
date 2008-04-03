@@ -15,10 +15,11 @@ namespace AgentJohnson {
     #region Fields
 
     readonly IDeclarationAnalyzer[] _declarationAnalyzers;
+    readonly IFunctionDeclarationAnalyzer[] _functionDeclarationAnalyzers;
     readonly List<HighlightingInfo> _highlightings = new List<HighlightingInfo>();
+    readonly IInvocationExpressionAnalyzer[] _invocationExpressionAnalyzers;
     readonly IDaemonProcess _process;
     readonly IStatementAnalyzer[] _statementAnalyzers;
-    readonly IFunctionDeclarationAnalyzer[] _functionDeclarationAnalyzers;
     readonly ITokenTypeAnalyzer[] _tokenTypeAnalyzers;
     readonly ITypeMemberDeclarationAnalyzer[] _typeMemberDeclarationAnalyzers;
 
@@ -33,22 +34,30 @@ namespace AgentJohnson {
     public DaemonStageProcess(IDaemonProcess daemonProcess) {
       _process = daemonProcess;
 
-      _declarationAnalyzers = new IDeclarationAnalyzer[]{};
-      
-      _statementAnalyzers = new IStatementAnalyzer[] {
-          new DocumentThrownExceptionAnalyzer(_process.Solution)
-        };
+      _declarationAnalyzers = new IDeclarationAnalyzer[] {};
 
-      _functionDeclarationAnalyzers = new IFunctionDeclarationAnalyzer[] {
-        };
+      _statementAnalyzers = new IStatementAnalyzer[]
+                              {
+                                new DocumentThrownExceptionAnalyzer(_process.Solution)
+                              };
 
-      _tokenTypeAnalyzers = new ITokenTypeAnalyzer[] {
+      _functionDeclarationAnalyzers = new IFunctionDeclarationAnalyzer[]
+                                        {
+                                        };
+
+      _tokenTypeAnalyzers = new ITokenTypeAnalyzer[]
+                              {
                                 new StringEmptyAnalyzer(_process.Solution)
                               };
 
-      _typeMemberDeclarationAnalyzers = new ITypeMemberDeclarationAnalyzer[] {
-          new ValueAnalysisAnalyzer(_process.Solution)
-        };
+      _typeMemberDeclarationAnalyzers = new ITypeMemberDeclarationAnalyzer[]
+                                          {
+                                            new ValueAnalysisAnalyzer(_process.Solution)
+                                          };
+
+      _invocationExpressionAnalyzers = new IInvocationExpressionAnalyzer[]
+                                         {
+                                         };
     }
 
     #endregion
@@ -66,10 +75,10 @@ namespace AgentJohnson {
     /// any of them.
     /// </returns>
     public DaemonStageProcessResult Execute() {
-      ICSharpFile file = (ICSharpFile)PsiManager.GetInstance(_process.Solution).GetPsiFile(_process.ProjectFile);
+      var file = (ICSharpFile)PsiManager.GetInstance(_process.Solution).GetPsiFile(_process.ProjectFile);
       ProcessFile(file);
 
-      DaemonStageProcessResult result = new DaemonStageProcessResult();
+      var result = new DaemonStageProcessResult();
       result.FullyRehighlighted = true;
       result.Highlightings = _highlightings.ToArray();
 
@@ -106,28 +115,8 @@ namespace AgentJohnson {
       ProcessTypeMemberDeclarations(element);
 
       ProcessTokenTypes(element);
-    }
 
-    /// <summary>
-    /// Processes the token types.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    void ProcessTokenTypes(IElement element) {
-      ITokenNode tokenType = element as ITokenNode;
-      if(tokenType == null) {
-        return;
-      }
-
-      foreach(ITokenTypeAnalyzer analyzer in _tokenTypeAnalyzers) {
-        SuggestionBase[] result = analyzer.Analyze(tokenType);
-        if(result == null) {
-          continue;
-        }
-
-        foreach(SuggestionBase highlighting in result) {
-          AddHighlighting(highlighting);
-        }
-      }
+      ProcessInvocationExpressions(element);
     }
 
     /// <summary>
@@ -155,40 +144,18 @@ namespace AgentJohnson {
     /// </summary>
     /// <param name="element">The element.</param>
     void ProcessDeclarations(IElement element) {
-      IDeclaration declaration = element as IDeclaration;
-      if(declaration == null){
+      var declaration = element as IDeclaration;
+      if(declaration == null) {
         return;
       }
 
-      foreach(IDeclarationAnalyzer analyzer in _declarationAnalyzers){
+      foreach(IDeclarationAnalyzer analyzer in _declarationAnalyzers) {
         SuggestionBase[] result = analyzer.Analyze(declaration);
-        if(result == null){
+        if(result == null) {
           continue;
         }
 
-        foreach(SuggestionBase highlighting in result){
-          AddHighlighting(highlighting);
-        }
-      }
-    }
-
-    /// <summary>
-    /// Processes the statements.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    void ProcessStatements(IElement element) {
-      IStatement statement = element as IStatement;
-      if(statement == null){
-        return;
-      }
-
-      foreach(IStatementAnalyzer analyzer in _statementAnalyzers){
-        SuggestionBase[] result = analyzer.Analyze(statement);
-        if(result == null){
-          continue;
-        }
-
-        foreach(SuggestionBase highlighting in result){
+        foreach(SuggestionBase highlighting in result) {
           AddHighlighting(highlighting);
         }
       }
@@ -199,7 +166,7 @@ namespace AgentJohnson {
     /// </summary>
     /// <param name="element">The element.</param>
     void ProcessFunctionDeclarations(IElement element) {
-      IFunctionDeclaration functionDeclaration = element as IFunctionDeclaration;
+      var functionDeclaration = element as IFunctionDeclaration;
       if(functionDeclaration == null) {
         return;
       }
@@ -217,11 +184,77 @@ namespace AgentJohnson {
     }
 
     /// <summary>
+    /// Processes the invocation expressions.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    void ProcessInvocationExpressions(IElement element) {
+      var invocationExpression = element as IInvocationExpression;
+      if(invocationExpression == null) {
+        return;
+      }
+
+      foreach(IInvocationExpressionAnalyzer analyzer in _invocationExpressionAnalyzers) {
+        SuggestionBase[] result = analyzer.Analyze(invocationExpression);
+        if(result == null) {
+          continue;
+        }
+
+        foreach(SuggestionBase highlighting in result) {
+          AddHighlighting(highlighting);
+        }
+      }
+    }
+
+    /// <summary>
+    /// Processes the statements.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    void ProcessStatements(IElement element) {
+      var statement = element as IStatement;
+      if(statement == null) {
+        return;
+      }
+
+      foreach(IStatementAnalyzer analyzer in _statementAnalyzers) {
+        SuggestionBase[] result = analyzer.Analyze(statement);
+        if(result == null) {
+          continue;
+        }
+
+        foreach(SuggestionBase highlighting in result) {
+          AddHighlighting(highlighting);
+        }
+      }
+    }
+
+    /// <summary>
+    /// Processes the token types.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    void ProcessTokenTypes(IElement element) {
+      var tokenType = element as ITokenNode;
+      if(tokenType == null) {
+        return;
+      }
+
+      foreach(ITokenTypeAnalyzer analyzer in _tokenTypeAnalyzers) {
+        SuggestionBase[] result = analyzer.Analyze(tokenType);
+        if(result == null) {
+          continue;
+        }
+
+        foreach(SuggestionBase highlighting in result) {
+          AddHighlighting(highlighting);
+        }
+      }
+    }
+
+    /// <summary>
     /// Processes the function declarations.
     /// </summary>
     /// <param name="element">The element.</param>
     void ProcessTypeMemberDeclarations(IElement element) {
-      ITypeMemberDeclaration typeMemberDeclaration = element as ITypeMemberDeclaration;
+      var typeMemberDeclaration = element as ITypeMemberDeclaration;
       if(typeMemberDeclaration == null) {
         return;
       }
@@ -250,7 +283,7 @@ namespace AgentJohnson {
     /// </value>
     public bool ProcessingIsFinished {
       get {
-        if(_process.InterruptFlag){
+        if(_process.InterruptFlag) {
           throw new ProcessCancelledException();
         }
         return false;

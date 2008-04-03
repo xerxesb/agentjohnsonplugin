@@ -409,24 +409,29 @@ namespace AgentJohnson.ValueAnalysis {
 
       List<string> allowNullParameters = new List<string>();
 
-      CLRTypeName typeName = new CLRTypeName(ValueAnalysisSettings.Instance.AllowNullAttribute);
+      string allowNullAttribute = ValueAnalysisSettings.Instance.AllowNullAttribute;
 
-      IList<IAttributeInstance> instances = attributesOwner.GetAttributeInstances(typeName, true);
-      if(instances != null && instances.Count > 0){
-        foreach(IAttributeInstance instance in instances){
-          ConstantValue2 positionParameter = instance.PositionParameter(0).ConstantValue;
-          if(!positionParameter.IsString()){
-            continue;
-          }
+      if(!string.IsNullOrEmpty(allowNullAttribute)) {
+        CLRTypeName typeName = new CLRTypeName(allowNullAttribute);
 
-          string name = positionParameter.Value as string;
+        IList<IAttributeInstance> instances = attributesOwner.GetAttributeInstances(typeName, true);
 
-          if (name == "*"){
-            return;
-          }
+        if(instances != null && instances.Count > 0) {
+          foreach(IAttributeInstance instance in instances) {
+            ConstantValue2 positionParameter = instance.PositionParameter(0).ConstantValue;
+            if(!positionParameter.IsString()) {
+              continue;
+            }
 
-          if(!string.IsNullOrEmpty(name)){
-            allowNullParameters.Add(name);
+            string name = positionParameter.Value as string;
+
+            if(name == "*") {
+              return;
+            }
+
+            if(!string.IsNullOrEmpty(name)) {
+              allowNullParameters.Add(name);
+            }
           }
         }
       }

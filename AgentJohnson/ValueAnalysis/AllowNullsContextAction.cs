@@ -202,14 +202,12 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <returns>The type member declaration.</returns>
     ITypeMemberDeclaration GetTypeMemberDeclaration() {
-      ITypeMemberDeclaration typeMemberDeclaration;
-
       IElement element = Provider.SelectedElement;
       if(element == null){
         return null;
       }
 
-      typeMemberDeclaration = null;
+      ITypeMemberDeclaration typeMemberDeclaration = null;
 
       ITreeNode treeNode = element as ITreeNode;
       if(treeNode != null){

@@ -26,7 +26,7 @@ namespace AgentJohnson.Strings {
   /// <summary>
   /// Represents a Refactoring.
   /// </summary>
-  public class Refactoring {
+  public class IntroduceStringConstantRefactoring {
     #region Fields
 
     readonly ISolution _solution;
@@ -39,11 +39,11 @@ namespace AgentJohnson.Strings {
     #region Constructor
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Refactoring"/> class.
+    /// Initializes a new instance of the <see cref="IntroduceStringConstantRefactoring"/> class.
     /// </summary>
     /// <param name="solution">The solution.</param>
     /// <param name="textControl">The text control.</param>
-    public Refactoring(ISolution solution, ITextControl textControl) {
+    public IntroduceStringConstantRefactoring(ISolution solution, ITextControl textControl) {
       _solution = solution;
       _textControl = textControl;
     }

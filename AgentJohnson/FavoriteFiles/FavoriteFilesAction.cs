@@ -118,9 +118,9 @@ namespace AgentJohnson.FavoriteFiles {
     /// Organizes this instance.
     /// </summary>
     static void Organize() {
-      Organize dialog = new Organize();
-
-      dialog.ShowDialog();
+      using(OrganizeDialog organizeDialog = new OrganizeDialog()) {
+        organizeDialog.ShowDialog();
+      }
     }
 
     /// <summary>

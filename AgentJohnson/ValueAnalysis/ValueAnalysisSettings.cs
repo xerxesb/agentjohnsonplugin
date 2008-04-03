@@ -216,7 +216,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// <value>The name of the tag.</value>
     public string TagName {
       get {
-        return "ReSharper.StrenghtenMember";
+        return "ValueAnalysisAnnotations";
       }
     }
 
@@ -241,6 +241,8 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     void InitTypeAssertions() {
       _typeAssertions = new NameValueCollection();
+
+      _typeAssertions.Add("*", string.Empty);
 
       // _typeAssertions.Add("*", "Debug.Assert({0} != null, \"Parameter '{0}' cannot be null.\");");
       /*

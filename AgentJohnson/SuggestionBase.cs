@@ -38,6 +38,39 @@ namespace AgentJohnson {
     #region Public properties
 
     /// <summary>
+    /// Gets the attribute id.
+    /// </summary>
+    /// <value>The attribute id.</value>
+    public virtual string AttributeId {
+      get {
+        switch(Severity) {
+          case Severity.ERROR:
+            return HighlightingAttributeIds.ERROR_ATTRIBUTE;
+          case Severity.WARNING:
+            return HighlightingAttributeIds.WARNING_ATTRIBUTE;
+          case Severity.SUGGESTION:
+            return HighlightingAttributeIds.SUGGESTION_ATTRIBUTE;
+          case Severity.HINT:
+            return HighlightingAttributeIds.HINT_ATTRIBUTE;
+          case Severity.INFO:
+          case Severity.DO_NOT_SHOW:
+            return null;
+        }
+        return null;
+      }
+    }
+    /// <summary>
+    /// Color on gutter for this highlighting
+    /// NOTE: Will be called only if Severity == INFO
+    /// </summary>
+    /// <value></value>
+    public virtual Color ColorOnStripe {
+      get {
+        return Color.Empty;
+      }
+    }
+
+    /// <summary>
     /// Gets the element.
     /// </summary>
     /// <value>The element.</value>
@@ -67,21 +100,15 @@ namespace AgentJohnson {
       }
     }
 
-    #endregion
-
-    #region IHighlighting Members
-
     /// <summary>
-    /// Color on gutter for this highlighting
-    /// NOTE: Will be called only if Severity == INFO
+    /// Get the severity of this highlighting
     /// </summary>
     /// <value></value>
-    public virtual Color ColorOnStripe {
+    public virtual Severity Severity {
       get {
-        return Color.Empty;
+        return HighlightingSettingsManager.Instance.Settings.GetSeverity(_suggestionName);
       }
     }
-
     /// <summary>
     /// Identifies if the tooltip message should be shown in the status bar when the cursor is over the highlighting
     /// </summary>
@@ -92,15 +119,9 @@ namespace AgentJohnson {
       }
     }
 
-    /// <summary>
-    /// Get the severity of this highlighting
-    /// </summary>
-    /// <value></value>
-    public virtual Severity Severity {
-      get {
-        return HighlightingSettingsManager.Instance.Settings.GetSeverity(_suggestionName);
-      }
-    }
+    #endregion
+
+    #region IHighlighting Members
 
     /// <summary>
     /// Message for this highlighting to show in tooltip and in status bar (if <see cref="P:JetBrains.ReSharper.Daemon.HighlgihtingAttributeBase.ShowToolTipInStatusBar"/> is <c>true</c>)
@@ -132,29 +153,6 @@ namespace AgentJohnson {
     public int NavigationOffsetPatch {
       get {
         return 0;
-      }
-    }
-
-    /// <summary>
-    /// Gets the attribute id.
-    /// </summary>
-    /// <value>The attribute id.</value>
-    public virtual string AttributeId {
-      get {
-        switch(Severity) {
-          case Severity.ERROR:
-            return HighlightingAttributeIds.ERROR_ATTRIBUTE;
-          case Severity.WARNING:
-            return HighlightingAttributeIds.WARNING_ATTRIBUTE;
-          case Severity.SUGGESTION:
-            return HighlightingAttributeIds.SUGGESTION_ATTRIBUTE;
-          case Severity.HINT:
-            return HighlightingAttributeIds.HINT_ATTRIBUTE;
-          case Severity.INFO:
-          case Severity.DO_NOT_SHOW:
-            return null;
-        }
-        return null;
       }
     }
 

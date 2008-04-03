@@ -28,9 +28,9 @@ namespace AgentJohnson.Strings {
     /// </summary>
     /// <param name="element">The element.</param>
     protected override void Execute(IElement element) {
-      Refactoring refactoring = new Refactoring(Solution, TextControl);
+      IntroduceStringConstantRefactoring introduceStringConstantRefactoring = new IntroduceStringConstantRefactoring(Solution, TextControl);
 
-      refactoring.Execute();
+      introduceStringConstantRefactoring.Execute();
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ namespace AgentJohnson.Strings {
     /// 	<c>true</c> if this instance is available; otherwise, <c>false</c>.
     /// </returns>
     protected override bool IsAvailable(IElement element) {
-      return Refactoring.IsAvailable(element);
+      return IntroduceStringConstantRefactoring.IsAvailable(element);
     }
 
     #endregion

@@ -23,7 +23,7 @@ namespace AgentJohnson.Strings {
         return false;
       }
 
-      return Refactoring.IsAvailable(element);
+      return IntroduceStringConstantRefactoring.IsAvailable(element);
     }
 
     /// <summary>
@@ -37,9 +37,9 @@ namespace AgentJohnson.Strings {
         return;
       }
 
-      Refactoring refactoring = new Refactoring(solution, textControl);
+      IntroduceStringConstantRefactoring introduceStringConstantRefactoring = new IntroduceStringConstantRefactoring(solution, textControl);
 
-      refactoring.Execute();
+      introduceStringConstantRefactoring.Execute();
     }
   }
 }

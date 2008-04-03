@@ -161,7 +161,14 @@ namespace AgentJohnson.Exceptions {
         return false;
       }
 
-      string exceptionTypeName = throwStatement.Exception.Type().GetLongPresentableName(throwStatement.Language);
+      ICSharpExpression exception = throwStatement.Exception;
+      if(exception == null) {
+        return true;
+      }
+
+      IType type = exception.Type();
+
+      string exceptionTypeName = type.GetLongPresentableName(throwStatement.Language);
 
       foreach(XmlNode node in exceptionList) {
         XmlAttribute attribute = node.Attributes["cref"];

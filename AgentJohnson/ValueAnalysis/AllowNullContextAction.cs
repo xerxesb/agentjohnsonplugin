@@ -111,10 +111,10 @@ namespace AgentJohnson.ValueAnalysis {
         return;
       }
 
+      /*
       IReferenceName referenceName = factory.CreateReferenceName(name.Substring(0, name.Length - "Attribute".Length), new object[0]);
       referenceName = attribute.Name.ReplaceBy(referenceName);
 
-      /*
       if (referenceName.Reference.Resolve().DeclaredElement != typeElement) {
         referenceName.Reference.BindTo(typeElement);
       }

@@ -159,15 +159,16 @@
   <ItemGroup>
     <Compile Include="ActionHandlerBase.cs" />
     <Compile Include="ContextActionBase.cs" />
+    <Compile Include="IInvocationExpressionAnalyzer.cs" />
     <Compile Include="ITypeMemberDeclarationAnalyzer.cs" />
     <Compile Include="FavoriteFiles\FavoriteFilePath.cs" />
     <Compile Include="FavoriteFiles\FavoriteFilesAction.cs" />
     <Compile Include="FavoriteFiles\FavoriteFilesSettings.cs" />
-    <Compile Include="FavoriteFiles\Organize.cs">
+    <Compile Include="FavoriteFiles\OrganizeDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FavoriteFiles\Organize.Designer.cs">
-      <DependentUpon>Organize.cs</DependentUpon>
+    <Compile Include="FavoriteFiles\OrganizeDialog.Designer.cs">
+      <DependentUpon>OrganizeDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="ITokenAnalyzer.cs" />
     <Compile Include="Exceptions\CatchExceptionsContextAction.cs" />
@@ -206,6 +207,7 @@
     <Compile Include="Strings\StringEmptyAnalyzer.cs" />
     <Compile Include="SuggestionBase.cs" />
     <Compile Include="Sitecore\Test.cs" />
+    <Compile Include="Util\Methods.cs" />
     <Compile Include="ValueAnalysis\AllowNullContextAction.cs" />
     <Compile Include="ValueAnalysis\AllowNullsContextAction.cs" />
     <Compile Include="ValueAnalysis\ParameterStatement.cs" />
@@ -219,8 +221,8 @@
     <EmbeddedResource Include="Actions.xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="FavoriteFiles\Organize.resx">
-      <DependentUpon>Organize.cs</DependentUpon>
+    <EmbeddedResource Include="FavoriteFiles\OrganizeDialog.resx">
+      <DependentUpon>OrganizeDialog.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Options\IntroduceStringConstantOptionsPage.resx">

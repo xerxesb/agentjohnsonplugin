@@ -40,16 +40,6 @@ namespace AgentJohnson.ValueAnalysis {
     #region Public properties
 
     /// <summary>
-    /// Attribute of this highlighting in the markup model
-    /// </summary>
-    /// <value></value>
-    public override string AttributeId {
-      get {
-        return HighlightingAttributeIds.WARNING_ATTRIBUTE;
-      }
-    }
-
-    /// <summary>
     /// Gets the solution.
     /// </summary>
     /// <value>The solution.</value>

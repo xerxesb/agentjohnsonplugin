@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using AgentJohnson;
-using AgentJohnson.Exceptions;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi.Parsing;
 using JetBrains.ReSharper.Psi.Tree;

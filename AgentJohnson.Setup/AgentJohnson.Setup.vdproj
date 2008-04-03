@@ -2026,13 +2026,13 @@
         "Entry"
         {
         "MsmKey" = "8:_A169EDB3C910CC2D17AAC005B5106578"
-        "OwnerKey" = "8:_33F2742ACEF54CC782303ACF61CB2D16"
+        "OwnerKey" = "8:_8691F94335D9F1488FFA0F9EB65A1DBA"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_A169EDB3C910CC2D17AAC005B5106578"
-        "OwnerKey" = "8:_8691F94335D9F1488FFA0F9EB65A1DBA"
+        "OwnerKey" = "8:_33F2742ACEF54CC782303ACF61CB2D16"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -3124,13 +3124,13 @@
         "Entry"
         {
         "MsmKey" = "8:_F26AB4B08329EE90D0DA95E26A343BB7"
-        "OwnerKey" = "8:_33F2742ACEF54CC782303ACF61CB2D16"
+        "OwnerKey" = "8:_87854355091BF3D896FEA0B567F6DD77"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_F26AB4B08329EE90D0DA95E26A343BB7"
-        "OwnerKey" = "8:_87854355091BF3D896FEA0B567F6DD77"
+        "OwnerKey" = "8:_33F2742ACEF54CC782303ACF61CB2D16"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -3184,13 +3184,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_F26AB4B08329EE90D0DA95E26A343BB7"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A169EDB3C910CC2D17AAC005B5106578"
+        "OwnerKey" = "8:_04E216873BB69E91E885084360514719"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -3352,6 +3346,12 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_A169EDB3C910CC2D17AAC005B5106578"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_FAA522183439D6D65A291EECEEC3108A"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3359,6 +3359,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_87854355091BF3D896FEA0B567F6DD77"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_F26AB4B08329EE90D0DA95E26A343BB7"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -3547,12 +3553,6 @@
         "OwnerKey" = "8:_9D1DBD11BDC69B3EDDAA50FDB7259D9B"
         "MsmSig" = "8:_UNDEFINED"
         }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_04E216873BB69E91E885084360514719"
-        "MsmSig" = "8:_UNDEFINED"
-        }
     }
     "Configurations"
     {
@@ -3571,14 +3571,6 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
-            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
-            {
-            "Enabled" = "11:TRUE"
-            "PromptEnabled" = "11:TRUE"
-            "PrerequisitesLocation" = "2:1"
-            "Url" = "8:"
-            "ComponentsUrl" = "8:"
-            }
         }
         "Release"
         {
@@ -3595,14 +3587,6 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
-            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
-            {
-            "Enabled" = "11:TRUE"
-            "PromptEnabled" = "11:TRUE"
-            "PrerequisitesLocation" = "2:1"
-            "Url" = "8:"
-            "ComponentsUrl" = "8:"
-            }
         }
     }
     "Deployable"
@@ -5631,7 +5615,7 @@
         {
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_1736A354A2F8420994160FE4C88A374F"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder]\\JetBrains\\Resharper\\v4.0\\v.Everything\\Bin\\Plugins\\Agent Johnson"
+            "DefaultLocation" = "8:[ProgramFilesFolder]\\JetBrains\\Resharper\\v3.1\\vs9.0\\Bin\\Plugins\\Agent Johnson"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
