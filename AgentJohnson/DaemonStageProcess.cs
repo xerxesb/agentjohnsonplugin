@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using AgentJohnson.Exceptions;
 using AgentJohnson.Strings;
 using AgentJohnson.ValueAnalysis;
+using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Daemon;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -14,11 +15,9 @@ namespace AgentJohnson {
   public class DaemonStageProcess : ElementVisitor, IDaemonStageProcess, IRecursiveElementProcessor {
     #region Fields
 
-    readonly IDeclarationAnalyzer[] _declarationAnalyzers;
-    readonly IFunctionDeclarationAnalyzer[] _functionDeclarationAnalyzers;
     readonly List<HighlightingInfo> _highlightings = new List<HighlightingInfo>();
-    readonly IInvocationExpressionAnalyzer[] _invocationExpressionAnalyzers;
     readonly IDaemonProcess _process;
+
     readonly IStatementAnalyzer[] _statementAnalyzers;
     readonly ITokenTypeAnalyzer[] _tokenTypeAnalyzers;
     readonly ITypeMemberDeclarationAnalyzer[] _typeMemberDeclarationAnalyzers;
@@ -34,30 +33,17 @@ namespace AgentJohnson {
     public DaemonStageProcess(IDaemonProcess daemonProcess) {
       _process = daemonProcess;
 
-      _declarationAnalyzers = new IDeclarationAnalyzer[] {};
+      _statementAnalyzers = new IStatementAnalyzer[] {
+                                                       new DocumentThrownExceptionAnalyzer(_process.Solution)
+                                                     };
 
-      _statementAnalyzers = new IStatementAnalyzer[]
-                              {
-                                new DocumentThrownExceptionAnalyzer(_process.Solution)
-                              };
+      _tokenTypeAnalyzers = new ITokenTypeAnalyzer[] {
+                                                       new StringEmptyAnalyzer(_process.Solution)
+                                                     };
 
-      _functionDeclarationAnalyzers = new IFunctionDeclarationAnalyzer[]
-                                        {
-                                        };
-
-      _tokenTypeAnalyzers = new ITokenTypeAnalyzer[]
-                              {
-                                new StringEmptyAnalyzer(_process.Solution)
-                              };
-
-      _typeMemberDeclarationAnalyzers = new ITypeMemberDeclarationAnalyzer[]
-                                          {
-                                            new ValueAnalysisAnalyzer(_process.Solution)
-                                          };
-
-      _invocationExpressionAnalyzers = new IInvocationExpressionAnalyzer[]
-                                         {
-                                         };
+      _typeMemberDeclarationAnalyzers = new ITypeMemberDeclarationAnalyzer[] {
+                                                                               new ValueAnalysisAnalyzer(_process.Solution)
+                                                                             };
     }
 
     #endregion
@@ -75,7 +61,15 @@ namespace AgentJohnson {
     /// any of them.
     /// </returns>
     public DaemonStageProcessResult Execute() {
-      var file = (ICSharpFile)PsiManager.GetInstance(_process.Solution).GetPsiFile(_process.ProjectFile);
+      ICSharpFile file = (ICSharpFile)PsiManager.GetInstance(_process.Solution).GetPsiFile(_process.ProjectFile);
+      if(file == null) {
+        return null;
+      }
+
+      if (file.Language.Name != "CSHARP") {
+        return null;
+      }
+
       ProcessFile(file);
 
       var result = new DaemonStageProcessResult();
@@ -106,17 +100,11 @@ namespace AgentJohnson {
     /// </summary>
     /// <param name="element">The element.</param>
     public void ProcessBeforeInterior(IElement element) {
-      ProcessDeclarations(element);
-
       ProcessStatements(element);
-
-      ProcessFunctionDeclarations(element);
 
       ProcessTypeMemberDeclarations(element);
 
       ProcessTokenTypes(element);
-
-      ProcessInvocationExpressions(element);
     }
 
     /// <summary>
@@ -136,73 +124,12 @@ namespace AgentJohnson {
     /// </summary>
     /// <param name="highlighting">The highlighting.</param>
     void AddHighlighting(SuggestionBase highlighting) {
-      _highlightings.Add(new HighlightingInfo(highlighting.Range, highlighting));
-    }
-
-    /// <summary>
-    /// Processes the declarations.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    void ProcessDeclarations(IElement element) {
-      var declaration = element as IDeclaration;
-      if(declaration == null) {
+      DocumentRange range = highlighting.Range;
+      if (!range.IsValid) {
         return;
       }
 
-      foreach(IDeclarationAnalyzer analyzer in _declarationAnalyzers) {
-        SuggestionBase[] result = analyzer.Analyze(declaration);
-        if(result == null) {
-          continue;
-        }
-
-        foreach(SuggestionBase highlighting in result) {
-          AddHighlighting(highlighting);
-        }
-      }
-    }
-
-    /// <summary>
-    /// Processes the function declarations.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    void ProcessFunctionDeclarations(IElement element) {
-      var functionDeclaration = element as IFunctionDeclaration;
-      if(functionDeclaration == null) {
-        return;
-      }
-
-      foreach(IFunctionDeclarationAnalyzer analyzer in _functionDeclarationAnalyzers) {
-        SuggestionBase[] result = analyzer.Analyze(functionDeclaration);
-        if(result == null) {
-          continue;
-        }
-
-        foreach(SuggestionBase highlighting in result) {
-          AddHighlighting(highlighting);
-        }
-      }
-    }
-
-    /// <summary>
-    /// Processes the invocation expressions.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    void ProcessInvocationExpressions(IElement element) {
-      var invocationExpression = element as IInvocationExpression;
-      if(invocationExpression == null) {
-        return;
-      }
-
-      foreach(IInvocationExpressionAnalyzer analyzer in _invocationExpressionAnalyzers) {
-        SuggestionBase[] result = analyzer.Analyze(invocationExpression);
-        if(result == null) {
-          continue;
-        }
-
-        foreach(SuggestionBase highlighting in result) {
-          AddHighlighting(highlighting);
-        }
-      }
+      _highlightings.Add(new HighlightingInfo(range, highlighting));
     }
 
     /// <summary>

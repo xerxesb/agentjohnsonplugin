@@ -159,7 +159,6 @@
   <ItemGroup>
     <Compile Include="ActionHandlerBase.cs" />
     <Compile Include="ContextActionBase.cs" />
-    <Compile Include="IInvocationExpressionAnalyzer.cs" />
     <Compile Include="ITypeMemberDeclarationAnalyzer.cs" />
     <Compile Include="FavoriteFiles\FavoriteFilePath.cs" />
     <Compile Include="FavoriteFiles\FavoriteFilesAction.cs" />
@@ -174,7 +173,6 @@
     <Compile Include="Exceptions\CatchExceptionsContextAction.cs" />
     <Compile Include="Exceptions\DocumentUncaughtExceptionsContextAction.cs" />
     <Compile Include="Exceptions\CatchExceptionsContextActions.Pair.cs" />
-    <Compile Include="IFunctionDeclarationAnalyzer.cs" />
     <Compile Include="DaemonStageProcess.cs" />
     <Compile Include="DaemonStage.cs" />
     <Compile Include="Exceptions\DocumentThrownExceptionBulbItem.cs" />
@@ -182,7 +180,6 @@
     <Compile Include="Exceptions\DocumentThrownExceptionWarning.cs" />
     <Compile Include="Exceptions\DocumentThrownExceptionQuickFix.cs" />
     <Compile Include="HighlightingRegistering.cs" />
-    <Compile Include="IDeclarationAnalyzer.cs" />
     <Compile Include="IStatementAnalyzer.cs" />
     <Compile Include="Options\IntroduceStringConstantOptionsPage.cs">
       <SubType>UserControl</SubType>
