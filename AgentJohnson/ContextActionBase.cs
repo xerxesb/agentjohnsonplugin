@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Application;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Daemon;
 using JetBrains.ProjectModel;

@@ -15,7 +15,7 @@ namespace AgentJohnson.Test {
     public void ThrowException() {
       File.Delete("c:\autoexec.bat");
 
-      throw new InvalidOperationException("Huba");
+      throw new InvalidOperationException("Fail!");
     }
 
     /// <summary>

@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using JetBrains.Application;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Daemon;
 using JetBrains.ReSharper.Psi;
@@ -7,7 +8,6 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.Shell;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
@@ -93,7 +93,9 @@ namespace AgentJohnson.Exceptions {
 
       string exceptionTypeName = exceptionType.GetPresentableName(throwStatement.Language);
 
-      var text = new StringBuilder("\r\n <exception cref=\"" + exceptionTypeName + "\"><c>" + exceptionTypeName + "</c>.</exception>");
+      string exceptionText = GetExceptionText(throwStatement, exceptionTypeName);
+
+      var text = new StringBuilder("\r\n <exception cref=\"" + exceptionTypeName + "\">" + exceptionText + "</exception>");
 
       string indent = GetIndent(anchor);
 
@@ -122,6 +124,49 @@ namespace AgentJohnson.Exceptions {
       }
 
       docCommentBlockOwnerNode.SetDocCommentBlockNode(node);
+    }
+
+    /// <summary>
+    /// Gets the exception text.
+    /// </summary>
+    /// <param name="throwStatement">The throw statement.</param>
+    /// <param name="exceptionTypeName">Name of the exception type.</param>
+    /// <returns>The exception text.</returns>
+    static string GetExceptionText(IThrowStatement throwStatement, string exceptionTypeName) {
+      string exceptionText = "<c>" + exceptionTypeName + "</c>.";
+
+      ICSharpExpression exception = throwStatement.Exception;
+      if(exception == null) {
+        return exceptionText;
+      }
+
+      IArgumentsOwner argumentsOwner = exception as IArgumentsOwner;
+      if(argumentsOwner == null) {
+        return exceptionText;
+      }
+
+      foreach(IArgument argument in argumentsOwner.Arguments) {
+        ICSharpArgument csharpArgument = argument as ICSharpArgument;
+        if(csharpArgument == null) {
+          continue;
+        }
+        if(csharpArgument.Kind != ParameterKind.VALUE) {
+          continue;
+        }
+
+        ConstantValue2 value = csharpArgument.Value.ConstantValue;
+        if(!value.IsString()) {
+          continue;
+        }
+        string stringValue = value.Value as string;
+        if(string.IsNullOrEmpty(stringValue)) {
+          continue;
+        }
+
+        return stringValue;
+      }
+
+      return exceptionText;
     }
 
     /// <summary>

@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using AgentJohnson.Options;
+using JetBrains.Application;
 using JetBrains.CommonControls;
 using JetBrains.DocumentModel;
 using JetBrains.IDE;

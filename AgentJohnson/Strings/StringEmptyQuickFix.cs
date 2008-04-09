@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AgentJohnson.Exceptions;
+using JetBrains.Application;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Daemon;
 using JetBrains.ReSharper.Psi;
