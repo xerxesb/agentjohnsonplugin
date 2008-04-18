@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using JetBrains.ComponentModel;
-using JetBrains.Shell;
 using JetBrains.Util;
+using JetBrains.Application;
 
 namespace AgentJohnson.Options {
   /// <summary>

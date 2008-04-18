@@ -9,8 +9,8 @@ using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.Shell.Progress;
 using JetBrains.TextControl;
+using JetBrains.Application.Progress;
 
 namespace AgentJohnson.ValueAnalysis {
   /// <summary>

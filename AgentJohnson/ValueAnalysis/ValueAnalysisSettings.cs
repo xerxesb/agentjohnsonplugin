@@ -1,8 +1,8 @@
 using System.Collections.Specialized;
 using System.Text;
 using System.Xml;
+using JetBrains.Application;
 using JetBrains.ComponentModel;
-using JetBrains.Shell;
 using JetBrains.Util;
 
 namespace AgentJohnson.ValueAnalysis {

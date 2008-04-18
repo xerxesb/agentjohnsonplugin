@@ -13,7 +13,6 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.Shell;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
@@ -55,7 +54,7 @@ namespace AgentJohnson.Exceptions {
         throw new InvalidOperationException();
       }
 
-      Shell.Instance.AssertReadAccessAllowed();
+      Shell.Instance.Locks.AssertReadAccessAllowed();
 
       IElement element = GetElementAtCaret();
       if(element == null){

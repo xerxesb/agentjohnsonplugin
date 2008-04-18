@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using AgentJohnson.Exceptions;
 using AgentJohnson.Strings;
 using AgentJohnson.ValueAnalysis;
+using JetBrains.Application.Progress;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Daemon;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.Shell.Progress;
 
 namespace AgentJohnson {
   /// <summary>

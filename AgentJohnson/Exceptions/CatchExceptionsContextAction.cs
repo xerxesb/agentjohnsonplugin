@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Xml;
 using JetBrains.Application;
+using JetBrains.Application.Progress;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Daemon;
@@ -12,8 +13,6 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.Shell;
-using JetBrains.Shell.Progress;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
@@ -21,7 +20,8 @@ namespace AgentJohnson.Exceptions {
   /// <summary>
   /// </summary>
   [ContextAction(Description="Generates try/catch clauses surrounding expressions", Name="Catch exceptions", Priority=-1, Group="C#")]
-  public partial class CatchExceptionsContextAction : IContextAction, IBulbItem, IComparer<CatchExceptionsContextAction.Pair<string, Type>> {
+    public partial class CatchExceptionsContextAction : IContextAction, IBulbItem, IComparer<CatchExceptionsContextAction.Pair<string, Type>>
+    {
     #region Fields
 
     readonly ISolution _solution;
@@ -55,7 +55,7 @@ namespace AgentJohnson.Exceptions {
         throw new InvalidOperationException();
       }
 
-      Shell.Instance.AssertReadAccessAllowed();
+      Shell.Instance.Locks.AssertReadAccessAllowed();
 
       IElement element = GetElementAtCaret();
       if(element == null){
@@ -86,7 +86,7 @@ namespace AgentJohnson.Exceptions {
     /// 	<c>true</c> if the specified cache is available; otherwise, <c>false</c>.
     /// </returns>
     public bool IsAvailable(IUserDataHolder cache) {
-      Shell.Instance.AssertReadAccessAllowed();
+      Shell.Instance.Locks.AssertReadAccessAllowed();
 
       IElement element = GetElementAtCaret();
       if(element == null){
@@ -228,30 +228,7 @@ namespace AgentJohnson.Exceptions {
       formatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.INSTANCE);
     }
 
-    ///<summary>
-    ///Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
-    ///</summary>
-    ///<param name="y">The second object to compare.</param>
-    ///<param name="x">The first object to compare.</param>
-    int IComparer<Pair<string, Type>>.Compare(Pair<string, Type> x, Pair<string, Type> y) {
-      if(x.Value == null){
-        return -1;
-      }
 
-      if(y.Value == null){
-        return 1;
-      }
-
-      if(x.Value.IsSubclassOf(y.Value)){
-        return -1;
-      }
-
-      if(y.Value.IsSubclassOf(x.Value)){
-        return 1;
-      }
-
-      return string.Compare(x.Key, y.Key);
-    }
 
     /// <summary>
     /// Examines the catches.
@@ -470,5 +447,35 @@ namespace AgentJohnson.Exceptions {
     }
 
     #endregion
-  }
+
+    #region IComparer<Pair<string,Type>> Members
+    ///<summary>
+    ///Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
+    ///</summary>
+    ///<param name="y">The second object to compare.</param>
+    ///<param name="x">The first object to compare.</param>
+    public int Compare(CatchExceptionsContextAction.Pair<string, Type> x, CatchExceptionsContextAction.Pair<string, Type> y)
+    {
+      if(x.Value == null){
+        return -1;
+      }
+
+      if(y.Value == null){
+        return 1;
+      }
+
+      if(x.Value.IsSubclassOf(y.Value)){
+        return -1;
+      }
+
+      if(y.Value.IsSubclassOf(x.Value)){
+        return 1;
+      }
+
+        return string.Compare(x.Key, y.Key);
+
+    }
+
+    #endregion
+    }
 }

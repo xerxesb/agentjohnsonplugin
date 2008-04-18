@@ -1,9 +1,9 @@
 using AgentJohnson.Exceptions;
 using AgentJohnson.Strings;
 using AgentJohnson.ValueAnalysis;
+using JetBrains.Application;
 using JetBrains.ComponentModel;
 using JetBrains.ReSharper.Daemon;
-using JetBrains.Shell;
 
 namespace AgentJohnson {
   /// <summary>

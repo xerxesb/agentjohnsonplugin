@@ -6,7 +6,6 @@ using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.Shell;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
@@ -144,7 +143,7 @@ namespace AgentJohnson {
     /// Actions could store precalculated info in <paramref name="cache" /> to share it between different actions
     /// </summary>
     bool IBulbAction.IsAvailable(IUserDataHolder cache) {
-      Shell.Instance.AssertReadAccessAllowed();
+      Shell.Instance.Locks.AssertReadAccessAllowed();
 
       IElement element = GetElementAtCaret();
       if(element == null) {
@@ -178,7 +177,7 @@ namespace AgentJohnson {
         throw new InvalidOperationException();
       }
 
-      Shell.Instance.AssertReadAccessAllowed();
+      Shell.Instance.Locks.AssertReadAccessAllowed();
 
       IElement element = GetElementAtCaret();
       if(element == null) {

@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using AgentJohnson.Options;
 using JetBrains.Application;
+using JetBrains.Application.Progress;
 using JetBrains.CommonControls;
 using JetBrains.DocumentModel;
 using JetBrains.IDE;
@@ -17,8 +18,6 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Parsing;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.Shell;
-using JetBrains.Shell.Progress;
 using JetBrains.TextControl;
 using JetBrains.UI.PopupMenu;
 using JetBrains.Util;
@@ -134,7 +133,7 @@ namespace AgentJohnson.Strings {
     /// 	<c>true</c> if the specified solution is available; otherwise, <c>false</c>.
     /// </returns>
     public static bool IsAvailable(IElement element) {
-      Shell.Instance.AssertReadAccessAllowed();
+      Shell.Instance.Locks.AssertReadAccessAllowed();
 
       ITokenNode tokenNode = element as ITokenNode;
       if(tokenNode == null) {
@@ -704,7 +703,7 @@ namespace AgentJohnson.Strings {
     /// <param name="className">Name of the class.</param>
     void menu_ItemClicked(string className) {
       using(ReadLockCookie.Create()) {
-        Shell.Instance.AssertReadAccessAllowed();
+        Shell.Instance.Locks.AssertReadAccessAllowed();
 
         if(className.StartsWith("<Local>")) {
           IntroduceLocalStringConstant();
