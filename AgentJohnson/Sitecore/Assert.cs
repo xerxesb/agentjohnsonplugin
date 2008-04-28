@@ -90,6 +90,43 @@ namespace Sitecore.Diagnostics {
     public static void ArgumentNotNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] string argument, string name) {
     }
 
+    /// <summary>
+    /// Determines whether [is not null or empty] [the specified argument].
+    /// </summary>
+    /// <param name="argument">The argument.</param>
+    /// <param name="name">The name.</param>
+    [AssertionMethod]
+    [AllowNull("argument")]
+    public static void IsNotNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] string argument, string name) {
+    }
+
+    /// <summary>
+    /// Determines whether [is not null] [the specified argument].
+    /// </summary>
+    /// <param name="argument">The argument.</param>
+    /// <param name="name">The name.</param>
+    [AssertionMethod]
+    [AllowNull("argument")]
+    public static void IsNotNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] object argument, string name) {
+    }
+
+    /// <summary>
+    /// Determines whether [is not null] [the specified @object].
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="object">The @object.</param>
+    /// <returns></returns>
+    /// <exception cref="NullReferenceException"><c>NullReferenceException</c>.</exception>
+    [Annotations.NotNull,AssertionMethod]
+    [AllowNull("argument")]
+    public static T ResultNotNull<T>(T @object) where T : class {
+      if (@object != null) {
+        return @object;
+      }
+
+      throw new NullReferenceException();
+    }
+
     #endregion
   }
 

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Sitecore.Annotations;
+using Sitecore.Diagnostics;
 
 namespace AgentJohnson.Test {
   /// <summary>
@@ -22,14 +24,22 @@ namespace AgentJohnson.Test {
     /// Values the analysis.
     /// </summary>
     /// <param name="test">The test.</param>
-    public void ValueAnalysis([NotNull] string test) {
+    [NotNull]
+    public string ValueAnalysis(string test) {
+      Assert.ArgumentNotNull(test, "test");
+
+      string v = "!";
+
+      return v;
     }
 
     /// <summary>
     /// Values the analysis.
     /// </summary>
-    public void ValueAnalysis() {
-      ValueAnalysis(null);
+    public string ValueAnalysis() {
+      string result = ValueAnalysis(null);
+      
+      return result;
     }
 
     #endregion

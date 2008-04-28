@@ -34,7 +34,8 @@ namespace AgentJohnson {
       _process = daemonProcess;
 
       _statementAnalyzers = new IStatementAnalyzer[] {
-                                                       new DocumentThrownExceptionAnalyzer(_process.Solution)
+                                                       new DocumentThrownExceptionAnalyzer(_process.Solution),
+                                                       new ReturnAnalyzer(_process.Solution)
                                                      };
 
       _tokenTypeAnalyzers = new ITokenTypeAnalyzer[] {
@@ -53,8 +54,8 @@ namespace AgentJohnson {
     /// <summary>
     /// Executes the process and returns resulting highlightings and embedded objects to be inserted into the editor.
     /// The process should check for <see cref="P:JetBrains.ReSharper.Daemon.IDaemonProcess.InterruptFlag"/> periodically (with intervals less than 100 ms)
-    /// and throw <see cref="T:JetBrains.Shell.Progress.ProcessCancelledException"/> if it is true.
-    /// Failing to do so may cause the program to prevent user from typing while analyzing the code.
+    /// and throw <see cref="T:JetBrains.Application.Progress.ProcessCancelledException"/> if it is true.
+    /// Failing to do so may cause the program to prevent user from typing while analysing the code.
     /// </summary>
     /// <returns>
     /// New highlightings and embedded objects. Return <c>null</c> if this stage doesn't produce

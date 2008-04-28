@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using AgentJohnson;
 using AgentJohnson.Strings;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 
@@ -54,41 +53,6 @@ namespace AgentJohnson.ValueAnalysis {
       IModifiersOwnerDeclaration modifiersOwnerDeclaration = typeMemberDeclaration as IModifiersOwnerDeclaration;
       if(modifiersOwnerDeclaration == null) {
         return null;
-      }
-
-      AccessRights rights = modifiersOwnerDeclaration.GetAccessRights();
-
-      switch(rights) {
-        case AccessRights.PUBLIC:
-          if(!ValueAnalysisSettings.Instance.PublicMethods) {
-            return null;
-          }
-          break;
-        case AccessRights.INTERNAL:
-          if(!ValueAnalysisSettings.Instance.InternalMethods) {
-            return null;
-          }
-          break;
-        case AccessRights.PROTECTED:
-          if(!ValueAnalysisSettings.Instance.ProtectedMethods) {
-            return null;
-          }
-          break;
-        case AccessRights.PROTECTED_OR_INTERNAL:
-          if(!ValueAnalysisSettings.Instance.ProtectedMethods || !ValueAnalysisSettings.Instance.InternalMethods) {
-            return null;
-          }
-          break;
-        case AccessRights.PROTECTED_AND_INTERNAL:
-          if(!ValueAnalysisSettings.Instance.ProtectedMethods && !ValueAnalysisSettings.Instance.InternalMethods) {
-            return null;
-          }
-          break;
-        case AccessRights.PRIVATE:
-          if(!ValueAnalysisSettings.Instance.PrivateMethods) {
-            return null;
-          }
-          break;
       }
 
       ValueAnalysisRefactoring valueAnalysisRefactoring = new ValueAnalysisRefactoring(typeMemberDeclaration, null);

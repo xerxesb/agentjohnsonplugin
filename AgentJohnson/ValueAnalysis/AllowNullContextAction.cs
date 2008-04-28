@@ -4,7 +4,6 @@ using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Daemon;
 using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
 using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.Caches;
 using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -16,7 +15,7 @@ namespace AgentJohnson.ValueAnalysis {
   /// <summary>
   /// Represents the Context Action.
   /// </summary>
-  [ContextAction(Description = "Annotates a parameter with the Allow Null attribute.", Name = "Allow Null Parameter", Priority = -1, Group = "C#")]
+  [ContextAction(Description = "Annotates the parameter under the caret with the Allow Null attribute.", Name = "Annotate with AllowNull attribute for the current parameter", Priority = -1, Group = "C#")]
   public class AllowNullContextAction : OneItemContextActionBase {
     #region Constructor
 
@@ -85,11 +84,6 @@ namespace AgentJohnson.ValueAnalysis {
         return;
       }
 
-      ITypeElement typeElement = GetAttribute(typeMemberDeclaration, ValueAnalysisSettings.Instance.AllowNullAttribute);
-      if (typeElement == null) {
-        return;
-      }
-
       LanguageService languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
       if (languageService == null) {
         return;
@@ -141,11 +135,6 @@ namespace AgentJohnson.ValueAnalysis {
         return false;
       }
 
-      ITypeElement typeElement = GetAttribute(parameterDeclaration, ValueAnalysisSettings.Instance.AllowNullAttribute);
-      if(typeElement == null) {
-        return false;
-      }
-
       IAttributesOwner attributesOwner = parameterDeclaration.GetContainingTypeMemberDeclaration() as IAttributesOwner;
       if (attributesOwner == null) {
         return false;
@@ -193,40 +182,6 @@ namespace AgentJohnson.ValueAnalysis {
       }
 
       return true;
-    }
-
-    #endregion
-
-    #region Private methods
-
-    /// <summary>
-    /// Gets the attribute.
-    /// </summary>
-    /// <param name="element">The type member declaration.</param>
-    /// <param name="attributeName">Name of the attribute.</param>
-    /// <returns></returns>
-    static ITypeElement GetAttribute(IElement element, string attributeName) {
-      ISolution solution = element.GetManager().Solution;
-      
-      DeclarationsCacheScope declarationsCacheScope = DeclarationsCacheScope.SolutionScope(solution, true);
-
-      IDeclarationsCache declarationsCache = PsiManager.GetInstance(solution).GetDeclarationsCache(declarationsCacheScope, true);
-
-      ITypeElement typeElement = declarationsCache[attributeName] as ITypeElement;
-
-      if (typeElement == null) {
-        return null;
-      }
-
-      /*
-      PredefinedType predefinedType = new PredefinedType(element.GetProject());
-
-      if (!TypeFactory.CreateType(typeElement).IsSubtypeOf(predefinedType.Attribute)) {
-        return null;
-      }
-      */
-
-      return typeElement;
     }
 
     #endregion

@@ -1,45 +1,36 @@
-using System.Collections.Specialized;
-using System.Text;
+using System.Collections.Generic;
+using System.IO;
 using System.Xml;
 using JetBrains.Application;
 using JetBrains.ComponentModel;
 using JetBrains.Util;
+using Sitecore.Annotations;
 
 namespace AgentJohnson.ValueAnalysis {
+  /// <summary>
+  /// 
+  /// </summary>
   [ShellComponentInterface(ProgramConfigurations.VS_ADDIN)]
   [ShellComponentImplementation]
   public class ValueAnalysisSettings : IXmlExternalizableShellComponent {
     #region Fields
 
-    bool _internalMethods = true;
-    bool _privateMethods = true;
-    bool _protectedMethods = true;
-    bool _publicMethods = true;
-    NameValueCollection _typeAssertions;
     string _allowNullAttribute;
+    List<Rule> _rules = new List<Rule>();
 
     #endregion
 
     #region Public properties
 
     /// <summary>
-    /// Gets the instance.
-    /// </summary>
-    /// <value>The instance.</value>
-    public static ValueAnalysisSettings Instance {
-      get {
-        return (ValueAnalysisSettings)Shell.Instance.GetComponent(typeof(ValueAnalysisSettings));
-      }
-    }
-
-    /// <summary>
     /// Gets or sets the allow null attribute.
     /// </summary>
     /// <value>The allow null attribute.</value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue="")]
+    [NotNull]
+    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = "")]
     public string AllowNullAttribute {
       get {
-        return _allowNullAttribute;
+        return _allowNullAttribute ?? string.Empty;
       }
       set {
         _allowNullAttribute = value;
@@ -47,64 +38,13 @@ namespace AgentJohnson.ValueAnalysis {
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the <see cref="ValueAnalysisSettings"/> internals the methods.
+    /// Gets the instance.
     /// </summary>
-    /// <value>
-    /// 	<c>true</c> if the <see cref="ValueAnalysisSettings"/> internals the methods; otherwise, <c>false</c>.
-    /// </value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = true)]
-    public bool InternalMethods {
+    /// <value>The instance.</value>
+    [NotNull]
+    public static ValueAnalysisSettings Instance {
       get {
-        return _internalMethods;
-      }
-      set {
-        _internalMethods = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the <see cref="ValueAnalysisSettings"/> privates the methods.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if the <see cref="ValueAnalysisSettings"/> privates the methods; otherwise, <c>false</c>.
-    /// </value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = true)]
-    public bool PrivateMethods {
-      get {
-        return _privateMethods;
-      }
-      set {
-        _privateMethods = value;
-      }
-    }
-    /// <summary>
-    /// Gets or sets a value indicating whether the <see cref="ValueAnalysisSettings"/> protecteds the methods.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if the <see cref="ValueAnalysisSettings"/> protecteds the methods; otherwise, <c>false</c>.
-    /// </value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = true)]
-    public bool ProtectedMethods {
-      get {
-        return _protectedMethods;
-      }
-      set {
-        _protectedMethods = value;
-      }
-    }
-    /// <summary>
-    /// Gets or sets a value indicating whether the <see cref="ValueAnalysisSettings"/> publics the methods.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if the <see cref="ValueAnalysisSettings"/> publics the methods; otherwise, <c>false</c>.
-    /// </value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = true)]
-    public bool PublicMethods {
-      get {
-        return _publicMethods;
-      }
-      set {
-        _publicMethods = value;
+        return (ValueAnalysisSettings)Shell.Instance.GetComponent(typeof(ValueAnalysisSettings));
       }
     }
 
@@ -113,54 +53,49 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <remarks>This is for serialization only.</remarks>
     /// <value>The type assertions.</value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = true)]
-    public string SerializableTypeAssertions {
+    [NotNull]
+    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = "")]
+    public string SerializableTypeConfigurations {
       get {
-        StringBuilder result = new StringBuilder();
+        StringWriter stringWriter = new StringWriter();
 
-        bool first = true;
+        XmlTextWriter writer = new XmlTextWriter(stringWriter);
 
-        foreach(string key in TypeAssertions.Keys){
-          if(!first){
-            result.Append("|");
-          }
+        Write(writer);
 
-          first = false;
-
-          result.Append(key);
-          result.Append('^');
-          result.Append(TypeAssertions[key]);
-        }
-
-        return result.ToString();
+        return stringWriter.ToString();
       }
       set {
-        _typeAssertions = new NameValueCollection();
+        _rules = new List<Rule>();
 
-        if(!string.IsNullOrEmpty(value)){
-          foreach(string pair in value.Split('|')){
-            string[] parts = pair.Split('^');
-
-            _typeAssertions.Add(parts[0], parts[1]);
-          }
+        if(string.IsNullOrEmpty(value)) {
+          return;
         }
+
+        XmlDocument doc = new XmlDocument();
+
+        doc.LoadXml(value);
+
+        XmlNodeList nodes = doc.SelectNodes("/types/type");
+        if(nodes == null) {
+          return;
+        }
+
+        Read(nodes);
       }
     }
 
     /// <summary>
-    /// Gets or sets the type assertions.
+    /// Gets or sets the rules.
     /// </summary>
-    /// <value>The type assertions.</value>
-    public NameValueCollection TypeAssertions {
+    /// <value>The rules.</value>
+    [NotNull]
+    public List<Rule> Rules {
       get {
-        if(_typeAssertions == null){
-          InitTypeAssertions();
-        }
-
-        return _typeAssertions;
+        return _rules;
       }
       set {
-        _typeAssertions = value;
+        _rules = value;
       }
     }
 
@@ -175,7 +110,7 @@ namespace AgentJohnson.ValueAnalysis {
     }
 
     /// <summary>
-    /// Inits this instance.
+    /// Initializes this instance.
     /// </summary>
     public void Init() {
     }
@@ -191,8 +126,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="element"></param>
     public void ReadFromXml(XmlElement element) {
-      if(element == null){
-        InitTypeAssertions();
+      if(element == null) {
         return;
       }
 
@@ -216,7 +150,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// <value>The name of the tag.</value>
     public string TagName {
       get {
-        return "ValueAnalysisAnnotations";
+        return "AgentJohnson";
       }
     }
 
@@ -234,23 +168,124 @@ namespace AgentJohnson.ValueAnalysis {
 
     #endregion
 
+    #region Public methods
+
+    /// <summary>
+    /// Writes the specified writer.
+    /// </summary>
+    /// <param name="writer">The writer.</param>
+    public void WriteSettings(XmlTextWriter writer) {
+      writer.WriteStartElement("valueanalysis");
+
+      Write(writer);
+
+      writer.WriteElementString("allownull", AllowNullAttribute);
+
+      writer.WriteEndElement();
+    }
+
+    /// <summary>
+    /// Reads the settings.
+    /// </summary>
+    /// <param name="doc">The document.</param>
+    public void ReadSettings(XmlDocument doc) {
+      _rules.Clear();
+      AllowNullAttribute = string.Empty;
+
+      XmlNodeList nodes = doc.SelectNodes("/settings/valueanalysis/types/type");
+
+      Read(nodes);
+
+      XmlNode allowNullNode = doc.SelectSingleNode("/settings/valueanalysis/allownull");
+      if(allowNullNode != null) {
+        AllowNullAttribute = allowNullNode.InnerText;
+      }
+    }
+
+    #endregion
+
     #region Private methods
 
     /// <summary>
-    /// Inits the type assertions.
+    /// Gets the attribute.
     /// </summary>
-    void InitTypeAssertions() {
-      _typeAssertions = new NameValueCollection();
+    /// <param name="node">The node.</param>
+    /// <param name="name">The name.</param>
+    /// <returns>The attribute.</returns>
+    static string GetAttributeString(XmlNode node, string name) {
+      XmlAttribute attribute = node.Attributes[name];
 
-      _typeAssertions.Add("*", string.Empty);
+      return attribute == null ? string.Empty : (attribute.Value ?? string.Empty);
+    }
 
-      // _typeAssertions.Add("*", "Debug.Assert({0} != null, \"Parameter '{0}' cannot be null.\");");
-      /*
-      _typeAssertions.Add("*", "Sitecore.Diagnostics.Assert.ArgumentNotNull({0}, \"{0}\");");
-      _typeAssertions.Add("string", "Sitecore.Diagnostics.Assert.ArgumentNotNullOrEmpty({0}, \"{0}\");");
+    /// <summary>
+    /// Gets the element.
+    /// </summary>
+    /// <param name="node">The node.</param>
+    /// <param name="name">The name.</param>
+    /// <returns>The element.</returns>
+    static string GetElementString(XmlNode node, string name) {
+      XmlNode element = node.SelectSingleNode(name);
 
-      _allowNullAttribute = "Sitecore.AllowNullAttribute";
-      */
+      return element == null ? string.Empty : element.InnerText;
+    }
+
+    /// <summary>
+    /// Reads the specified nodes.
+    /// </summary>
+    /// <param name="nodes">The nodes.</param>
+    void Read(XmlNodeList nodes) {
+      foreach(XmlNode type in nodes) {
+        Rule rule = new Rule();
+
+        rule.TypeName = GetAttributeString(type, "type");
+        rule.NotNull = GetAttributeString(type, "notnull") == "true";
+        rule.CanBeNull = GetAttributeString(type, "canbenull") == "true";
+
+        rule.PublicParameterAssertion = GetElementString(type, "publicparameterassertion");
+        rule.NonPublicParameterAssertion = GetElementString(type, "nonpublicparameterassertion");
+        rule.ReturnAssertion = GetElementString(type, "returnassertion");
+
+        XmlNodeList valueAssertions = type.SelectNodes("valueassertions/valueassertion");
+        if(valueAssertions != null) {
+          foreach(XmlNode valueAssertion in valueAssertions) {
+            rule.ValueAssertions.Add(valueAssertion.InnerText);
+          }
+        }
+
+        _rules.Add(rule);
+      }
+    }
+
+    /// <summary>
+    /// Writes the settings.
+    /// </summary>
+    /// <param name="writer">The writer.</param>
+    void Write(XmlTextWriter writer) {
+      writer.WriteStartElement("types");
+
+      foreach(Rule configuration in Rules) {
+        writer.WriteStartElement("type");
+
+        writer.WriteAttributeString("type", configuration.TypeName);
+        writer.WriteAttributeString("notnull", configuration.NotNull ? "true" : "false");
+        writer.WriteAttributeString("canbenull", configuration.CanBeNull ? "true" : "false");
+        writer.WriteElementString("publicparameterassertion", configuration.PublicParameterAssertion);
+        writer.WriteElementString("nonpublicparameterassertion", configuration.NonPublicParameterAssertion);
+        writer.WriteElementString("returnassertion", configuration.ReturnAssertion);
+
+        writer.WriteStartElement("valueassertions");
+
+        foreach(string assertion in configuration.ValueAssertions) {
+          writer.WriteElementString("valueassertion", assertion);
+        }
+
+        writer.WriteEndElement();
+
+        writer.WriteEndElement();
+      }
+
+      writer.WriteEndElement();
     }
 
     #endregion

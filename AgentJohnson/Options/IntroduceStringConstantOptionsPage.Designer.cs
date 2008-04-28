@@ -51,8 +51,8 @@ namespace AgentJohnson.Options {
       this.groupBox2.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
       this.groupBox2.Name = "groupBox2";
       this.groupBox2.Padding = new System.Windows.Forms.Padding(6);
-      this.groupBox2.Size = new System.Drawing.Size(444, 154);
-      this.groupBox2.TabIndex = 2;
+      this.groupBox2.Size = new System.Drawing.Size(370, 154);
+      this.groupBox2.TabIndex = 0;
       this.groupBox2.TabStop = false;
       this.groupBox2.Text = "Fully Qualified Class Names for Storing Strings";
       // 
@@ -72,7 +72,7 @@ namespace AgentJohnson.Options {
       this.methodsGridView.Name = "methodsGridView";
       this.methodsGridView.RowHeadersVisible = false;
       this.methodsGridView.ShowEditingIcon = false;
-      this.methodsGridView.Size = new System.Drawing.Size(432, 129);
+      this.methodsGridView.Size = new System.Drawing.Size(358, 129);
       this.methodsGridView.TabIndex = 0;
       // 
       // ClassNameColumn
@@ -92,8 +92,8 @@ namespace AgentJohnson.Options {
       this.groupBox1.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
       this.groupBox1.Name = "groupBox1";
       this.groupBox1.Padding = new System.Windows.Forms.Padding(6);
-      this.groupBox1.Size = new System.Drawing.Size(444, 191);
-      this.groupBox1.TabIndex = 3;
+      this.groupBox1.Size = new System.Drawing.Size(370, 191);
+      this.groupBox1.TabIndex = 1;
       this.groupBox1.TabStop = false;
       this.groupBox1.Text = "Identifier Naming";
       // 
@@ -106,8 +106,8 @@ namespace AgentJohnson.Options {
       this.groupBox4.Controls.Add(this.rbUppercase);
       this.groupBox4.Location = new System.Drawing.Point(9, 93);
       this.groupBox4.Name = "groupBox4";
-      this.groupBox4.Size = new System.Drawing.Size(426, 89);
-      this.groupBox4.TabIndex = 8;
+      this.groupBox4.Size = new System.Drawing.Size(352, 89);
+      this.groupBox4.TabIndex = 1;
       this.groupBox4.TabStop = false;
       this.groupBox4.Text = "Transformation";
       // 
@@ -117,7 +117,7 @@ namespace AgentJohnson.Options {
       this.rbLeave.Location = new System.Drawing.Point(7, 65);
       this.rbLeave.Name = "rbLeave";
       this.rbLeave.Size = new System.Drawing.Size(55, 17);
-      this.rbLeave.TabIndex = 9;
+      this.rbLeave.TabIndex = 2;
       this.rbLeave.Text = "Leave";
       this.rbLeave.UseVisualStyleBackColor = true;
       // 
@@ -127,7 +127,7 @@ namespace AgentJohnson.Options {
       this.rbCamelCase.Location = new System.Drawing.Point(7, 42);
       this.rbCamelCase.Name = "rbCamelCase";
       this.rbCamelCase.Size = new System.Drawing.Size(84, 17);
-      this.rbCamelCase.TabIndex = 8;
+      this.rbCamelCase.TabIndex = 1;
       this.rbCamelCase.Text = "Pascal Case";
       this.rbCamelCase.UseVisualStyleBackColor = true;
       // 
@@ -137,7 +137,7 @@ namespace AgentJohnson.Options {
       this.rbUppercase.Location = new System.Drawing.Point(7, 19);
       this.rbUppercase.Name = "rbUppercase";
       this.rbUppercase.Size = new System.Drawing.Size(77, 17);
-      this.rbUppercase.TabIndex = 7;
+      this.rbUppercase.TabIndex = 0;
       this.rbUppercase.Text = "Uppercase";
       this.rbUppercase.UseVisualStyleBackColor = true;
       // 
@@ -149,8 +149,8 @@ namespace AgentJohnson.Options {
       this.groupBox3.Controls.Add(this.rbReplaceWithUnderscore);
       this.groupBox3.Location = new System.Drawing.Point(9, 22);
       this.groupBox3.Name = "groupBox3";
-      this.groupBox3.Size = new System.Drawing.Size(426, 65);
-      this.groupBox3.TabIndex = 7;
+      this.groupBox3.Size = new System.Drawing.Size(352, 65);
+      this.groupBox3.TabIndex = 0;
       this.groupBox3.TabStop = false;
       this.groupBox3.Text = "Spaces and Invalid Characters:";
       // 
@@ -160,7 +160,7 @@ namespace AgentJohnson.Options {
       this.rbReplaceWithNothing.Location = new System.Drawing.Point(7, 42);
       this.rbReplaceWithNothing.Name = "rbReplaceWithNothing";
       this.rbReplaceWithNothing.Size = new System.Drawing.Size(65, 17);
-      this.rbReplaceWithNothing.TabIndex = 4;
+      this.rbReplaceWithNothing.TabIndex = 1;
       this.rbReplaceWithNothing.Text = "Remove";
       this.rbReplaceWithNothing.UseVisualStyleBackColor = true;
       // 
@@ -170,7 +170,7 @@ namespace AgentJohnson.Options {
       this.rbReplaceWithUnderscore.Location = new System.Drawing.Point(7, 19);
       this.rbReplaceWithUnderscore.Name = "rbReplaceWithUnderscore";
       this.rbReplaceWithUnderscore.Size = new System.Drawing.Size(150, 17);
-      this.rbReplaceWithUnderscore.TabIndex = 3;
+      this.rbReplaceWithUnderscore.TabIndex = 0;
       this.rbReplaceWithUnderscore.Text = "Replace with Underscores";
       this.rbReplaceWithUnderscore.UseVisualStyleBackColor = true;
       // 
@@ -180,7 +180,7 @@ namespace AgentJohnson.Options {
       this.cbGenerateXmlComment.Location = new System.Drawing.Point(22, 366);
       this.cbGenerateXmlComment.Name = "cbGenerateXmlComment";
       this.cbGenerateXmlComment.Size = new System.Drawing.Size(142, 17);
-      this.cbGenerateXmlComment.TabIndex = 4;
+      this.cbGenerateXmlComment.TabIndex = 2;
       this.cbGenerateXmlComment.Text = "Generate XML Comment";
       this.cbGenerateXmlComment.UseVisualStyleBackColor = true;
       // 
@@ -192,7 +192,7 @@ namespace AgentJohnson.Options {
       this.Controls.Add(this.groupBox1);
       this.Controls.Add(this.groupBox2);
       this.Name = "IntroduceStringConstantOptionsPage";
-      this.Size = new System.Drawing.Size(481, 572);
+      this.Size = new System.Drawing.Size(407, 399);
       this.groupBox2.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)(this.methodsGridView)).EndInit();
       this.groupBox1.ResumeLayout(false);

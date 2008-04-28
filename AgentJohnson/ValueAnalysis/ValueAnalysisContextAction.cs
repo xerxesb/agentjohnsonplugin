@@ -9,7 +9,7 @@ namespace AgentJohnson.ValueAnalysis {
   /// <summary>
   /// Represents the Context Action.
   /// </summary>
-  [ContextAction(Description = "Annotates a function with Value Analysis attributes and assert statements.", Name = "Value Analysis Annotations", Priority = -1, Group = "C#")]
+  [ContextAction(Description = "Annotates a function with Value Analysis attributes and assert statements.", Name = "Value Analysis Annotations", Priority = 0, Group = "C#")]
   public class ValueAnalysisContextAction : OneItemContextActionBase {
     #region Constructor
 

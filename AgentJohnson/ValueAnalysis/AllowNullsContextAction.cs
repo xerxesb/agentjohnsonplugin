@@ -17,7 +17,7 @@ namespace AgentJohnson.ValueAnalysis {
   /// <summary>
   /// Represents the Context Action.
   /// </summary>
-  [ContextAction(Description = "Annotates a function with the Allow Null attribute.", Name = "Allow Nulls", Priority = -1, Group = "C#")]
+  [ContextAction(Description = "Annotates a function with the Allow Null attribute.", Name = "Annotate with Allow Null attributes for all parameters", Priority = -1, Group = "C#")]
   public class AllowNullsContextAction : OneItemContextActionBase {
     #region Constructor
 

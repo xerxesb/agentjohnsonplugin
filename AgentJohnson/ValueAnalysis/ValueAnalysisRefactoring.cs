@@ -84,19 +84,19 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     public void Execute() {
       IPropertyDeclaration propertyDeclaration = TypeMemberDeclaration as IPropertyDeclaration;
-      if(propertyDeclaration != null){
+      if(propertyDeclaration != null) {
         ExecuteProperty(propertyDeclaration);
         return;
       }
 
       IIndexerDeclaration indexerDeclaration = TypeMemberDeclaration as IIndexerDeclaration;
-      if(indexerDeclaration != null){
+      if(indexerDeclaration != null) {
         ExecuteIndexer(indexerDeclaration);
         return;
       }
 
       IFunctionDeclaration functionDeclaration = TypeMemberDeclaration as IFunctionDeclaration;
-      if(functionDeclaration != null){
+      if(functionDeclaration != null) {
         ExecuteFunction(functionDeclaration);
         return;
       }
@@ -109,67 +109,11 @@ namespace AgentJohnson.ValueAnalysis {
     /// <returns>The attribute.</returns>
     public IAttributeInstance FindAttribute([CanBeNull] string attributeName) {
       IMetaInfoTargetDeclaration metaInfoTargetDeclaration = TypeMemberDeclaration as IMetaInfoTargetDeclaration;
-      if(metaInfoTargetDeclaration == null){
+      if(metaInfoTargetDeclaration == null) {
         return null;
       }
 
       return FindAttribute(attributeName, metaInfoTargetDeclaration);
-    }
-
-    /// <summary>
-    /// Finds the attribute.
-    /// </summary>
-    /// <param name="attributeName">Name of the attribute.</param>
-    /// <param name="metaInfoTargetDeclaration">The meta info target declaration.</param>
-    /// <returns>The attribute.</returns>
-    [CanBeNull]
-    static IAttributeInstance FindAttribute(string attributeName, IMetaInfoTargetDeclaration metaInfoTargetDeclaration) {
-      IAttributesOwner attributesOwner = metaInfoTargetDeclaration as IAttributesOwner;
-      if(attributesOwner == null){
-        return null;
-      }
-
-      CLRTypeName typeName = new CLRTypeName(attributeName);
-      IList<IAttributeInstance> instances = attributesOwner.GetAttributeInstances(typeName, true);
-
-      if (instances != null && instances.Count > 0){
-        return instances[0];
-      }
-
-      return null;
-    }
-
-    /// <summary>
-    /// Finds the attributes.
-    /// </summary>
-    /// <param name="parameterStatement">The parameter statement.</param>
-    void FindAttributes(ParameterStatement parameterStatement) {
-      string notNullableValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.NotNullAttributeShortName);
-      if(string.IsNullOrEmpty(notNullableValueAttributeTypeName)){
-        return;
-      }
-
-      CLRTypeName notNullableAttributeName = new CLRTypeName(notNullableValueAttributeTypeName);
-
-      IList<IAttributeInstance> instances = parameterStatement.Parameter.GetAttributeInstances(notNullableAttributeName, true);
-      if (instances != null && instances.Count > 0){
-        parameterStatement.Nullable = false;
-        parameterStatement.AttributeInstance = instances[0];
-        return;
-      }
-
-      string canBeNullValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.CanBeNullAttributeShortName);
-      if(string.IsNullOrEmpty(canBeNullValueAttributeTypeName)){
-        return;
-      }
-
-      CLRTypeName canBeNullAttributeName = new CLRTypeName(canBeNullValueAttributeTypeName);
-      instances = parameterStatement.Parameter.GetAttributeInstances(canBeNullAttributeName, true);
-      if(instances != null && instances.Count > 0) {
-        parameterStatement.Nullable = true;
-        parameterStatement.AttributeInstance = instances[0];
-        return;
-      }
     }
 
     /// <summary>
@@ -180,17 +124,17 @@ namespace AgentJohnson.ValueAnalysis {
     /// </returns>
     public bool IsAvailable() {
       IPropertyDeclaration propertyDeclaration = TypeMemberDeclaration as IPropertyDeclaration;
-      if(propertyDeclaration != null){
+      if(propertyDeclaration != null) {
         return IsAvailableProperty(propertyDeclaration);
       }
 
       IIndexerDeclaration indexerDeclaration = TypeMemberDeclaration as IIndexerDeclaration;
-      if(indexerDeclaration != null){
+      if(indexerDeclaration != null) {
         return IsAvailableIndexer(indexerDeclaration);
       }
 
       IFunctionDeclaration functionDeclaration = TypeMemberDeclaration as IFunctionDeclaration;
-      if(functionDeclaration != null){
+      if(functionDeclaration != null) {
         return IsAvailableFunction(functionDeclaration, functionDeclaration);
       }
 
@@ -207,25 +151,25 @@ namespace AgentJohnson.ValueAnalysis {
     void ExecuteAttribute() {
       string notNullableValueAttribute = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.NotNullAttributeShortName);
       string canBeNullValueAttribute = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.CanBeNullAttributeShortName);
-      if(string.IsNullOrEmpty(notNullableValueAttribute) && string.IsNullOrEmpty(canBeNullValueAttribute)){
+      if(string.IsNullOrEmpty(notNullableValueAttribute) && string.IsNullOrEmpty(canBeNullValueAttribute)) {
         return;
       }
 
       IAttributeInstance notNull = FindAttribute(notNullableValueAttribute);
       IAttributeInstance canBeNull = FindAttribute(canBeNullValueAttribute);
-      if(notNull != null || canBeNull != null){
+      if(notNull != null || canBeNull != null) {
         return;
       }
 
       ICSharpControlFlowGraf controlFlowGraf = GetControlFlow();
 
-      if(controlFlowGraf == null){
+      if(controlFlowGraf == null) {
         return;
       }
 
       CSharpControlFlowNullReferenceState attribute = controlFlowGraf.SuggestReturnValueAnnotationAttribute;
 
-      switch(attribute){
+      switch(attribute) {
         case CSharpControlFlowNullReferenceState.UNKNOWN:
           break;
         case CSharpControlFlowNullReferenceState.NOT_NULL:
@@ -244,17 +188,17 @@ namespace AgentJohnson.ValueAnalysis {
     /// Executes the parameters.
     /// </summary>
     void ExecuteFunction(IFunctionDeclaration functionDeclaration) {
-      if(IsAvailableGetterFunction(functionDeclaration)){
+      if(IsAvailableGetterFunction(functionDeclaration)) {
         ExecuteAttribute();
       }
 
       List<ParameterStatement> assertions = GetAssertions(functionDeclaration, true);
-      if(assertions.Count == 0){
+      if(assertions.Count == 0) {
         return;
       }
 
       CodeFormatter codeFormatter = GetCodeFormatter();
-      if(codeFormatter == null){
+      if(codeFormatter == null) {
         return;
       }
 
@@ -262,12 +206,14 @@ namespace AgentJohnson.ValueAnalysis {
 
       IBlock body = functionDeclaration.Body;
 
-      foreach(ParameterStatement assertion in assertions){
-        if (assertion.Nullable){
+      AccessRights accessRights = functionDeclaration.GetAccessRights();
+
+      foreach(ParameterStatement assertion in assertions) {
+        if(assertion.Nullable) {
           continue;
         }
 
-        if (!assertion.NeedsStatement) {
+        if(!assertion.NeedsStatement) {
           continue;
         }
 
@@ -279,12 +225,9 @@ namespace AgentJohnson.ValueAnalysis {
           continue;
         }
 
-        string typeName = assertion.Parameter.Type.GetPresentableName(functionDeclaration.Language);
-
-        string code = ValueAnalysisSettings.Instance.TypeAssertions[typeName];
-
-        if(string.IsNullOrEmpty(code)){
-          code = ValueAnalysisSettings.Instance.TypeAssertions["*"] ?? string.Empty;
+        string code = GetCode(assertion, accessRights);
+        if(string.IsNullOrEmpty(code)) {
+          continue;
         }
 
         code = string.Format(code, assertion.Parameter.ShortName);
@@ -293,8 +236,9 @@ namespace AgentJohnson.ValueAnalysis {
       }
 
       IStatement anchor = GetAnchor(body);
+      bool hasAsserts = false;
 
-      foreach(ParameterStatement assertion in assertions){
+      foreach(ParameterStatement assertion in assertions) {
         if(assertion.Nullable) {
           continue;
         }
@@ -310,9 +254,11 @@ namespace AgentJohnson.ValueAnalysis {
         DocumentRange range = result.GetDocumentRange();
         IPsiRangeMarker marker = result.GetManager().CreatePsiRangeMarker(range);
         codeFormatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.INSTANCE);
+
+        hasAsserts = true;
       }
 
-      if(anchor != null){
+      if(anchor != null && hasAsserts) {
         InsertBlankLine(anchor, codeFormatter);
       }
     }
@@ -322,25 +268,25 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="indexerDeclaration">The property declaration.</param>
     void ExecuteIndexer(IIndexerDeclaration indexerDeclaration) {
-      foreach(IAccessorDeclaration accessorDeclaration in indexerDeclaration.AccessorDeclarations){
-        if(accessorDeclaration.ToTreeNode().AccessorName == null){
+      foreach(IAccessorDeclaration accessorDeclaration in indexerDeclaration.AccessorDeclarations) {
+        if(accessorDeclaration.ToTreeNode().AccessorName == null) {
           continue;
         }
 
         string accessorName = accessorDeclaration.ToTreeNode().AccessorName.GetText();
 
-        if(accessorName == "get"){
-          if(IsAvailableGetterFunction(accessorDeclaration)){
+        if(accessorName == "get") {
+          if(IsAvailableGetterFunction(accessorDeclaration)) {
             ExecuteAttribute();
           }
 
           IParametersOwner parametersOwner = accessorDeclaration as IParametersOwner;
 
-          if(parametersOwner != null && parametersOwner.Parameters.Count > 0){
+          if(parametersOwner != null && parametersOwner.Parameters.Count > 0) {
             ExecuteFunction(accessorDeclaration);
           }
         }
-        else if(accessorName == "set"){
+        else if(accessorName == "set") {
           ExecuteFunction(accessorDeclaration);
         }
       }
@@ -351,21 +297,77 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="propertyDeclaration">The declaration.</param>
     void ExecuteProperty(IPropertyDeclaration propertyDeclaration) {
-      foreach(IAccessorDeclaration accessorDeclaration in propertyDeclaration.AccessorDeclarations){
-        if(accessorDeclaration.ToTreeNode().AccessorName == null){
+      foreach(IAccessorDeclaration accessorDeclaration in propertyDeclaration.AccessorDeclarations) {
+        if(accessorDeclaration.ToTreeNode().AccessorName == null) {
           continue;
         }
 
         string accessorName = accessorDeclaration.ToTreeNode().AccessorName.GetText();
 
-        if(accessorName == "get"){
-          if(IsAvailableGetterFunction(accessorDeclaration)){
+        if(accessorName == "get") {
+          if(IsAvailableGetterFunction(accessorDeclaration)) {
             ExecuteAttribute();
           }
         }
-        else if(accessorName == "set"){
+        else if(accessorName == "set") {
           ExecuteFunction(accessorDeclaration);
         }
+      }
+    }
+
+    /// <summary>
+    /// Finds the attribute.
+    /// </summary>
+    /// <param name="attributeName">Name of the attribute.</param>
+    /// <param name="metaInfoTargetDeclaration">The meta info target declaration.</param>
+    /// <returns>The attribute.</returns>
+    [CanBeNull]
+    static IAttributeInstance FindAttribute(string attributeName, IMetaInfoTargetDeclaration metaInfoTargetDeclaration) {
+      IAttributesOwner attributesOwner = metaInfoTargetDeclaration as IAttributesOwner;
+      if(attributesOwner == null) {
+        return null;
+      }
+
+      CLRTypeName typeName = new CLRTypeName(attributeName);
+      IList<IAttributeInstance> instances = attributesOwner.GetAttributeInstances(typeName, true);
+
+      if(instances != null && instances.Count > 0) {
+        return instances[0];
+      }
+
+      return null;
+    }
+
+    /// <summary>
+    /// Finds the attributes.
+    /// </summary>
+    /// <param name="parameterStatement">The parameter statement.</param>
+    void FindAttributes(ParameterStatement parameterStatement) {
+      string notNullableValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.NotNullAttributeShortName);
+      if(string.IsNullOrEmpty(notNullableValueAttributeTypeName)) {
+        return;
+      }
+
+      CLRTypeName notNullableAttributeName = new CLRTypeName(notNullableValueAttributeTypeName);
+
+      IList<IAttributeInstance> instances = parameterStatement.Parameter.GetAttributeInstances(notNullableAttributeName, true);
+      if(instances != null && instances.Count > 0) {
+        parameterStatement.Nullable = false;
+        parameterStatement.AttributeInstance = instances[0];
+        return;
+      }
+
+      string canBeNullValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.CanBeNullAttributeShortName);
+      if(string.IsNullOrEmpty(canBeNullValueAttributeTypeName)) {
+        return;
+      }
+
+      CLRTypeName canBeNullAttributeName = new CLRTypeName(canBeNullValueAttributeTypeName);
+      instances = parameterStatement.Parameter.GetAttributeInstances(canBeNullAttributeName, true);
+      if(instances != null && instances.Count > 0) {
+        parameterStatement.Nullable = true;
+        parameterStatement.AttributeInstance = instances[0];
+        return;
       }
     }
 
@@ -378,7 +380,7 @@ namespace AgentJohnson.ValueAnalysis {
     static IStatement GetAnchor(IBlock body) {
       IList<IStatement> list = body.Statements;
 
-      if(list != null && list.Count > 0){
+      if(list != null && list.Count > 0) {
         return list[0];
       }
       return null;
@@ -391,7 +393,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// <param name="result">The result.</param>
     void GetAssertionParameters(IFunctionDeclaration functionDeclaration, List<ParameterStatement> result) {
       IParametersOwner parametersOwner = functionDeclaration as IParametersOwner;
-      if(parametersOwner == null || parametersOwner.Parameters.Count <= 0){
+      if(parametersOwner == null || parametersOwner.Parameters.Count <= 0) {
         return;
       }
 
@@ -403,7 +405,7 @@ namespace AgentJohnson.ValueAnalysis {
         attributesOwner = parametersOwner as IAttributesOwner;
       }
 
-      if(attributesOwner == null){
+      if(attributesOwner == null) {
         return;
       }
 
@@ -436,16 +438,18 @@ namespace AgentJohnson.ValueAnalysis {
         }
       }
 
-      foreach(IParameter parameter in parametersOwner.Parameters){
-        if(parameter == null){
+      AccessRights accessRights = functionDeclaration.GetAccessRights();
+
+      foreach(IParameter parameter in parametersOwner.Parameters) {
+        if(parameter == null) {
           continue;
         }
 
-        if (allowNullParameters.Contains(parameter.ShortName)){
+        if(allowNullParameters.Contains(parameter.ShortName)) {
           continue;
         }
 
-        if(!parameter.Type.IsReferenceType()){
+        if(!parameter.Type.IsReferenceType()) {
           continue;
         }
 
@@ -457,14 +461,9 @@ namespace AgentJohnson.ValueAnalysis {
 
         if(parameter.Kind == ParameterKind.OUTPUT) {
           parameterStatement.NeedsStatement = false;
-        } else {
-          string parameterName = parameter.Type.GetPresentableName(functionDeclaration.Language);
-
-          string code = ValueAnalysisSettings.Instance.TypeAssertions[parameterName];
-
-          if(string.IsNullOrEmpty(code)) {
-            code = ValueAnalysisSettings.Instance.TypeAssertions["*"] ?? string.Empty;
-          }
+        }
+        else {
+          string code = GetCode(parameterStatement, accessRights);
 
           if(string.IsNullOrEmpty(code)) {
             parameterStatement.NeedsStatement = false;
@@ -483,7 +482,7 @@ namespace AgentJohnson.ValueAnalysis {
       List<ParameterStatement> result = new List<ParameterStatement>();
 
       GetAssertionParameters(functionDeclaration, result);
-      if(findStatements){
+      if(findStatements) {
         GetAssertionStatements(functionDeclaration, result);
       }
 
@@ -497,25 +496,25 @@ namespace AgentJohnson.ValueAnalysis {
     /// <param name="result">The result.</param>
     void GetAssertionStatements(IFunctionDeclaration functionDeclaration, List<ParameterStatement> result) {
       IParametersOwner parametersOwner = functionDeclaration as IParametersOwner;
-      if(parametersOwner == null || parametersOwner.Parameters.Count <= 0){
+      if(parametersOwner == null || parametersOwner.Parameters.Count <= 0) {
         return;
       }
 
       CodeAnnotationsCache codeAnnotationsCache = CodeAnnotationsCache.GetInstance(Solution);
 
-      foreach(IStatement statement in functionDeclaration.Body.Statements){
+      foreach(IStatement statement in functionDeclaration.Body.Statements) {
         IExpressionStatement expressionStatement = statement as IExpressionStatement;
-        if(expressionStatement == null){
+        if(expressionStatement == null) {
           continue;
         }
 
         IInvocationExpression invocationExpression = expressionStatement.Expression as IInvocationExpression;
-        if(invocationExpression == null){
+        if(invocationExpression == null) {
           continue;
         }
 
         IReferenceExpression reference = invocationExpression.InvokedExpression as IReferenceExpression;
-        if(reference == null){
+        if(reference == null) {
           continue;
         }
 
@@ -524,19 +523,19 @@ namespace AgentJohnson.ValueAnalysis {
         IMethod method = null;
 
         IMethodDeclaration methodDeclaration = resolveResult.DeclaredElement as IMethodDeclaration;
-        if(methodDeclaration != null){
+        if(methodDeclaration != null) {
           method = methodDeclaration as IMethod;
         }
 
-        if(method == null){
+        if(method == null) {
           method = resolveResult.DeclaredElement as IMethod;
         }
 
-        if(method == null){
+        if(method == null) {
           continue;
         }
 
-        if (!codeAnnotationsCache.IsAssertionMethod(method)) {
+        if(!codeAnnotationsCache.IsAssertionMethod(method)) {
           continue;
         }
 
@@ -555,24 +554,24 @@ namespace AgentJohnson.ValueAnalysis {
           break;
         }
 
-        if(parameterIndex < 0){
+        if(parameterIndex < 0) {
           continue;
         }
 
         IArgumentsOwner argumentsOwner = invocationExpression;
-        if(argumentsOwner.Arguments.Count <= parameterIndex){
+        if(argumentsOwner.Arguments.Count <= parameterIndex) {
           continue;
         }
 
         IArgument argument = argumentsOwner.Arguments[parameterIndex];
         string argumentText = argument.GetText();
 
-        if(argumentText.StartsWith("@")){
+        if(argumentText.StartsWith("@")) {
           argumentText = argumentText.Substring(1);
         }
 
-        foreach(ParameterStatement parameterStatement in result){
-          if(parameterStatement.Parameter.ShortName == argumentText){
+        foreach(ParameterStatement parameterStatement in result) {
+          if(parameterStatement.Parameter.ShortName == argumentText) {
             parameterStatement.Statement = statement;
           }
         }
@@ -591,7 +590,7 @@ namespace AgentJohnson.ValueAnalysis {
 
       ITypeElement typeElement = declarationsCache[attributeName] as ITypeElement;
 
-      if(typeElement == null){
+      if(typeElement == null) {
         return null;
       }
 
@@ -607,13 +606,43 @@ namespace AgentJohnson.ValueAnalysis {
     }
 
     /// <summary>
+    /// Gets the code.
+    /// </summary>
+    /// <param name="assertion">The assertion.</param>
+    /// <param name="accessRights">The access rights.</param>
+    /// <returns>The code.</returns>
+    static string GetCode(ParameterStatement assertion, AccessRights accessRights) {
+      Rule rule = Rule.GetRule(assertion.Parameter.Type);
+
+      if(rule == null) {
+        rule = Rule.GetDefaultRule();
+      }
+
+      if(rule == null) {
+        return null;
+      }
+
+      string code = accessRights == AccessRights.PUBLIC ? rule.PublicParameterAssertion : rule.NonPublicParameterAssertion;
+
+      if(string.IsNullOrEmpty(code)) {
+        rule = Rule.GetDefaultRule();
+
+        if(rule != null) {
+          code = accessRights == AccessRights.PUBLIC ? rule.PublicParameterAssertion : rule.NonPublicParameterAssertion;
+        }
+      }
+
+      return string.IsNullOrEmpty(code) ? null : code;
+    }
+
+    /// <summary>
     /// Gets the code formatter.
     /// </summary>
     /// <returns>The code formatter.</returns>
     [CanBeNull]
     static CodeFormatter GetCodeFormatter() {
       LanguageService languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
-      if(languageService == null){
+      if(languageService == null) {
         return null;
       }
 
@@ -625,13 +654,13 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <returns></returns>
     ICSharpControlFlowGraf GetControlFlow() {
-      if(_contextActionDataProvider == null){
+      if(_contextActionDataProvider == null) {
         return null;
       }
 
       ICSharpControlFlowGraf graf = _contextActionDataProvider.GetControlFlowGraf();
 
-      if(graf == null || _contextActionDataProvider.InspectControlFlowGraf()){
+      if(graf == null || _contextActionDataProvider.InspectControlFlowGraf()) {
         return null;
       }
 
@@ -645,17 +674,17 @@ namespace AgentJohnson.ValueAnalysis {
     /// <param name="formatter">The formatter.</param>
     static void InsertBlankLine(IStatement anchor, CodeFormatter formatter) {
       IStatementNode anchorTreeNode = anchor.ToTreeNode();
-      if(anchorTreeNode == null){
+      if(anchorTreeNode == null) {
         return;
       }
 
       StringBuffer newLineText;
 
       IWhitespaceNode whitespace = anchor.ToTreeNode().PrevSibling as IWhitespaceNode;
-      if(whitespace != null){
+      if(whitespace != null) {
         newLineText = new StringBuffer("\r\n" + whitespace.GetText());
       }
-      else{
+      else {
         newLineText = new StringBuffer("\r\n");
       }
 
@@ -678,14 +707,14 @@ namespace AgentJohnson.ValueAnalysis {
       string notNullableValueAttribute = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.NotNullAttributeShortName);
       string canBeNullValueAttribute = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.CanBeNullAttributeShortName);
 
-      if(string.IsNullOrEmpty(notNullableValueAttribute) && string.IsNullOrEmpty(canBeNullValueAttribute)){
+      if(string.IsNullOrEmpty(notNullableValueAttribute) && string.IsNullOrEmpty(canBeNullValueAttribute)) {
         return false;
       }
 
       IAttributeInstance notNull = FindAttribute(notNullableValueAttribute);
       IAttributeInstance canBeNull = FindAttribute(canBeNullValueAttribute);
 
-      if(notNull == null && canBeNull == null){
+      if(notNull == null && canBeNull == null) {
         return true;
       }
 
@@ -701,16 +730,16 @@ namespace AgentJohnson.ValueAnalysis {
     /// 	<c>true</c> if [is available function] [the specified declaration]; otherwise, <c>false</c>.
     /// </returns>
     bool IsAvailableFunction(IFunctionDeclaration getterFunctionDeclaration, IFunctionDeclaration setterFunctionDeclaration) {
-      if(getterFunctionDeclaration != null){
+      if(getterFunctionDeclaration != null) {
         bool result = IsAvailableGetterFunction(getterFunctionDeclaration);
-        if(result){
+        if(result) {
           return true;
         }
       }
 
-      if(setterFunctionDeclaration != null){
+      if(setterFunctionDeclaration != null) {
         bool result = IsAvailableSetterFunction(setterFunctionDeclaration);
-        if(result){
+        if(result) {
           return true;
         }
       }
@@ -727,13 +756,13 @@ namespace AgentJohnson.ValueAnalysis {
     /// </returns>
     bool IsAvailableGetterFunction(IFunctionDeclaration getterFunctionDeclaration) {
       IMethod method = getterFunctionDeclaration as IMethod;
-      if(method == null){
+      if(method == null) {
         return false;
       }
 
       IType returnType = method.ReturnType;
 
-      if(!returnType.IsReferenceType()){
+      if(!returnType.IsReferenceType()) {
         return false;
       }
 
@@ -751,17 +780,17 @@ namespace AgentJohnson.ValueAnalysis {
       IFunctionDeclaration getterFunctionDeclaration = null;
       IFunctionDeclaration setterFunctionDeclaration = null;
 
-      foreach(IAccessorDeclaration accessorDeclaration in indexerDeclaration.AccessorDeclarations){
-        if(accessorDeclaration.ToTreeNode().AccessorName == null){
+      foreach(IAccessorDeclaration accessorDeclaration in indexerDeclaration.AccessorDeclarations) {
+        if(accessorDeclaration.ToTreeNode().AccessorName == null) {
           continue;
         }
 
         string accessorName = accessorDeclaration.ToTreeNode().AccessorName.GetText();
 
-        if(accessorName == "get"){
+        if(accessorName == "get") {
           getterFunctionDeclaration = accessorDeclaration;
         }
-        else if(accessorName == "set"){
+        else if(accessorName == "set") {
           setterFunctionDeclaration = accessorDeclaration;
         }
       }
@@ -780,17 +809,17 @@ namespace AgentJohnson.ValueAnalysis {
       IFunctionDeclaration getterFunctionDeclaration = null;
       IFunctionDeclaration setterFunctionDeclaration = null;
 
-      foreach(IAccessorDeclaration accessorDeclaration in propertyDeclaration.AccessorDeclarations){
-        if(accessorDeclaration.ToTreeNode().AccessorName == null){
+      foreach(IAccessorDeclaration accessorDeclaration in propertyDeclaration.AccessorDeclarations) {
+        if(accessorDeclaration.ToTreeNode().AccessorName == null) {
           continue;
         }
 
         string accessorName = accessorDeclaration.ToTreeNode().AccessorName.GetText();
 
-        if(accessorName == "get"){
+        if(accessorName == "get") {
           getterFunctionDeclaration = accessorDeclaration;
         }
-        else if(accessorName == "set"){
+        else if(accessorName == "set") {
           setterFunctionDeclaration = accessorDeclaration;
         }
       }
@@ -806,22 +835,22 @@ namespace AgentJohnson.ValueAnalysis {
     /// 	<c>true</c> if [is available parameters] [the specified function declaration]; otherwise, <c>false</c>.
     /// </returns>
     bool IsAvailableSetterFunction(IFunctionDeclaration functionDeclaration) {
-      if(functionDeclaration.IsAbstract || functionDeclaration.IsExtern){
+      if(functionDeclaration.IsAbstract || functionDeclaration.IsExtern) {
         return false;
       }
 
-      if(functionDeclaration.Body == null){
+      if(functionDeclaration.Body == null) {
         return false;
       }
 
       List<ParameterStatement> assertions = GetAssertions(functionDeclaration, true);
 
-      foreach(ParameterStatement parameterStatement in assertions){
-        if(parameterStatement.Nullable){
+      foreach(ParameterStatement parameterStatement in assertions) {
+        if(parameterStatement.Nullable) {
           continue;
         }
 
-        if (parameterStatement.Statement == null && parameterStatement.NeedsStatement){
+        if(parameterStatement.Statement == null && parameterStatement.NeedsStatement) {
           return true;
         }
 
@@ -838,22 +867,48 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="assertion">The assertion.</param>
     void MarkParameterWithAttribute(ParameterStatement assertion) {
-      string notNullableValueAttribute = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.NotNullAttributeShortName);
-      if(string.IsNullOrEmpty(notNullableValueAttribute)){
-        return;
-      }
-
       IRegularParameterDeclaration regularParameterDeclaration = assertion.Parameter as IRegularParameterDeclaration;
       if(regularParameterDeclaration == null) {
         return;
       }
 
-      IAttributeInstance notNull = FindAttribute(notNullableValueAttribute, regularParameterDeclaration);
-      if(notNull != null) {
+      Rule rule = Rule.GetRule(assertion.Parameter.Type);
+      if (rule != null && !rule.NotNull && !rule.CanBeNull) {
+        rule = null;
+      }
+
+      if(rule == null) {
+        rule = Rule.GetDefaultRule();
+      }
+
+      if(rule == null) {
         return;
       }
 
-      MarkWithAttribute(notNullableValueAttribute, regularParameterDeclaration);
+      string name = null;
+
+      if(rule.NotNull) {
+        name = CodeAnnotationsCache.NotNullAttributeShortName;
+      }
+      else if(rule.CanBeNull) {
+        name = CodeAnnotationsCache.CanBeNullAttributeShortName;
+      }
+
+      if(string.IsNullOrEmpty(name)) {
+        return;
+      }
+
+      string valueAttribute = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(name);
+      if(string.IsNullOrEmpty(valueAttribute)) {
+        return;
+      }
+
+      IAttributeInstance attributeInstance = FindAttribute(valueAttribute, regularParameterDeclaration);
+      if(attributeInstance != null) {
+        return;
+      }
+
+      MarkWithAttribute(valueAttribute, regularParameterDeclaration);
     }
 
     /// <summary>
@@ -861,7 +916,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     void MarkWithAttribute(string attributeName) {
       IMetaInfoTargetDeclaration metaInfoTargetDeclaration = TypeMemberDeclaration as IMetaInfoTargetDeclaration;
-      if(metaInfoTargetDeclaration == null){
+      if(metaInfoTargetDeclaration == null) {
         return;
       }
 
@@ -875,7 +930,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// <param name="attributeName">Name of the attribute.</param>
     void MarkWithAttribute(string attributeName, IMetaInfoTargetDeclaration metaInfoTargetDeclaration) {
       ITypeElement typeElement = GetAttribute(attributeName);
-      if(typeElement == null){
+      if(typeElement == null) {
         return;
       }
 
@@ -886,7 +941,7 @@ namespace AgentJohnson.ValueAnalysis {
       attribute = metaInfoTargetDeclaration.AddAttributeAfter(attribute, null);
 
       string name = attribute.TypeReference.GetName();
-      if(!name.EndsWith("Attribute")){
+      if(!name.EndsWith("Attribute")) {
         return;
       }
 
@@ -898,7 +953,7 @@ namespace AgentJohnson.ValueAnalysis {
         return;
       }
 
-      if(declaredElement.Equals(typeElement)){
+      if(declaredElement.Equals(typeElement)) {
         referenceName.Reference.BindTo(typeElement);
       }
     }
