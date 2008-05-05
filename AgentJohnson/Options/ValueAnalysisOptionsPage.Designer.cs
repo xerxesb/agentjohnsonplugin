@@ -50,6 +50,8 @@ namespace AgentJohnson.Options {
       this.TypeName = new System.Windows.Forms.TextBox();
       this.Add = new System.Windows.Forms.Button();
       this.Remove = new System.Windows.Forms.Button();
+      this.label6 = new System.Windows.Forms.Label();
+      this.ExecuteGhostDoc = new System.Windows.Forms.CheckBox();
       ((System.ComponentModel.ISupportInitialize)(this.ValueAssertions)).BeginInit();
       this.SuspendLayout();
       // 
@@ -58,7 +60,7 @@ namespace AgentJohnson.Options {
       this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.label3.AutoSize = true;
       this.label3.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.label3.Location = new System.Drawing.Point(138, 559);
+      this.label3.Location = new System.Drawing.Point(138, 498);
       this.label3.Name = "label3";
       this.label3.Size = new System.Drawing.Size(111, 13);
       this.label3.TabIndex = 20;
@@ -69,7 +71,7 @@ namespace AgentJohnson.Options {
       this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.label2.AutoSize = true;
       this.label2.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.label2.Location = new System.Drawing.Point(24, 559);
+      this.label2.Location = new System.Drawing.Point(24, 498);
       this.label2.Name = "label2";
       this.label2.Size = new System.Drawing.Size(119, 13);
       this.label2.TabIndex = 19;
@@ -79,7 +81,7 @@ namespace AgentJohnson.Options {
       // 
       this.AllowNullAttribute.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                   | System.Windows.Forms.AnchorStyles.Right)));
-      this.AllowNullAttribute.Location = new System.Drawing.Point(27, 575);
+      this.AllowNullAttribute.Location = new System.Drawing.Point(27, 514);
       this.AllowNullAttribute.Name = "AllowNullAttribute";
       this.AllowNullAttribute.Size = new System.Drawing.Size(593, 22);
       this.AllowNullAttribute.TabIndex = 21;
@@ -89,7 +91,7 @@ namespace AgentJohnson.Options {
       this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.label1.AutoSize = true;
       this.label1.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.label1.Location = new System.Drawing.Point(9, 538);
+      this.label1.Location = new System.Drawing.Point(9, 477);
       this.label1.Name = "label1";
       this.label1.Size = new System.Drawing.Size(102, 13);
       this.label1.TabIndex = 18;
@@ -102,7 +104,7 @@ namespace AgentJohnson.Options {
       this.Types.FormattingEnabled = true;
       this.Types.Location = new System.Drawing.Point(12, 27);
       this.Types.Name = "Types";
-      this.Types.Size = new System.Drawing.Size(265, 472);
+      this.Types.Size = new System.Drawing.Size(265, 407);
       this.Types.TabIndex = 1;
       // 
       // label7
@@ -168,7 +170,7 @@ namespace AgentJohnson.Options {
       this.label12.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.label12.AutoSize = true;
       this.label12.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.label12.Location = new System.Drawing.Point(285, 461);
+      this.label12.Location = new System.Drawing.Point(284, 400);
       this.label12.Name = "label12";
       this.label12.Size = new System.Drawing.Size(94, 13);
       this.label12.TabIndex = 14;
@@ -178,7 +180,7 @@ namespace AgentJohnson.Options {
       // 
       this.ReturnAssertion.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                   | System.Windows.Forms.AnchorStyles.Right)));
-      this.ReturnAssertion.Location = new System.Drawing.Point(309, 477);
+      this.ReturnAssertion.Location = new System.Drawing.Point(309, 416);
       this.ReturnAssertion.Name = "ReturnAssertion";
       this.ReturnAssertion.Size = new System.Drawing.Size(311, 22);
       this.ReturnAssertion.TabIndex = 15;
@@ -212,7 +214,7 @@ namespace AgentJohnson.Options {
       this.ValueAssertions.Name = "ValueAssertions";
       this.ValueAssertions.RowHeadersVisible = false;
       this.ValueAssertions.ShowEditingIcon = false;
-      this.ValueAssertions.Size = new System.Drawing.Size(311, 181);
+      this.ValueAssertions.Size = new System.Drawing.Size(311, 120);
       this.ValueAssertions.TabIndex = 13;
       // 
       // dataGridViewTextBoxColumn2
@@ -277,7 +279,7 @@ namespace AgentJohnson.Options {
       // Add
       // 
       this.Add.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-      this.Add.Location = new System.Drawing.Point(12, 503);
+      this.Add.Location = new System.Drawing.Point(12, 442);
       this.Add.Name = "Add";
       this.Add.Size = new System.Drawing.Size(75, 23);
       this.Add.TabIndex = 16;
@@ -288,7 +290,7 @@ namespace AgentJohnson.Options {
       // Remove
       // 
       this.Remove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-      this.Remove.Location = new System.Drawing.Point(93, 503);
+      this.Remove.Location = new System.Drawing.Point(93, 442);
       this.Remove.Name = "Remove";
       this.Remove.Size = new System.Drawing.Size(75, 23);
       this.Remove.TabIndex = 17;
@@ -296,10 +298,34 @@ namespace AgentJohnson.Options {
       this.Remove.UseVisualStyleBackColor = true;
       this.Remove.Click += new System.EventHandler(this.Remove_Click);
       // 
+      // label6
+      // 
+      this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+      this.label6.AutoSize = true;
+      this.label6.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.label6.Location = new System.Drawing.Point(9, 548);
+      this.label6.Name = "label6";
+      this.label6.Size = new System.Drawing.Size(58, 13);
+      this.label6.TabIndex = 22;
+      this.label6.Text = "GhostDoc";
+      // 
+      // ExecuteGhostDoc
+      // 
+      this.ExecuteGhostDoc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+      this.ExecuteGhostDoc.AutoSize = true;
+      this.ExecuteGhostDoc.Location = new System.Drawing.Point(27, 564);
+      this.ExecuteGhostDoc.Name = "ExecuteGhostDoc";
+      this.ExecuteGhostDoc.Size = new System.Drawing.Size(326, 17);
+      this.ExecuteGhostDoc.TabIndex = 23;
+      this.ExecuteGhostDoc.Text = "Execute GhostDoc After Applying Value Analysis Attributes";
+      this.ExecuteGhostDoc.UseVisualStyleBackColor = true;
+      // 
       // ValueAnalysisOptionsPage
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.Controls.Add(this.ExecuteGhostDoc);
+      this.Controls.Add(this.label6);
       this.Controls.Add(this.Remove);
       this.Controls.Add(this.Add);
       this.Controls.Add(this.TypeName);
@@ -324,7 +350,7 @@ namespace AgentJohnson.Options {
       this.Controls.Add(this.label1);
       this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.Name = "ValueAnalysisOptionsPage";
-      this.Size = new System.Drawing.Size(634, 610);
+      this.Size = new System.Drawing.Size(634, 600);
       ((System.ComponentModel.ISupportInitialize)(this.ValueAssertions)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
@@ -356,6 +382,8 @@ namespace AgentJohnson.Options {
     private System.Windows.Forms.TextBox TypeName;
     private System.Windows.Forms.Button Add;
     private System.Windows.Forms.Button Remove;
+    private System.Windows.Forms.Label label6;
+    private System.Windows.Forms.CheckBox ExecuteGhostDoc;
 
 
 

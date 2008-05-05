@@ -17,6 +17,7 @@ namespace AgentJohnson.ValueAnalysis {
 
     string _allowNullAttribute;
     List<Rule> _rules = new List<Rule>();
+    bool _executeGhostDoc;
 
     #endregion
 
@@ -34,6 +35,20 @@ namespace AgentJohnson.ValueAnalysis {
       }
       set {
         _allowNullAttribute = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether GhostDoc should be executed.
+    /// </summary>
+    /// <value><c>true</c> if GhostDoc should be executed; otherwise, <c>false</c>.</value>
+    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = false)]
+    public bool ExecuteGhostDoc {
+      get {
+        return _executeGhostDoc;
+      }
+      set {
+        _executeGhostDoc = value;
       }
     }
 
@@ -180,6 +195,7 @@ namespace AgentJohnson.ValueAnalysis {
       Write(writer);
 
       writer.WriteElementString("allownull", AllowNullAttribute);
+      writer.WriteElementString("executeghostdoc", ExecuteGhostDoc ? "true" : "false");
 
       writer.WriteEndElement();
     }
@@ -199,6 +215,11 @@ namespace AgentJohnson.ValueAnalysis {
       XmlNode allowNullNode = doc.SelectSingleNode("/settings/valueanalysis/allownull");
       if(allowNullNode != null) {
         AllowNullAttribute = allowNullNode.InnerText;
+      }
+
+      XmlNode executeGhostDocNode = doc.SelectSingleNode("/settings/valueanalysis/executeghostdoc");
+      if(executeGhostDocNode != null) {
+        ExecuteGhostDoc = executeGhostDocNode.InnerText == "true";
       }
     }
 

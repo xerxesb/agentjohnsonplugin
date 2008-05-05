@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using AgentJohnson.ValueAnalysis;
+using EnvDTE;
 using JetBrains.UI.Options;
+using JetBrains.VSIntegration.Shell;
 using Sitecore.Annotations;
 using Sitecore.Diagnostics;
 
@@ -37,6 +39,21 @@ namespace AgentJohnson.Options {
     public ValueAnalysisOptionsPage() {
       InitializeComponent();
       _instance = this;
+
+      _DTE dte = VSShell.Instance.ApplicationObject;
+
+
+      Command command;
+      try {
+        command = dte.Commands.Item("Weigelt.GhostDoc.AddIn.DocumentThis", -1);
+      }
+      catch {
+        command = null;
+      }
+
+      if(command == null) {
+        ExecuteGhostDoc.Enabled = false;
+      }
     }
 
     #endregion
@@ -70,6 +87,7 @@ namespace AgentJohnson.Options {
       }
 
       ValueAnalysisSettings.Instance.AllowNullAttribute = AllowNullAttribute.Text;
+      ValueAnalysisSettings.Instance.ExecuteGhostDoc = ExecuteGhostDoc.Checked;
     }
 
     /// <summary>
@@ -91,6 +109,7 @@ namespace AgentJohnson.Options {
       }
 
       AllowNullAttribute.Text = ValueAnalysisSettings.Instance.AllowNullAttribute;
+      ExecuteGhostDoc.Checked = ValueAnalysisSettings.Instance.ExecuteGhostDoc;
     }
 
     /// <summary>
@@ -134,7 +153,7 @@ namespace AgentJohnson.Options {
 
       base.OnLoad(e);
 
-      Types.SelectedIndexChanged += new EventHandler(Types_SelectedIndexChanged);
+      Types.SelectedIndexChanged += Types_SelectedIndexChanged;
 
       Display();
     }
@@ -214,7 +233,7 @@ namespace AgentJohnson.Options {
         string assertion = row.Cells[0].Value as string;
 
         if(assertion != null) {
-          item.ValueAssertions.Add(assertion.ToString());
+          item.ValueAssertions.Add(assertion);
         }
       }
     }

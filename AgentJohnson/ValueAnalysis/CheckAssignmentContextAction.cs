@@ -9,6 +9,7 @@ using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
@@ -16,7 +17,7 @@ namespace AgentJohnson.ValueAnalysis {
   /// <summary>
   /// Represents the Context Action.
   /// </summary>
-  [ContextAction(Description = "Adds an 'if' statement after the current statement that checks if the variable is null.", Name = "Check if variable is null", Priority = 0, Group = "C#")]
+  [ContextAction(Description = "Adds an 'if' statement after the current statement that checks if the variable is null.", Name = "Check if variable is null", Priority = -1, Group = "C#")]
   public class CheckAssignmentContextAction : OneItemContextActionBase {
     #region Fields
 
@@ -90,6 +91,7 @@ namespace AgentJohnson.ValueAnalysis {
       }
 
       TextRange range;
+      IType declaredType;
 
       if(assignmentExpression != null) {
         ICSharpExpression destination = assignmentExpression.Dest;
@@ -100,6 +102,8 @@ namespace AgentJohnson.ValueAnalysis {
         if(!destination.IsClassifiedAsVariable) {
           return false;
         }
+
+        declaredType = destination.GetExpressionType() as IDeclaredType;
 
         IReferenceExpression referenceExpression = assignmentExpression.Dest as IReferenceExpression;
         if(referenceExpression == null) {
@@ -116,6 +120,8 @@ namespace AgentJohnson.ValueAnalysis {
           return false;
         }
 
+        declaredType = localVariable.Type;
+
         ILocalVariableDeclarationNode declNode = localVariableDeclaration.ToTreeNode();
         if(declNode.AssignmentSign == null) {
           return false;
@@ -126,7 +132,13 @@ namespace AgentJohnson.ValueAnalysis {
         range = new TextRange(declNode.NameIdentifier.GetTreeStartOffset(), localVariableDeclaration.Initial.GetTreeStartOffset());
       }
 
-      
+      if(declaredType == null) {
+        return false;
+      }
+
+      if(!declaredType.IsReferenceType()) {
+        return false;
+      }
 
       return (range.IsValid && range.Contains(Provider.CaretOffset));
     }

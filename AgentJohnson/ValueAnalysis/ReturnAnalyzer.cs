@@ -92,12 +92,21 @@ namespace AgentJohnson.ValueAnalysis {
     /// 	<c>true</c> if this instance is asserted; otherwise, <c>false</c>.
     /// </returns>
     bool IsAsserted(IReturnStatement returnStatement) {
-      string name = CodeAnnotationsCache.CanBeNullAttributeShortName;
-      if(string.IsNullOrEmpty(name)) {
+      string canBeNullName = CodeAnnotationsCache.CanBeNullAttributeShortName;
+      if(string.IsNullOrEmpty(canBeNullName)) {
+        return true;
+      }
+      string notNullName = CodeAnnotationsCache.NotNullAttributeShortName;
+      if(string.IsNullOrEmpty(notNullName)) {
         return true;
       }
 
       if(returnStatement.Value.IsConstantValue()) {
+        return true;
+      }
+
+      string returnValue = returnStatement.Value.GetText();
+      if (returnValue == "string.Empty" || returnValue == "String.Empty") {
         return true;
       }
 
@@ -116,10 +125,17 @@ namespace AgentJohnson.ValueAnalysis {
         return true;
       }
 
-      string canBeNullValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(name);
-      CLRTypeName typeName = new CLRTypeName(canBeNullValueAttributeTypeName);
-      IList<IAttributeInstance> instances = function.GetAttributeInstances(typeName, true);
+      string canBeNullValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(canBeNullName);
+      CLRTypeName canBeNullTypeName = new CLRTypeName(canBeNullValueAttributeTypeName);
+      IList<IAttributeInstance> instances = function.GetAttributeInstances(canBeNullTypeName, true);
       if(instances != null && instances.Count > 0) {
+        return true;
+      }
+
+      string notNullValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(notNullName);
+      CLRTypeName notNullTypeName = new CLRTypeName(notNullValueAttributeTypeName);
+      instances = function.GetAttributeInstances(notNullTypeName, true);
+      if(instances == null || instances.Count == 0) {
         return true;
       }
 
@@ -133,35 +149,63 @@ namespace AgentJohnson.ValueAnalysis {
       }
 
       IInvocationExpression invocationExpression = returnStatement.Value as IInvocationExpression;
-      if(invocationExpression == null) {
-        return false;
+      if(invocationExpression != null) {
+        IReferenceExpression invokedExpression = invocationExpression.InvokedExpression as IReferenceExpression;
+        if(invokedExpression == null) {
+          return false;
+        }
+
+        ResolveResult resolveResult = invokedExpression.Reference.Resolve();
+
+        IMethod method = null;
+
+        IMethodDeclaration methodDeclaration = resolveResult.DeclaredElement as IMethodDeclaration;
+        if(methodDeclaration != null) {
+          method = methodDeclaration as IMethod;
+        }
+
+        if(method == null) {
+          method = resolveResult.DeclaredElement as IMethod;
+        }
+
+        if(method == null) {
+          return false;
+        }
+
+        CodeAnnotationsCache codeAnnotationsCache = CodeAnnotationsCache.GetInstance(_solution);
+
+        if (codeAnnotationsCache.IsAssertionMethod(method)) {
+          return true;
+        }
       }
-     
-      IReferenceExpression invokedExpression = invocationExpression.InvokedExpression as IReferenceExpression;
-      if(invokedExpression == null) {
-        return false;
+
+      IFunctionDeclaration functionDeclaration = function as IFunctionDeclaration;
+
+      ICSharpControlFlowGraf graf = CSharpControlFlowBuilder.Build(functionDeclaration);
+
+      if (!graf.Inspect(true)) {
+        return true;
       }
 
-      ResolveResult resolveResult = invokedExpression.Reference.Resolve();
-
-      IMethod method = null;
-
-      IMethodDeclaration methodDeclaration = resolveResult.DeclaredElement as IMethodDeclaration;
-      if(methodDeclaration != null) {
-        method = methodDeclaration as IMethod;
+      IReferenceExpression referenceExpression = returnStatement.Value as IReferenceExpression;
+      if(referenceExpression == null) {
+        return true;
       }
 
-      if(method == null) {
-        method = resolveResult.DeclaredElement as IMethod;
+      CSharpControlFlowNullReferenceState state = graf.GetExpressionNullReferenceState(referenceExpression);
+
+      switch(state) {
+        case CSharpControlFlowNullReferenceState.UNKNOWN:
+          return false;
+        case CSharpControlFlowNullReferenceState.NOT_NULL:
+          return true;
+        case CSharpControlFlowNullReferenceState.NULL:
+          return false;
+        case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
+          return false;
       }
 
-      if(method == null) {
-        return false;
-      }
-
-      CodeAnnotationsCache codeAnnotationsCache = CodeAnnotationsCache.GetInstance(_solution);
-
-      return codeAnnotationsCache.IsAssertionMethod(method);
+      return true;
     }
 
     #endregion

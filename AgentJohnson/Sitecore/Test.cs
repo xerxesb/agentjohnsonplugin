@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using Sitecore.Annotations;
 using Sitecore.Diagnostics;
@@ -9,6 +8,14 @@ namespace AgentJohnson.Test {
   /// 
   /// </summary>
   internal class TestClass {
+    public enum TestEnum {
+      Public,
+      Protected,
+      Private
+    }
+
+    public string AutoProp { get; set; }
+
     #region Public methods
 
     /// <summary>
@@ -27,6 +34,8 @@ namespace AgentJohnson.Test {
     [NotNull]
     public string ValueAnalysis(string test) {
       Assert.ArgumentNotNull(test, "test");
+
+      TestEnum e = TestEnum.Public;
 
       string v = "!";
 

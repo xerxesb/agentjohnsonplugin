@@ -1,9 +1,11 @@
+using EnvDTE;
 using JetBrains.Annotations;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Daemon;
 using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
+using JetBrains.VSIntegration.Shell;
 
 namespace AgentJohnson.ValueAnalysis {
   /// <summary>
@@ -23,6 +25,8 @@ namespace AgentJohnson.ValueAnalysis {
 
     #endregion
 
+
+
     #region Public methods
 
     /// <summary>
@@ -33,6 +37,34 @@ namespace AgentJohnson.ValueAnalysis {
       get {
         return "Annotate with Value Analysis attributes";
       }
+    }
+
+    /// <summary>
+    /// Executes the internal post PSI transaction.
+    /// </summary>
+    /// <param name="data">The data.</param>
+    /// <returns>The internal post PSI transaction.</returns>
+    [Sitecore.Annotations.CanBeNull]
+    protected override object[] ExecuteInternalPostPSITransaction(params object[] data) {
+      if (!ValueAnalysisSettings.Instance.ExecuteGhostDoc) {
+        return data;
+      }
+
+      _DTE dte = VSShell.Instance.ApplicationObject;
+      Command command;
+
+      try {
+        command = dte.Commands.Item("Weigelt.GhostDoc.AddIn.DocumentThis", -1);
+      }
+      catch {
+        command = null;
+      }
+
+      if(command != null) {
+        dte.ExecuteCommand("Weigelt.GhostDoc.AddIn.DocumentThis", string.Empty);
+      }
+
+      return data;
     }
 
     #endregion

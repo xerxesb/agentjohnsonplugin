@@ -814,13 +814,19 @@ namespace AgentJohnson.ValueAnalysis {
           continue;
         }
 
+        if (accessorDeclaration.Body == null) {
+          continue;
+        }
+
         string accessorName = accessorDeclaration.ToTreeNode().AccessorName.GetText();
 
-        if(accessorName == "get") {
-          getterFunctionDeclaration = accessorDeclaration;
-        }
-        else if(accessorName == "set") {
-          setterFunctionDeclaration = accessorDeclaration;
+        switch(accessorName) {
+          case "get":
+            getterFunctionDeclaration = accessorDeclaration;
+            break;
+          case "set":
+            setterFunctionDeclaration = accessorDeclaration;
+            break;
         }
       }
 

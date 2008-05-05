@@ -12,6 +12,7 @@ using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
 using JetBrains.UI.PopupMenu;
 using JetBrains.Util;
@@ -141,7 +142,11 @@ namespace AgentJohnson.ValueAnalysis {
         return false;
       }
 
-      if (!range.IsValid || !range.Contains(Provider.CaretOffset)){
+      if(!declaredType.IsReferenceType()) {
+        return false;
+      }
+
+      if(!range.IsValid || !range.Contains(Provider.CaretOffset)) {
         return false;
       }
 
