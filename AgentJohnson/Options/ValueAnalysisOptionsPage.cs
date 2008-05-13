@@ -8,26 +8,26 @@ using JetBrains.VSIntegration.Shell;
 using Sitecore.Annotations;
 using Sitecore.Diagnostics;
 
-namespace AgentJohnson.Options {
+namespace AgentJohnson.Options
+{
   /// <summary>
   /// 
   /// </summary>
-  [OptionsPage(NAME, "Assertions and Value Analysis", "AgentJohnson.Resources.Assertions.gif", ParentId = ImportExportPage.NAME)]
-  public partial class ValueAnalysisOptionsPage : UserControl, IOptionsPage {
+  [OptionsPage(NAME, "Assertions and Value Analysis", "AgentJohnson.Resources.Assertions.gif",
+    ParentId = ImportExportPage.NAME)]
+  public partial class ValueAnalysisOptionsPage : UserControl, IOptionsPage
+  {
     #region Constants
 
     /// <summary>
     /// </summary>
     public const string NAME = "AgentJohnson.ValueAnalysisAnnotationsPage";
 
-    static ValueAnalysisOptionsPage _instance;
+    private static ValueAnalysisOptionsPage _instance;
 
     #endregion
 
     #region Fields
-
-    int _selectedIndex = -1;
-    bool _updating;
 
     #endregion
 
@@ -36,7 +36,8 @@ namespace AgentJohnson.Options {
     /// <summary>
     /// Initializes a new instance of the <see cref="ValueAnalysisOptionsPage"/> class.
     /// </summary>
-    public ValueAnalysisOptionsPage() {
+    public ValueAnalysisOptionsPage()
+    {
       InitializeComponent();
       _instance = this;
 
@@ -44,14 +45,17 @@ namespace AgentJohnson.Options {
 
 
       Command command;
-      try {
+      try
+      {
         command = dte.Commands.Item("Weigelt.GhostDoc.AddIn.DocumentThis", -1);
       }
-      catch {
+      catch
+      {
         command = null;
       }
 
-      if(command == null) {
+      if (command == null)
+      {
         ExecuteGhostDoc.Enabled = false;
       }
     }
@@ -62,27 +66,46 @@ namespace AgentJohnson.Options {
     /// Gets the instance.
     /// </summary>
     /// <value>The instance.</value>
-    public static ValueAnalysisOptionsPage Instance {
-      get {
-        return _instance;
-      }
+    public static ValueAnalysisOptionsPage Instance
+    {
+      get { return _instance; }
     }
 
     #region Public methods
 
     /// <summary>
+    /// Invoked when OK button in the options dialog is pressed
+    /// If the page returns <c>false</c>, the the options dialog won't be closed, and focus
+    /// will be put into this page
+    /// </summary>
+    /// <returns></returns>
+    public bool OnOk()
+    {
+      Commit();
+
+      return true;
+    }
+
+    /// <summary>
+    /// Check if the settings on the page are consistent, and page could be closed
+    /// </summary>
+    /// <returns><c>true</c> if page data is consistent</returns>
+    public bool ValidatePage()
+    {
+      return true;
+    }
+
+    /// <summary>
     /// Commits this instance.
     /// </summary>
-    public void Commit() {
-      if(_selectedIndex >= 0) {
-        Commit(Types.Items[_selectedIndex] as Rule);
-      }
-
+    public void Commit()
+    {
       List<Rule> typeConfigurations = ValueAnalysisSettings.Instance.Rules;
 
       typeConfigurations.Clear();
 
-      foreach(Rule item in Types.Items) {
+      foreach (Rule item in Types.Items)
+      {
         typeConfigurations.Add(item);
       }
 
@@ -93,18 +116,19 @@ namespace AgentJohnson.Options {
     /// <summary>
     /// Displays this instance.
     /// </summary>
-    public void Display() {
-      List<Rule> configurations = ValueAnalysisSettings.Instance.Rules;
-
-      _selectedIndex = -1;
+    public void Display()
+    {
+      List<Rule> rules = ValueAnalysisSettings.Instance.Rules;
 
       Types.Items.Clear();
 
-      foreach(Rule configuration in configurations) {
-        Types.Items.Add(configuration.Clone());
+      foreach (Rule rule in rules)
+      {
+        Types.Items.Add(rule.Clone());
       }
 
-      if(Types.Items.Count > 0) {
+      if (Types.Items.Count > 0)
+      {
         Types.SetSelected(0, true);
       }
 
@@ -116,27 +140,8 @@ namespace AgentJohnson.Options {
     /// Invoked when this page is selected/unselected in the tree
     /// </summary>
     /// <param name="activated">true, when page is selected; false, when page is unselected</param>
-    public void OnActivated(bool activated) {
-    }
-
-    /// <summary>
-    /// Invoked when OK button in the options dialog is pressed
-    /// If the page returns <c>false</c>, the the options dialog won't be closed, and focus
-    /// will be put into this page
-    /// </summary>
-    /// <returns></returns>
-    public bool OnOk() {
-      Commit();
-
-      return true;
-    }
-
-    /// <summary>
-    /// Check if the settings on the page are consistent, and page could be closed
-    /// </summary>
-    /// <returns><c>true</c> if page data is consistent</returns>
-    public bool ValidatePage() {
-      return true;
+    public void OnActivated(bool activated)
+    {
     }
 
     #endregion
@@ -148,12 +153,11 @@ namespace AgentJohnson.Options {
     ///</summary>
     ///
     ///<param name="e">An <see cref="T:System.EventArgs" /> that contains the event data. </param>
-    protected override void OnLoad([NotNull] EventArgs e) {
+    protected override void OnLoad([NotNull] EventArgs e)
+    {
       Assert.ArgumentNotNull(e, "e");
 
       base.OnLoad(e);
-
-      Types.SelectedIndexChanged += Types_SelectedIndexChanged;
 
       Display();
     }
@@ -167,114 +171,22 @@ namespace AgentJohnson.Options {
     /// </summary>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void Add_Click(object sender, EventArgs e) {
-      Rule rule = new Rule();
+    private void Add_Click(object sender, EventArgs e)
+    {
+      var page = new ValueAnalysisDetailsPage();
 
-      rule.TypeName = "System.Object";
+      var rule = new Rule();
 
-      Types.BeginUpdate();
+      page.Display(rule);
+
+      if (page.ShowDialog() != DialogResult.OK)
+      {
+        return;
+      }
 
       int index = Types.Items.Add(rule);
 
-      Types.EndUpdate();
-
       Types.SetSelected(index, true);
-    }
-
-    /// <summary>
-    /// Handles the CheckedChanged event of the CanBeNull control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void CanBeNull_CheckedChanged(object sender, EventArgs e) {
-      if (_updating) {
-        return;
-      }
-
-      if(NotNull.Checked) {
-        _updating = true;
-        CanBeNull.Checked = true;
-        NotNull.Checked = false;
-        _updating = false;
-      }
-    }
-
-    /// <summary>
-    /// Clears this instance.
-    /// </summary>
-    void Clear() {
-      TypeName.Text = string.Empty;
-      NotNull.Checked = false;
-      CanBeNull.Checked = false;
-      PublicParameterAssertion.Text = string.Empty;
-      NonPublicParameterAssertion.Text = string.Empty;
-      ReturnAssertion.Text = string.Empty;
-
-      ValueAssertions.Rows.Clear();
-    }
-
-    /// <summary>
-    /// Commits the specified item.
-    /// </summary>
-    /// <param name="item">The item.</param>
-    void Commit(Rule item) {
-      item.TypeName = TypeName.Text;
-      item.NotNull = NotNull.Checked;
-      item.CanBeNull = CanBeNull.Checked;
-      item.PublicParameterAssertion = PublicParameterAssertion.Text;
-      item.NonPublicParameterAssertion = NonPublicParameterAssertion.Text;
-      item.ReturnAssertion = ReturnAssertion.Text;
-
-      item.ValueAssertions.Clear();
-
-      DataGridViewRowCollection rows = ValueAssertions.Rows;
-
-      foreach(DataGridViewRow row in rows) {
-        string assertion = row.Cells[0].Value as string;
-
-        if(assertion != null) {
-          item.ValueAssertions.Add(assertion);
-        }
-      }
-    }
-
-    /// <summary>
-    /// Displays the specified item.
-    /// </summary>
-    /// <param name="item">The item.</param>
-    void Display(Rule item) {
-      TypeName.Text = item.TypeName;
-      NotNull.Checked = item.NotNull;
-      CanBeNull.Checked = item.CanBeNull;
-      PublicParameterAssertion.Text = item.PublicParameterAssertion;
-      NonPublicParameterAssertion.Text = item.NonPublicParameterAssertion;
-      ReturnAssertion.Text = item.ReturnAssertion;
-
-      DataGridViewRowCollection rows = ValueAssertions.Rows;
-
-      rows.Clear();
-
-      foreach(string key in item.ValueAssertions) {
-        rows.Add(new string[] {key});
-      }
-    }
-
-    /// <summary>
-    /// Handles the CheckedChanged event of the NotNull control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void NotNull_CheckedChanged(object sender, EventArgs e) {
-      if(_updating) {
-        return;
-      }
-
-      if(CanBeNull.Checked) {
-        _updating = true;
-        NotNull.Checked = true;
-        CanBeNull.Checked = false;
-        _updating = false;
-      }
     }
 
     /// <summary>
@@ -282,56 +194,59 @@ namespace AgentJohnson.Options {
     /// </summary>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void Remove_Click(object sender, EventArgs e) {
-      if(Types.SelectedItem == null) {
+    private void Remove_Click(object sender, EventArgs e)
+    {
+      int selectedIndex = Types.SelectedIndex;
+      if (selectedIndex < 0)
+      {
         return;
       }
 
-      int index = Types.SelectedIndex;
-      _selectedIndex = -1;
-
-      Types.SelectedIndex = -1;
-
-      Types.BeginUpdate();
-
-      Types.Items.RemoveAt(index);
-
-      Types.EndUpdate();
-    }
-
-    /// <summary>
-    /// Handles the TextChanged event of the TypeName control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void TypeName_TextChanged(object sender, EventArgs e) {
-      Rule configuration = Types.SelectedItem as Rule;
-      if(configuration == null) {
+      if (
+        MessageBox.Show("Are you sure you want to remove this rule?", "Remove", MessageBoxButtons.OKCancel,
+                        MessageBoxIcon.Asterisk) != DialogResult.OK)
+      {
         return;
       }
 
-      configuration.TypeName = TypeName.Text;
+      Types.Items.RemoveAt(selectedIndex);
+
+      if (selectedIndex > 0)
+      {
+        selectedIndex--;
+      }
+
+      if (selectedIndex > 0)
+      {
+        Types.SetSelected(selectedIndex, true);
+      }
     }
 
     /// <summary>
-    /// Handles the SelectedIndexChanged event of the Types control.
+    /// Handles the Edit_ click event.
     /// </summary>
-    /// <param name="sender">The source of the event.</param>
+    /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void Types_SelectedIndexChanged(object sender, EventArgs e) {
-      if(_selectedIndex >= 0) {
-        Commit(Types.Items[_selectedIndex] as Rule);
+    private void Edit_Click(object sender, EventArgs e)
+    {
+      int selectedIndex = Types.SelectedIndex;
+      if (selectedIndex < 0)
+      {
+        return;
       }
 
-      _selectedIndex = Types.SelectedIndex;
+      var rule = Types.Items[selectedIndex] as Rule;
 
-      Rule item = Types.SelectedItem as Rule;
-      if(item != null) {
-        Display(item);
+      var page = new ValueAnalysisDetailsPage();
+
+      page.Display(rule);
+
+      if (page.ShowDialog() != DialogResult.OK)
+      {
+        return;
       }
-      else {
-        Clear();
-      }
+
+      Types.Items[selectedIndex] = rule;
     }
 
     #endregion
@@ -343,10 +258,9 @@ namespace AgentJohnson.Options {
     /// </summary>
     /// <value></value>
     [NotNull]
-    public Control Control {
-      get {
-        return this;
-      }
+    public Control Control
+    {
+      get { return this; }
     }
 
     /// <summary>
@@ -355,10 +269,9 @@ namespace AgentJohnson.Options {
     /// </summary>
     /// <value></value>
     [NotNull]
-    public string Id {
-      get {
-        return NAME;
-      }
+    public string Id
+    {
+      get { return NAME; }
     }
 
     #endregion

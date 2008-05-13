@@ -659,8 +659,16 @@ namespace AgentJohnson.ValueAnalysis {
       }
 
       ICSharpControlFlowGraf graf = _contextActionDataProvider.GetControlFlowGraf();
+      if(graf == null) {
+        return null;
+      }
 
-      if(graf == null || _contextActionDataProvider.InspectControlFlowGraf()) {
+      try {
+        if (_contextActionDataProvider.InspectControlFlowGraf()) {
+          return null;
+        }
+      }
+      catch {
         return null;
       }
 
