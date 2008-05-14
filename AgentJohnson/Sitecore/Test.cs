@@ -4,6 +4,26 @@ using Sitecore.Annotations;
 using Sitecore.Diagnostics;
 
 namespace AgentJohnson.Test {
+
+  internal interface ITest {
+    /// <summary>
+    /// Gets or sets the name.
+    /// </summary>
+    /// <value>The name.</value>
+    string GetName(string Pipper);
+  }
+
+  internal abstract class AbstractClass {
+    /// <summary>
+    /// Gets or sets the X.
+    /// </summary>
+    /// <value>The X.</value>
+    public abstract string X {
+      get;
+      set;
+    }    
+  } 
+
   /// <summary>
   /// 
   /// </summary>

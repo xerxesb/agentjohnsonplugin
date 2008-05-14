@@ -235,7 +235,10 @@ namespace AgentJohnson.ValueAnalysis {
         assertion.Statement = factory.CreateStatement(code);
       }
 
-      IStatement anchor = GetAnchor(body);
+      IStatement anchor = null;
+      if(body != null) {
+        anchor = GetAnchor(body);
+      }
       bool hasAsserts = false;
 
       foreach(ParameterStatement assertion in assertions) {
@@ -245,7 +248,7 @@ namespace AgentJohnson.ValueAnalysis {
 
         MarkParameterWithAttribute(assertion);
 
-        if(assertion.Statement == null) {
+        if(body == null || assertion.Statement == null) {
           continue;
         }
 
@@ -502,7 +505,20 @@ namespace AgentJohnson.ValueAnalysis {
 
       CodeAnnotationsCache codeAnnotationsCache = CodeAnnotationsCache.GetInstance(Solution);
 
-      foreach(IStatement statement in functionDeclaration.Body.Statements) {
+      IBlock body = functionDeclaration.Body;
+      if(body == null) {
+        foreach(ParameterStatement statement in result) {
+          statement.NeedsStatement = false;
+        }
+        return;
+      }
+
+      IList<IStatement> statements = body.Statements;
+      if(statements == null || statements.Count == 0) {
+        return;
+      }
+
+      foreach(IStatement statement in statements) {
         IExpressionStatement expressionStatement = statement as IExpressionStatement;
         if(expressionStatement == null) {
           continue;
