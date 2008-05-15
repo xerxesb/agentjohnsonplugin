@@ -79,8 +79,8 @@ namespace AgentJohnson.ValueAnalysis {
         return;
       }
 
-      IMetaInfoTargetDeclaration metaInfoTargetDeclaration = typeMemberDeclaration as IMetaInfoTargetDeclaration;
-      if (metaInfoTargetDeclaration == null) {
+      IAttributesOwnerDeclaration attributesOwnerDeclaration = typeMemberDeclaration as IAttributesOwnerDeclaration;
+      if (attributesOwnerDeclaration == null) {
         return;
       }
 
@@ -98,7 +98,7 @@ namespace AgentJohnson.ValueAnalysis {
 
       IAttribute attribute = factory.CreateTypeMemberDeclaration("[" + ValueAnalysisSettings.Instance.AllowNullAttribute + "(\"" + parameter.ShortName + "\")]void Foo(){}", new object[] { }).Attributes[0];
 
-      attribute = metaInfoTargetDeclaration.AddAttributeAfter(attribute, null);
+      attribute = attributesOwnerDeclaration.AddAttributeAfter(attribute, null);
 
       string name = attribute.TypeReference.GetName();
       if (!name.EndsWith("Attribute")) {

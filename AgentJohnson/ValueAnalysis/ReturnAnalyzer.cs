@@ -183,9 +183,7 @@ namespace AgentJohnson.ValueAnalysis {
 
       ICSharpControlFlowGraf graf = CSharpControlFlowBuilder.Build(functionDeclaration);
 
-      if (!graf.Inspect(true)) {
-        return true;
-      }
+      graf.Inspect(true);
 
       IReferenceExpression referenceExpression = returnStatement.Value as IReferenceExpression;
       if(referenceExpression == null) {

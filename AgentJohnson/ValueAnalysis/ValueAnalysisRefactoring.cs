@@ -108,12 +108,12 @@ namespace AgentJohnson.ValueAnalysis {
     /// <param name="attributeName">Name of the attribute.</param>
     /// <returns>The attribute.</returns>
     public IAttributeInstance FindAttribute([CanBeNull] string attributeName) {
-      IMetaInfoTargetDeclaration metaInfoTargetDeclaration = TypeMemberDeclaration as IMetaInfoTargetDeclaration;
-      if(metaInfoTargetDeclaration == null) {
+      IAttributesOwner attributesOwner = TypeMemberDeclaration as IAttributesOwner;
+      if(attributeName == null) {
         return null;
       }
 
-      return FindAttribute(attributeName, metaInfoTargetDeclaration);
+      return FindAttribute(attributeName, attributesOwner);
     }
 
     /// <summary>
@@ -322,15 +322,10 @@ namespace AgentJohnson.ValueAnalysis {
     /// Finds the attribute.
     /// </summary>
     /// <param name="attributeName">Name of the attribute.</param>
-    /// <param name="metaInfoTargetDeclaration">The meta info target declaration.</param>
+    /// <param name="attributesOwner">The attributes owner.</param>
     /// <returns>The attribute.</returns>
     [CanBeNull]
-    static IAttributeInstance FindAttribute(string attributeName, IMetaInfoTargetDeclaration metaInfoTargetDeclaration) {
-      IAttributesOwner attributesOwner = metaInfoTargetDeclaration as IAttributesOwner;
-      if(attributesOwner == null) {
-        return null;
-      }
-
+    static IAttributeInstance FindAttribute(string attributeName, IAttributesOwner attributesOwner) {
       CLRTypeName typeName = new CLRTypeName(attributeName);
       IList<IAttributeInstance> instances = attributesOwner.GetAttributeInstances(typeName, true);
 
@@ -897,11 +892,6 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="assertion">The assertion.</param>
     void MarkParameterWithAttribute(ParameterStatement assertion) {
-      IRegularParameterDeclaration regularParameterDeclaration = assertion.Parameter as IRegularParameterDeclaration;
-      if(regularParameterDeclaration == null) {
-        return;
-      }
-
       Rule rule = Rule.GetRule(assertion.Parameter.Type);
       if (rule != null && !rule.NotNull && !rule.CanBeNull) {
         rule = null;
@@ -933,8 +923,13 @@ namespace AgentJohnson.ValueAnalysis {
         return;
       }
 
-      IAttributeInstance attributeInstance = FindAttribute(valueAttribute, regularParameterDeclaration);
+      IAttributeInstance attributeInstance = FindAttribute(valueAttribute, assertion.Parameter);
       if(attributeInstance != null) {
+        return;
+      }
+
+      IRegularParameterDeclaration regularParameterDeclaration = assertion.Parameter as IRegularParameterDeclaration;
+      if(regularParameterDeclaration == null) {
         return;
       }
 
@@ -945,30 +940,30 @@ namespace AgentJohnson.ValueAnalysis {
     /// Marks the with attribute.
     /// </summary>
     void MarkWithAttribute(string attributeName) {
-      IMetaInfoTargetDeclaration metaInfoTargetDeclaration = TypeMemberDeclaration as IMetaInfoTargetDeclaration;
-      if(metaInfoTargetDeclaration == null) {
+      IAttributesOwnerDeclaration attributesOwner = TypeMemberDeclaration as IAttributesOwnerDeclaration;
+      if(attributeName == null) {
         return;
       }
 
-      MarkWithAttribute(attributeName, metaInfoTargetDeclaration);
+      MarkWithAttribute(attributeName, attributesOwner);
     }
 
     /// <summary>
     /// Marks the with attribute.
     /// </summary>
-    /// <param name="metaInfoTargetDeclaration">The meta info target declaration.</param>
+    /// <param name="attributesOwnerDeclaration">The meta info target declaration.</param>
     /// <param name="attributeName">Name of the attribute.</param>
-    void MarkWithAttribute(string attributeName, IMetaInfoTargetDeclaration metaInfoTargetDeclaration) {
+    void MarkWithAttribute(string attributeName, IAttributesOwnerDeclaration attributesOwnerDeclaration) {
       ITypeElement typeElement = GetAttribute(attributeName);
       if(typeElement == null) {
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(metaInfoTargetDeclaration.GetProject());
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(attributesOwnerDeclaration.GetProject());
 
       IAttribute attribute = factory.CreateTypeMemberDeclaration("[$0]void Foo(){}", new object[] {typeElement}).Attributes[0];
 
-      attribute = metaInfoTargetDeclaration.AddAttributeAfter(attribute, null);
+      attribute = attributesOwnerDeclaration.AddAttributeAfter(attribute, null);
 
       string name = attribute.TypeReference.GetName();
       if(!name.EndsWith("Attribute")) {
