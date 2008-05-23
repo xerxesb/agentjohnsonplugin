@@ -74,7 +74,7 @@ namespace AgentJohnson.ValueAnalysis {
 
       IType type = function.ReturnType;
 
-      Rule rule = Rule.GetRule(type) ?? Rule.GetDefaultRule();
+      Rule rule = Rule.GetRule(type, function.Language) ?? Rule.GetDefaultRule();
       if(rule == null) {
         return;
       }

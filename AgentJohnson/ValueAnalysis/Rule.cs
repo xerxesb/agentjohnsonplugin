@@ -11,7 +11,6 @@ namespace AgentJohnson.ValueAnalysis {
     #region Fields
 
     bool _canBeNull;
-    IDeclaredType _declaredType;
     string _nonPublicParameterAssertion;
     bool _notNull;
     string _publicParameterAssertion;
@@ -35,19 +34,6 @@ namespace AgentJohnson.ValueAnalysis {
       }
       set {
         _canBeNull = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the type of the declared.
-    /// </summary>
-    /// <value>The type of the declared.</value>
-    public IDeclaredType DeclaredType {
-      get {
-        return _declaredType;
-      }
-      set {
-        _declaredType = value;
       }
     }
 
@@ -110,9 +96,6 @@ namespace AgentJohnson.ValueAnalysis {
         return _typeName ?? string.Empty;
       }
       set {
-        if(_typeName != value) {
-          _declaredType = null;
-        }
         _typeName = value;
       }
     }
@@ -162,7 +145,7 @@ namespace AgentJohnson.ValueAnalysis {
       List<Rule> configurations = ValueAnalysisSettings.Instance.Rules;
 
       foreach(Rule configuration in configurations) {
-        if(configuration.TypeName == "*") {
+        if(configuration.TypeName == "*" || configuration.TypeName == "System.Object") {
           return configuration;
         }
       }
@@ -174,10 +157,22 @@ namespace AgentJohnson.ValueAnalysis {
     /// Gets the type configuration.
     /// </summary>
     /// <param name="type">The type.</param>
+    /// <param name="languageType">Type of the language.</param>
     /// <returns>The type configuration.</returns>
-    public static Rule GetRule(IType type) {
+    public static Rule GetRule(IType type, PsiLanguageType languageType) {
+      string clrName = null;
+
+      IArrayType arrayType = type as IArrayType;
+      if(arrayType != null) {
+        clrName = arrayType.GetLongPresentableName(languageType);
+      }
+
       IDeclaredType declaredType = type as IDeclaredType;
-      if(declaredType == null) {
+      if(declaredType != null) {
+        clrName = declaredType.GetCLRName();
+      }
+
+      if(string.IsNullOrEmpty(clrName)) {
         return null;
       }
 
@@ -189,26 +184,28 @@ namespace AgentJohnson.ValueAnalysis {
       List<Rule> configurations = ValueAnalysisSettings.Instance.Rules;
 
       foreach(Rule configuration in configurations) {
-        if(configuration.TypeName == "*") {
+        if(configuration.TypeName == "*" || configuration.TypeName == "System.Object") {
           continue;
         }
 
-        if(configuration.DeclaredType == null) {
-          configuration.DeclaredType = TypeFactory.CreateTypeByCLRName(configuration.TypeName, module);
-        }
-
-        string clrName = declaredType.GetCLRName();
-        if(!string.IsNullOrEmpty(clrName) && clrName == configuration.DeclaredType.GetCLRName()) {
+        if(!string.IsNullOrEmpty(clrName) && clrName == configuration.TypeName) {
           return configuration;
         }
       }
 
+      if (declaredType == null) {
+        return null;
+      }
+
+      // check for subclass
       foreach(Rule configuration in configurations) {
-        if(configuration.TypeName == "*") {
+        if(configuration.TypeName == "*" || configuration.TypeName == "System.Object") {
           continue;
         }
 
-        if(declaredType.IsSubtypeOf(configuration.DeclaredType)) {
+        IDeclaredType baseType = TypeFactory.CreateTypeByCLRName(configuration.TypeName, module);
+
+        if(declaredType.IsSubtypeOf(baseType)) {
           return configuration;
         }
       }

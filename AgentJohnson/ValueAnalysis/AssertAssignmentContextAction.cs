@@ -98,6 +98,7 @@ namespace AgentJohnson.ValueAnalysis {
 
       TextRange range;
       IType declaredType;
+      PsiLanguageType language;
 
       if(assignmentExpression != null) {
         ICSharpExpression destination = assignmentExpression.Dest;
@@ -110,6 +111,7 @@ namespace AgentJohnson.ValueAnalysis {
         }
 
         declaredType = destination.GetExpressionType() as IDeclaredType;
+        language = destination.Language;
 
         IReferenceExpression referenceExpression = assignmentExpression.Dest as IReferenceExpression;
         if(referenceExpression == null) {
@@ -127,6 +129,7 @@ namespace AgentJohnson.ValueAnalysis {
         }
 
         declaredType = localVariable.Type;
+        language = localVariable.Language;
 
         ILocalVariableDeclarationNode declNode = localVariableDeclaration.ToTreeNode();
         if(declNode.AssignmentSign == null) {
@@ -150,7 +153,7 @@ namespace AgentJohnson.ValueAnalysis {
         return false;
       }
 
-      Rule rule = Rule.GetRule(declaredType) ?? Rule.GetDefaultRule();
+      Rule rule = Rule.GetRule(declaredType, language) ?? Rule.GetDefaultRule();
       if(rule == null) {
         return false;
       }
@@ -246,7 +249,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// <param name="element">The element.</param>
     /// <param name="name">The name.</param>
     void InsertAssertionCode(IType type, IElement element, string name) {
-      Rule rule = Rule.GetRule(type) ?? Rule.GetDefaultRule();
+      Rule rule = Rule.GetRule(type, element.Language) ?? Rule.GetDefaultRule();
       if(rule == null) {
         return;
       }

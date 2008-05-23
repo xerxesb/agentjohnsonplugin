@@ -83,6 +83,10 @@ namespace AgentJohnson.ValueAnalysis {
     /// Executes the specified element.
     /// </summary>
     public void Execute() {
+      if(!IsAttributeDefined()) {
+        return;
+      }
+
       IPropertyDeclaration propertyDeclaration = TypeMemberDeclaration as IPropertyDeclaration;
       if(propertyDeclaration != null) {
         ExecuteProperty(propertyDeclaration);
@@ -123,6 +127,10 @@ namespace AgentJohnson.ValueAnalysis {
     /// 	<c>true</c> if this instance is available; otherwise, <c>false</c>.
     /// </returns>
     public bool IsAvailable() {
+       if(!IsAttributeDefined()) {
+        return false;
+      }
+
       IPropertyDeclaration propertyDeclaration = TypeMemberDeclaration as IPropertyDeclaration;
       if(propertyDeclaration != null) {
         return IsAvailableProperty(propertyDeclaration);
@@ -141,6 +149,33 @@ namespace AgentJohnson.ValueAnalysis {
       return false;
     }
 
+    /// <summary>
+    /// Determines whether the value analysis attributes are defined.
+    /// </summary>
+    /// <returns>
+    /// 	<c>true</c> if the value analysis attributes are defined; otherwise, <c>false</c>.
+    /// </returns>
+    bool IsAttributeDefined() {
+      string notNullValueAttributeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.NotNullAttributeShortName);
+      string canBeNullValueAttributeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.CanBeNullAttributeShortName);
+
+      if(string.IsNullOrEmpty(notNullValueAttributeName) && string.IsNullOrEmpty(canBeNullValueAttributeName)) {
+        return false;
+      }
+
+      DeclarationsCacheScope declarationsCacheScope = DeclarationsCacheScope.ProjectScope(TypeMemberDeclaration.GetProject(), true);
+      IDeclarationsCache declarationsCache = PsiManager.GetInstance(Solution).GetDeclarationsCache(declarationsCacheScope, true);
+
+      ITypeElement notNullValueAttributeTypeElement = declarationsCache[notNullValueAttributeName] as ITypeElement;
+      ITypeElement canBeNullValueAttributeTypeElement = declarationsCache[canBeNullValueAttributeName] as ITypeElement;
+
+      if (notNullValueAttributeTypeElement == null && canBeNullValueAttributeTypeElement == null) {
+        return false;
+      }
+
+      return true;
+    }
+
     #endregion
 
     #region Private methods
@@ -151,9 +186,6 @@ namespace AgentJohnson.ValueAnalysis {
     void ExecuteAttribute() {
       string notNullableValueAttribute = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.NotNullAttributeShortName);
       string canBeNullValueAttribute = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.CanBeNullAttributeShortName);
-      if(string.IsNullOrEmpty(notNullableValueAttribute) && string.IsNullOrEmpty(canBeNullValueAttribute)) {
-        return;
-      }
 
       IAttributeInstance notNull = FindAttribute(notNullableValueAttribute);
       IAttributeInstance canBeNull = FindAttribute(canBeNullValueAttribute);
@@ -206,7 +238,7 @@ namespace AgentJohnson.ValueAnalysis {
 
       IBlock body = functionDeclaration.Body;
 
-      AccessRights accessRights = functionDeclaration.GetAccessRights();
+      AccessRights accessRights = GetAccessRights(functionDeclaration);
 
       foreach(ParameterStatement assertion in assertions) {
         if(assertion.Nullable) {
@@ -264,6 +296,25 @@ namespace AgentJohnson.ValueAnalysis {
       if(anchor != null && hasAsserts) {
         InsertBlankLine(anchor, codeFormatter);
       }
+    }
+
+    /// <summary>
+    /// Gets the access rights.
+    /// </summary>
+    /// <param name="functionDeclaration">The function declaration.</param>
+    /// <returns>The access rights.</returns>
+    static AccessRights GetAccessRights(IFunctionDeclaration functionDeclaration) {
+      AccessRights accessRights = functionDeclaration.GetAccessRights();
+      if (accessRights != AccessRights.PUBLIC) {
+        return accessRights;
+      }
+
+      ICSharpTypeDeclaration containingTypeDeclaration = functionDeclaration.GetContainingTypeDeclaration();
+      if(containingTypeDeclaration == null) {
+        return accessRights;
+      }
+
+      return containingTypeDeclaration.GetAccessRights();
     }
 
     /// <summary>
@@ -341,31 +392,40 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="parameterStatement">The parameter statement.</param>
     void FindAttributes(ParameterStatement parameterStatement) {
-      string notNullableValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.NotNullAttributeShortName);
-      if(string.IsNullOrEmpty(notNullableValueAttributeTypeName)) {
+      string notNullValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.NotNullAttributeShortName);
+      string canBeNullValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.CanBeNullAttributeShortName);
+      if(string.IsNullOrEmpty(notNullValueAttributeTypeName) || string.IsNullOrEmpty(canBeNullValueAttributeTypeName)) {
         return;
       }
 
-      CLRTypeName notNullableAttributeName = new CLRTypeName(notNullableValueAttributeTypeName);
+      CLRTypeName notNullableAttributeName = new CLRTypeName(notNullValueAttributeTypeName);
+      CLRTypeName canBeNullAttributeName = new CLRTypeName(canBeNullValueAttributeTypeName);
 
-      IList<IAttributeInstance> instances = parameterStatement.Parameter.GetAttributeInstances(notNullableAttributeName, true);
+      IList<IAttributeInstance> instances = parameterStatement.Parameter.GetAttributeInstances(notNullableAttributeName, false);
       if(instances != null && instances.Count > 0) {
         parameterStatement.Nullable = false;
         parameterStatement.AttributeInstance = instances[0];
         return;
       }
 
-      string canBeNullValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(CodeAnnotationsCache.CanBeNullAttributeShortName);
-      if(string.IsNullOrEmpty(canBeNullValueAttributeTypeName)) {
-        return;
-      }
-
-      CLRTypeName canBeNullAttributeName = new CLRTypeName(canBeNullValueAttributeTypeName);
-      instances = parameterStatement.Parameter.GetAttributeInstances(canBeNullAttributeName, true);
+      instances = parameterStatement.Parameter.GetAttributeInstances(canBeNullAttributeName, false);
       if(instances != null && instances.Count > 0) {
         parameterStatement.Nullable = true;
         parameterStatement.AttributeInstance = instances[0];
         return;
+      }
+
+      instances = parameterStatement.Parameter.GetAttributeInstances(notNullableAttributeName, true);
+      if(instances != null && instances.Count > 0) {
+        parameterStatement.Nullable = false;
+        parameterStatement.AttributeInstance = instances[0];
+        return;
+      }
+
+      instances = parameterStatement.Parameter.GetAttributeInstances(canBeNullAttributeName, true);
+      if(instances != null && instances.Count > 0) {
+        parameterStatement.Nullable = true;
+        parameterStatement.AttributeInstance = instances[0];
       }
     }
 
@@ -436,7 +496,7 @@ namespace AgentJohnson.ValueAnalysis {
         }
       }
 
-      AccessRights accessRights = functionDeclaration.GetAccessRights();
+      AccessRights accessRights = GetAccessRights(functionDeclaration);
 
       foreach(IParameter parameter in parametersOwner.Parameters) {
         if(parameter == null) {
@@ -623,7 +683,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// <param name="accessRights">The access rights.</param>
     /// <returns>The code.</returns>
     static string GetCode(ParameterStatement assertion, AccessRights accessRights) {
-      Rule rule = Rule.GetRule(assertion.Parameter.Type);
+      Rule rule = Rule.GetRule(assertion.Parameter.Type, assertion.Parameter.Language);
 
       if(rule == null) {
         rule = Rule.GetDefaultRule();
@@ -892,7 +952,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="assertion">The assertion.</param>
     void MarkParameterWithAttribute(ParameterStatement assertion) {
-      Rule rule = Rule.GetRule(assertion.Parameter.Type);
+      Rule rule = Rule.GetRule(assertion.Parameter.Type, assertion.Parameter.Language);
       if (rule != null && !rule.NotNull && !rule.CanBeNull) {
         rule = null;
       }

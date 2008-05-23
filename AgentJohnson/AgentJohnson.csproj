@@ -179,12 +179,6 @@
   <ItemGroup>
     <Compile Include="ActionHandlerBase.cs" />
     <Compile Include="ContextActionBase.cs" />
-    <Compile Include="Generate\GenerateMethodStub.cs" />
-    <Compile Include="Generate\GeneratePropertyStub.cs" />
-    <Compile Include="Generate\PropertyStubGenerator.cs" />
-    <Compile Include="Generate\StubGeneratorPage.cs" />
-    <Compile Include="Generate\MethodStubGenerator.cs" />
-    <Compile Include="Generate\StubGeneratorBase.cs" />
     <Compile Include="Options\ImportExportPage.cs">
       <SubType>UserControl</SubType>
     </Compile>

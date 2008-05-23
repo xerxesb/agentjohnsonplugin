@@ -51,13 +51,12 @@ namespace AgentJohnson.Test {
     /// Values the analysis.
     /// </summary>
     /// <param name="test">The test.</param>
+    /// <returns>The analysis.</returns>
     [NotNull]
-    public string ValueAnalysis(string test) {
-      Assert.ArgumentNotNull(test, "test");
-
+    public string ValueAnalysis(params string[] test) {
       TestEnum e = TestEnum.Public;
 
-      string v = "!";
+      string v = null;
 
       return v;
     }
@@ -65,6 +64,7 @@ namespace AgentJohnson.Test {
     /// <summary>
     /// Values the analysis.
     /// </summary>
+    /// <returns>The analysis.</returns>
     public string ValueAnalysis() {
       string result = ValueAnalysis(null);
       
@@ -72,5 +72,33 @@ namespace AgentJohnson.Test {
     }
 
     #endregion
+  }
+
+  /// <summary>
+  /// 
+  /// </summary>
+  public class BaseClass {
+    /// <summary>
+    /// Gets the string.
+    /// </summary>
+    /// <param name="result">The result.</param>
+    /// <returns>The string.</returns>
+    public virtual string GetString([NotNull] string result) {
+      Assert.ArgumentNotNull(result, "result");
+      
+      return result;
+    }
+  }
+
+  public class OverloadedClass : BaseClass {
+    /// <summary>
+    /// Gets the string.
+    /// </summary>
+    /// <param name="result"></param>
+    /// <returns>The string.</returns>
+    [CanBeNull]
+    public override string GetString([CanBeNull] string result) {
+      return result;
+    }
   }
 }

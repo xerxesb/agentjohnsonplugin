@@ -77,7 +77,7 @@ namespace AgentJohnson.ValueAnalysis {
         return suggestions;
       }
 
-      if(!IsAsserted(returnStatement)) {
+      if(RequiresAssertion(returnStatement)) {
         suggestions.Add(new ReturnWarning(_solution, returnStatement));
       }
 
@@ -91,68 +91,68 @@ namespace AgentJohnson.ValueAnalysis {
     /// <returns>
     /// 	<c>true</c> if this instance is asserted; otherwise, <c>false</c>.
     /// </returns>
-    bool IsAsserted(IReturnStatement returnStatement) {
+    bool RequiresAssertion(IReturnStatement returnStatement) {
       string canBeNullName = CodeAnnotationsCache.CanBeNullAttributeShortName;
       if(string.IsNullOrEmpty(canBeNullName)) {
-        return true;
+        return false;
       }
       string notNullName = CodeAnnotationsCache.NotNullAttributeShortName;
       if(string.IsNullOrEmpty(notNullName)) {
-        return true;
+        return false;
       }
 
       if(returnStatement.Value.IsConstantValue()) {
-        return true;
+        return false;
       }
 
       string returnValue = returnStatement.Value.GetText();
       if (returnValue == "string.Empty" || returnValue == "String.Empty") {
-        return true;
+        return false;
       }
 
       ICreationExpression creationExpression = returnStatement.Value as ICreationExpression;
       if(creationExpression != null) {
-        return true;
+        return false;
       }
 
       IFunction function = returnStatement.GetContainingTypeMemberDeclaration() as IFunction;
       if(function == null) {
-        return true;
+        return false;
       }
 
       IType type = function.ReturnType;
       if(!type.IsReferenceType()) {
-        return true;
+        return false;
       }
 
       string canBeNullValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(canBeNullName);
       CLRTypeName canBeNullTypeName = new CLRTypeName(canBeNullValueAttributeTypeName);
       IList<IAttributeInstance> instances = function.GetAttributeInstances(canBeNullTypeName, true);
       if(instances != null && instances.Count > 0) {
-        return true;
+        return false;
       }
 
       string notNullValueAttributeTypeName = CodeAnnotationsCache.GetInstance(Solution).GetDefaultAnnotationAttribute(notNullName);
       CLRTypeName notNullTypeName = new CLRTypeName(notNullValueAttributeTypeName);
       instances = function.GetAttributeInstances(notNullTypeName, true);
       if(instances == null || instances.Count == 0) {
-        return true;
+        return false;
       }
 
-      Rule rule = Rule.GetRule(type) ?? Rule.GetDefaultRule();
+      Rule rule = Rule.GetRule(type, function.Language) ?? Rule.GetDefaultRule();
       if(rule == null) {
-        return true;
+        return false;
       }
 
       if(string.IsNullOrEmpty(rule.ReturnAssertion)) {
-        return true;
+        return false;
       }
 
       IInvocationExpression invocationExpression = returnStatement.Value as IInvocationExpression;
       if(invocationExpression != null) {
         IReferenceExpression invokedExpression = invocationExpression.InvokedExpression as IReferenceExpression;
         if(invokedExpression == null) {
-          return false;
+          return true;
         }
 
         ResolveResult resolveResult = invokedExpression.Reference.Resolve();
@@ -169,13 +169,13 @@ namespace AgentJohnson.ValueAnalysis {
         }
 
         if(method == null) {
-          return false;
+          return true;
         }
 
         CodeAnnotationsCache codeAnnotationsCache = CodeAnnotationsCache.GetInstance(_solution);
 
         if (codeAnnotationsCache.IsAssertionMethod(method)) {
-          return true;
+          return false;
         }
       }
 
@@ -187,20 +187,20 @@ namespace AgentJohnson.ValueAnalysis {
 
       IReferenceExpression referenceExpression = returnStatement.Value as IReferenceExpression;
       if(referenceExpression == null) {
-        return true;
+        return false;
       }
 
       CSharpControlFlowNullReferenceState state = graf.GetExpressionNullReferenceState(referenceExpression);
 
       switch(state) {
         case CSharpControlFlowNullReferenceState.UNKNOWN:
-          return false;
-        case CSharpControlFlowNullReferenceState.NOT_NULL:
           return true;
+        case CSharpControlFlowNullReferenceState.NOT_NULL:
+          return false;
         case CSharpControlFlowNullReferenceState.NULL:
-          return false;
+          return true;
         case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
-          return false;
+          return true;
       }
 
       return true;
