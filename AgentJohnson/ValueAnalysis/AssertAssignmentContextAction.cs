@@ -136,9 +136,19 @@ namespace AgentJohnson.ValueAnalysis {
           return false;
         }
 
+        IVariableInitializer initial = localVariableDeclaration.Initial;
+        if(initial == null) {
+          return false;
+        }
+
+        IIdentifierNode identifier = declNode.NameIdentifier;
+        if(identifier == null) {
+          return false;
+        }
+
         _name = localVariable.ShortName;
 
-        range = new TextRange(declNode.NameIdentifier.GetTreeStartOffset(), localVariableDeclaration.Initial.GetTreeStartOffset());
+        range = new TextRange(identifier.GetTreeStartOffset(), initial.GetTreeStartOffset());
       }
 
       if(declaredType == null) {
