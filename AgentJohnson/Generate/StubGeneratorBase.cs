@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Xml;
-using JetBrains.ActionManagement;
 using JetBrains.DocumentModel;
-using JetBrains.IDE;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.CodeInsight.Services.CSharp.Generate.Util;
 using JetBrains.ReSharper.CodeInsight.Services.Generate;
@@ -34,10 +32,11 @@ namespace AgentJohnson.Generate {
     /// <summary>
     /// Initializes a new instance of the <see cref="MethodStubGenerator"/> class.
     /// </summary>
-    /// <param name="context">The context.</param>
-    protected StubGeneratorBase(IDataContext context) {
-      _solution = context.GetData(DataConstants.SOLUTION);
-      _textControl = context.GetData(DataConstants.TEXT_CONTROL);
+    /// <param name="textControl">The text control.</param>
+    /// <param name="solution">The solution.</param>
+    protected StubGeneratorBase(ITextControl textControl, ISolution solution) {
+      _solution = solution;
+      _textControl = textControl;
 
       if(_solution == null || _textControl == null) {
         return;

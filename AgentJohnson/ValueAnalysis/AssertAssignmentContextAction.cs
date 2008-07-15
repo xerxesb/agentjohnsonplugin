@@ -11,6 +11,7 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
@@ -118,9 +119,19 @@ namespace AgentJohnson.ValueAnalysis {
           return false;
         }
 
-        _name = referenceExpression.Reference.GetName();
+        IReference reference = referenceExpression.Reference;
+        if (reference == null) {
+          return false;
+        }
 
-        range = new TextRange(assignmentExpression.Dest.GetTreeStartOffset(), assignmentExpression.Source.GetTreeStartOffset());
+        IExpression source = assignmentExpression.Source;
+        if (source == null) {
+          return false;
+        }
+
+        _name = reference.GetName();
+
+        range = new TextRange(assignmentExpression.Dest.GetTreeStartOffset(), source.GetTreeStartOffset());
       }
       else {
         ILocalVariable localVariable = localVariableDeclaration as ILocalVariable;

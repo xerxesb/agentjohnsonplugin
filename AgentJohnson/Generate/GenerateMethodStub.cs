@@ -1,7 +1,8 @@
 using System.Drawing;
-using JetBrains.ActionManagement;
+using JetBrains.ProjectModel;
 using JetBrains.ReSharper.CodeInsight.Services.Generate;
 using JetBrains.ReSharper.Psi;
+using JetBrains.TextControl;
 using JetBrains.UI.RichText;
 
 namespace AgentJohnson.Generate {
@@ -9,16 +10,17 @@ namespace AgentJohnson.Generate {
   /// Generation item to be registered by <c>ReSharper</c>
   /// </summary>
   [GenerateItem(Priority = 100)]
-  public class GenerateMethodStub : IGenerateItem {
+  public class GenerateMethodStub : TextControlGenerateItem {
     #region Public methods
 
     /// <summary>
     /// Gets the generator.
     /// </summary>
-    /// <param name="dataContext">The data context.</param>
+    /// <param name="textControl">The text control.</param>
+    /// <param name="solution">The solution.</param>
     /// <returns></returns>
-    public IGenerator GetGenerator(IDataContext dataContext) {
-      return new MethodStubGenerator(dataContext);
+    public override WizardBasedGenerator GetGenerator(ITextControl textControl, ISolution solution) {
+      return new MethodStubGenerator(textControl, solution);
     }
 
     #endregion
@@ -29,7 +31,7 @@ namespace AgentJohnson.Generate {
     /// Gets the image.
     /// </summary>
     /// <value>The image.</value>
-    public Image Image {
+    public override Image Image {
       get {
         return PsiIconManager.Instance.GetImage(CLRDeclaredElementType.METHOD);
       }
@@ -39,7 +41,7 @@ namespace AgentJohnson.Generate {
     /// Gets the text.
     /// </summary>
     /// <value>The text.</value>
-    public RichText Text {
+    public override RichText Text {
       get {
         return "Method stub";
       }

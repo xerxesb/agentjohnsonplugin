@@ -133,6 +133,10 @@ namespace AgentJohnson.Exceptions {
     /// <param name="exceptionTypeName">Name of the exception type.</param>
     /// <returns>The exception text.</returns>
     static string GetExceptionText(IThrowStatement throwStatement, string exceptionTypeName) {
+      if (exceptionTypeName == "ArgumentNullException") {
+        return GetArgumentExceptionText(throwStatement);
+      }
+
       string exceptionText = "<c>" + exceptionTypeName + "</c>.";
 
       ICSharpExpression exception = throwStatement.Exception;
@@ -144,6 +148,8 @@ namespace AgentJohnson.Exceptions {
       if(argumentsOwner == null) {
         return exceptionText;
       }
+
+      string result = null;
 
       foreach(IArgument argument in argumentsOwner.Arguments) {
         ICSharpArgument csharpArgument = argument as ICSharpArgument;
@@ -163,10 +169,67 @@ namespace AgentJohnson.Exceptions {
           continue;
         }
 
-        return stringValue;
+        result = stringValue;
+
+        break;
+      }
+
+      if(exceptionTypeName == "ArgumentOutOfRangeException") {
+        result = String.Format("<c>{0}</c> is out of range.", result);
+      }
+
+      if (result != null) {
+        return result;
       }
 
       return exceptionText;
+    }
+
+    /// <summary>
+    /// Gets the argument null text.
+    /// </summary>
+    /// <param name="throwStatement">The statement.</param>
+    /// <returns>The argument null text.</returns>
+    static string GetArgumentExceptionText(IThrowStatement throwStatement) {
+      const string result = "Argument is null.";
+      string name = null;
+
+      IStatement containingStatement = throwStatement.GetContainingStatement();
+      if (containingStatement is IBlock) {
+        containingStatement = containingStatement.GetContainingStatement();
+      }
+
+      IIfStatement ifStatement = containingStatement as IIfStatement;
+      if(ifStatement == null) {
+        return result;
+      }
+
+      IEqualityExpression condition = ifStatement.Condition as IEqualityExpression;
+      if(condition == null) {
+        return result;
+      }
+
+      ICSharpExpression leftOperand = condition.LeftOperand;
+      ICSharpExpression rightOperand = condition.RightOperand;
+      if (rightOperand == null || leftOperand == null) {
+        return result;
+      }
+
+      string left = leftOperand.GetText();
+      string right = rightOperand.GetText();
+
+      if (left == "null") {
+        name = right;
+      }
+      else if (right == "null") {
+        name = left;
+      }
+
+      if(name == null) {
+        return result;
+      }
+
+      return "<c>" + name + "</c> is null.";
     }
 
     /// <summary>

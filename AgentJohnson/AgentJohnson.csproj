@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30428</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{4223E1C5-7AC8-4B81-942F-F331B972028C}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -191,6 +191,12 @@
     <Compile Include="Options\ValueAnalysisDetailsPage.Designer.cs">
       <DependentUpon>ValueAnalysisDetailsPage.cs</DependentUpon>
     </Compile>
+    <Compile Include="Refactorings\SmartGenerateAction.cs" />
+    <Compile Include="Statements\ReverseForDirectionContextAction.cs" />
+    <Compile Include="Strings\IntroduceStringConstantActionHandler.cs" />
+    <Compile Include="Strings\IntroduceStringConstantContextAction.cs" />
+    <Compile Include="Strings\IntroduceStringConstantRefactoring.cs" />
+    <Compile Include="Strings\IntroduceStringConstantSettings.cs" />
     <Compile Include="ValueAnalysis\CheckAssignmentContextAction.cs" />
     <Compile Include="Strings\CheckStringNotNullOrEmptyContextAction.cs" />
     <Compile Include="Enums\GenerateSwitchContextAction.cs" />
@@ -228,7 +234,6 @@
     <Compile Include="Options\IntroduceStringConstantOptionsPage.Designer.cs">
       <DependentUpon>IntroduceStringConstantOptionsPage.cs</DependentUpon>
     </Compile>
-    <Compile Include="Strings\IntroduceStringConstantSettings.cs" />
     <Compile Include="Options\ValueAnalysisOptionsPage.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -236,15 +241,12 @@
       <DependentUpon>ValueAnalysisOptionsPage.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sitecore\Assert.cs" />
-    <Compile Include="Strings\IntroduceStringConstantActionHandler.cs" />
-    <Compile Include="Strings\IntroduceStringConstantContextAction.cs" />
-    <Compile Include="Strings\IntroduceStringConstantRefactoring.cs" />
+    <Compile Include="Refactorings\InvertReturnValueActionHandler.cs" />
+    <Compile Include="Refactorings\InvertReturnValueRefactoring.cs" />
     <Compile Include="Strings\StringEmptyQuickFix.cs" />
     <Compile Include="Strings\StringEmptySuggestion.cs" />
     <Compile Include="Strings\StringEmptyAnalyzer.cs" />
     <Compile Include="SuggestionBase.cs" />
-    <Compile Include="Sitecore\Test.cs" />
     <Compile Include="Util\Methods.cs" />
     <Compile Include="ValueAnalysis\AllowNullContextAction.cs" />
     <Compile Include="ValueAnalysis\AllowNullsContextAction.cs" />
@@ -286,6 +288,11 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Assertions.gif" />
     <EmbeddedResource Include="Resources\StringConstant.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SmartGenerate.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

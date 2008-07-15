@@ -5,8 +5,6 @@ using AgentJohnson.ValueAnalysis;
 using EnvDTE;
 using JetBrains.UI.Options;
 using JetBrains.VSIntegration.Shell;
-using Sitecore.Annotations;
-using Sitecore.Diagnostics;
 
 namespace AgentJohnson.Options
 {
@@ -153,10 +151,7 @@ namespace AgentJohnson.Options
     ///</summary>
     ///
     ///<param name="e">An <see cref="T:System.EventArgs" /> that contains the event data. </param>
-    protected override void OnLoad([NotNull] EventArgs e)
-    {
-      Assert.ArgumentNotNull(e, "e");
-
+    protected override void OnLoad(EventArgs e) {
       base.OnLoad(e);
 
       Display();
@@ -257,7 +252,6 @@ namespace AgentJohnson.Options
     /// Control to be shown as page
     /// </summary>
     /// <value></value>
-    [NotNull]
     public Control Control
     {
       get { return this; }
@@ -268,7 +262,6 @@ namespace AgentJohnson.Options
     /// <see cref="T:JetBrains.UI.Options.IOptionsDialog"/> or <see cref="T:JetBrains.UI.Options.OptionsPageDescriptor"/> could be used to retrieve the <see cref="T:JetBrains.UI.Options.OptionsManager"/> out of it.
     /// </summary>
     /// <value></value>
-    [NotNull]
     public string Id
     {
       get { return NAME; }

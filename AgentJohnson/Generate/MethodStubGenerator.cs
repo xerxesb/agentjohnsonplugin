@@ -1,5 +1,7 @@
 using JetBrains.ActionManagement;
+using JetBrains.ProjectModel;
 using JetBrains.ReSharper.CodeInsight.Services.Generate;
+using JetBrains.TextControl;
 
 namespace AgentJohnson.Generate {
   /// <summary>
@@ -11,8 +13,9 @@ namespace AgentJohnson.Generate {
     /// <summary>
     /// Initializes a new instance of the <see cref="MethodStubGenerator"/> class.
     /// </summary>
-    /// <param name="context">The context.</param>
-    public MethodStubGenerator(IDataContext context) : base(context) {
+    /// <param name="textControl">The text control.</param>
+    /// <param name="solution">The solution.</param>
+    public MethodStubGenerator(ITextControl textControl, ISolution solution): base(textControl, solution) {
     }
 
     #endregion

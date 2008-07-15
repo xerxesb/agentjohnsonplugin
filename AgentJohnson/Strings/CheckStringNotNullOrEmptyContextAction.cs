@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using JetBrains.Application.Progress;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.CodeInsight.Services.CSharp.Generate.Util;
 using JetBrains.ReSharper.Daemon;
 using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
 using JetBrains.ReSharper.Psi;
@@ -9,6 +10,7 @@ using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
@@ -191,6 +193,7 @@ namespace AgentJohnson.Strings {
       if(type == null) {
         return;
       }
+
 
       IReferenceExpression referenceExpression = assignmentExpression.Dest as IReferenceExpression;
       if(referenceExpression == null) {

@@ -6,12 +6,17 @@
     </action>
   </insert>
 
-  <action id="AgentJohnson.IntroduceStringConstant" text="Introduce String Constant"/>
+  <insert group-id="Code" position="after" anchor-id="Generate">
+    <action id="SmartGenerate" text="Smart Generate" shortcut="Shift+Enter">
+      <vs-shortcut>Shift+Enter</vs-shortcut>
+    </action>
+  </insert>   
 
-<!--  <insert group-id="RefactorThisMenu" position="last">
-    <action-ref id="AgentJohnson.IntroduceStringConstant"/>
-  </insert> -->
+  <action id="AgentJohnson.IntroduceStringConstant" text="Introduce String Constant"/>
+  <action id="AgentJohnson.InvertReturnValue" text="Invert Return Value"/>
+
   <insert group-id="Refactor" position="last">
     <action-ref id="AgentJohnson.IntroduceStringConstant"/>
+    <action-ref id="AgentJohnson.InvertReturnValue"/>
   </insert>
 </actions>

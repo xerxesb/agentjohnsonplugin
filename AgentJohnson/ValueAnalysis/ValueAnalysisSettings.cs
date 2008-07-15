@@ -4,7 +4,6 @@ using System.Xml;
 using JetBrains.Application;
 using JetBrains.ComponentModel;
 using JetBrains.Util;
-using Sitecore.Annotations;
 
 namespace AgentJohnson.ValueAnalysis {
   /// <summary>
@@ -27,7 +26,6 @@ namespace AgentJohnson.ValueAnalysis {
     /// Gets or sets the allow null attribute.
     /// </summary>
     /// <value>The allow null attribute.</value>
-    [NotNull]
     [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = "")]
     public string AllowNullAttribute {
       get {
@@ -56,7 +54,6 @@ namespace AgentJohnson.ValueAnalysis {
     /// Gets the instance.
     /// </summary>
     /// <value>The instance.</value>
-    [NotNull]
     public static ValueAnalysisSettings Instance {
       get {
         return (ValueAnalysisSettings)Shell.Instance.GetComponent(typeof(ValueAnalysisSettings));
@@ -68,7 +65,6 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <remarks>This is for serialization only.</remarks>
     /// <value>The type assertions.</value>
-    [NotNull]
     [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = "")]
     public string SerializableTypeConfigurations {
       get {
@@ -104,7 +100,6 @@ namespace AgentJohnson.ValueAnalysis {
     /// Gets or sets the rules.
     /// </summary>
     /// <value>The rules.</value>
-    [NotNull]
     public List<Rule> Rules {
       get {
         return _rules;

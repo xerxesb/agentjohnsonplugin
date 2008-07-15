@@ -10,7 +10,6 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
-using Sitecore.Diagnostics;
 
 namespace AgentJohnson.Enums {
   /// <summary>
@@ -32,10 +31,7 @@ namespace AgentJohnson.Enums {
     /// </summary>
     /// <param name="solution">The solution.</param>
     /// <param name="textControl">The text control.</param>
-    public GenerateSwitchContextAction([Sitecore.Annotations.NotNull] ISolution solution, [Sitecore.Annotations.NotNull] ITextControl textControl) : base(solution, textControl) {
-      Assert.ArgumentNotNull(solution, "solution");
-      Assert.ArgumentNotNull(textControl, "textControl");
-      
+    public GenerateSwitchContextAction(ISolution solution, ITextControl textControl) : base(solution, textControl) {
       _solution = solution;
       _textControl = textControl;
     }

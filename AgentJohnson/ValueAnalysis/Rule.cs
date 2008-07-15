@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
-using Sitecore.Annotations;
 
 namespace AgentJohnson.ValueAnalysis {
   /// <summary>
@@ -221,7 +220,6 @@ namespace AgentJohnson.ValueAnalysis {
     ///A <see cref="T:System.String" /> that represents the current <see cref="T:System.Object" />.
     ///</returns>
     ///<filterpriority>2</filterpriority>
-    [NotNull]
     public override string ToString() {
       return TypeName ?? string.Empty;
     }

@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TemplatesExport>
+  <Template uid="9F134F1B-3F0D-4C9E-B549-A469828D1A7F" text="else {&#xD;&#xA;  $END$&#xD;&#xA;}" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables />
+  </Template>
+
+  <Template uid="94F834F9-110D-4608-A780-9BD05FE826A1" text="else if ($Expression$) {&#xD;&#xA;  $END$&#xD;&#xA;}" shortcut="" description="else" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Expression" expression="completeSmart()" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="a684b217-f179-431b-a485-e3d76dbe57fd" text="{0}$Type$ $Property$ {{&#xD;&#xA;  get {{&#xD;&#xA;    $END$  }}&#xD;&#xA;  set {{&#xD;&#xA;  }}&#xD;&#xA;}}&#xD;&#xA;" shortcut="" description="else if..." reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Type" expression="" initialRange="0" />
+      <Variable name="Property" expression="" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="85BBC654-4EE4-4932-BB0C-E0670FA1BB82" text="{0}$void$ $Method$() {{&#xD;&#xA;  $END$&#xD;&#xA;}}&#xD;&#xA;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="void" expression="" initialRange="0" />
+      <Variable name="Method" expression="" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="587F88E2-6876-41F2-885C-58AD93BBC8B4" text=",&#xD;&#xA;/// &lt;summary&gt; &quot;$Constant$&quot;.&lt;/summary&gt;&#xD;&#xA;$Constant$" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Constant" expression="" initialRange="1" />
+    </Variables>
+  </Template>
+
+  <Template uid="63CBED21-2B8A-4722-B585-6F90C35BC0E5" text="namespace $namespace$ {&#xD;&#xA;  $END$}" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="namespace" expression="fileDefaultNamespace()" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="D6EB42DA-2858-46B3-8CB3-E3DEFB245D11" text="$Type$ $Property$ { get; set;$END$ }" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Type" expression="suggestVariableType()" initialRange="0" />
+      <Variable name="Property" expression="" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="B3DB6158-D43E-42EE-8E67-F10CF7344106" text="$void$ $Method$($END$);" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="void" expression="" initialRange="0" />
+      <Variable name="Method" expression="" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="0BC4B773-20A9-4F12-B486-5C5DB7D39C73" text="public class $Class$ {&#xD;&#xA;  $END$&#xD;&#xA;}" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Class" expression="getFileNameWithoutExtension()" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="3B6DA53E-E57F-4A22-ACF6-55F65645AF92" text="/// &lt;summary&gt;&#xD;&#xA;/// $Enum$ enumeration&#xD;&#xA;/// &lt;summary&gt;&#xD;&#xA;public enum $Enum$ {&#xD;&#xA;  /// &lt;summary&gt; &quot;$Constant$&quot;.&lt;/summary&gt;&#xD;&#xA;$Constant$$END$&#xD;&#xA;}" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Enum" expression="getFileNameWithoutExtension()" initialRange="1" />
+      <Variable name="Constant" expression="" initialRange="1" />
+    </Variables>
+  </Template>
+
+  <Template uid="7D2E8D45-8562-45DD-8415-3E98F0EC24BD" text="public interface $Interface$ {&#xD;&#xA;  $END$&#xD;&#xA;}" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Interface" expression="getFileNameWithoutExtension()" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="51BFA78B-7FDA-42CC-85E4-8B29BB1103E5" text="public struct $Struct$ {&#xD;&#xA;  $END$&#xD;&#xA;}" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Struct" expression="getFileNameWithoutExtension()" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="0E03C1D4-A5DF-4011-86AE-4E561E419CD0" text="return {0}{1};" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables/>
+  </Template>
+
+  <Template uid="BDC2EEB0-F626-4D6A-AB06-DD5C7C80BB30" text="return {0}{1} ?? string.Empty;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables/>
+  </Template>
+
+  <Template uid="A97E734B-C24B-44A3-A914-C67BBB3FAC65" text="{0}{1} = value;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables/>"
+  </Template>
+
+  <Template uid="514313A0-91F4-4AE5-B4EB-2BB53736A023" text="if (string.IsNullOrEmpty({0})) {{&#xD;&#xA;  $END$&#xD;&#xA;}}" shortcut="if" description="if" reformat="true" shortenQualifiedReferences="true">
+    <Variables />
+  </Template>
+
+  <Template uid="F802DB32-A0B1-4227-BE5C-E7D20670284B" text="if ({0} == null) {{&#xD;&#xA;  $END$&#xD;&#xA;}}" shortcut="if" description="if" reformat="true" shortenQualifiedReferences="true">
+    <Variables />
+  </Template>
+
+  <Template uid="1438A7F2-B12C-4784-BFDE-A803FA8F1279" text="if ({0}.$Method$) {{&#xD;&#xA;  $END$&#xD;&#xA;}}" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Method" expression="completeSmart()" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="43E2C069-A3E6-4649-A374-104A16C59305" text="if ({0}.$Method$ == $Value$) {{&#xD;&#xA;  $END$&#xD;&#xA;}}" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Value" expression="completeSmart()" initialRange="0" />
+      <Variable name="Method" expression="completeSmart()" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="FE9C6A6B-A068-4182-B301-8002FE05A458" text="{0}.$Method$;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Method" expression="completeSmart()" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="11BACA25-C561-4FE8-934B-41246B7CFAC9" text="var $Variable$ = {0}.$Method$;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Method" expression="complete()" initialRange="0" />
+      <Variable name="Variable" expression="suggestVariableName()" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="EBAF3559-41C5-471D-8457-A20C9566D397" text="switch({0}) {{&#xD;&#xA;  $END$&#xD;&#xA;}}" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables />
+  </Template>
+
+  <Template uid="F849A86C-A93E-4805-B8E1-4B02CA8807CC" text="continue;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables />
+  </Template>
+
+  <Template uid="42DA21AD-1F9F-4ECE-B5F6-E7AFC5EAAE14" text="break;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables />
+  </Template>"
+
+  <Template uid="19B0E24A-C3C3-489A-BF20-122C5114D7FF" text="return;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables/>
+  </Template>
+
+  <Template uid="459C8B38-0048-43DF-9279-3E946A3A65F2" text="return true;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables />
+  </Template>
+
+  <Template uid="9F342BE4-4A55-48FF-BECF-A67C7D79BF76" text="return false;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables />
+  </Template>
+
+  <Template uid="39530254-7198-4A3C-B528-6160324E9792" text="return $Value$;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Value" expression="completeSmart()" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="D34007F3-C131-46F4-96B7-8D2654727D0B" text="return null;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables />
+  </Template>
+
+  <Template uid="16E39695-5810-4C3E-A3CD-AB0CC0127C60" text="case $Value$:&#xD;&#xA;  $END$break;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Value" expression="completeSmart()" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="9CA009C7-468A-4D3E-ACEC-A12F2FAF4B67" text="foreach($Type$ $Variable$ in {0}){{&#xD;&#xA;  $END$&#xD;&#xA;}}" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Type" expression="suggestVariableType()" initialRange="0" />
+      <Variable name="Variable" expression="suggestVariableName()" initialRange="0" />
+    </Variables>
+  </Template>
+
+</TemplatesExport>
+

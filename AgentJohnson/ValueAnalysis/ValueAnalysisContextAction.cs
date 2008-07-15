@@ -44,7 +44,6 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="data">The data.</param>
     /// <returns>The internal post PSI transaction.</returns>
-    [Sitecore.Annotations.CanBeNull]
     protected override object[] ExecuteInternalPostPSITransaction(params object[] data) {
       if (!ValueAnalysisSettings.Instance.ExecuteGhostDoc) {
         return data;

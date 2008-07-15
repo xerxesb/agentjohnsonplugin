@@ -17,6 +17,8 @@ namespace AgentJohnson.ValueAnalysis {
 
     #endregion
 
+
+
     #region Fields
 
     readonly ISolution _solution;
