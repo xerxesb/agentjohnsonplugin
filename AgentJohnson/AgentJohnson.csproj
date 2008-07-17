@@ -191,7 +191,27 @@
     <Compile Include="Options\ValueAnalysisDetailsPage.Designer.cs">
       <DependentUpon>ValueAnalysisDetailsPage.cs</DependentUpon>
     </Compile>
-    <Compile Include="Refactorings\SmartGenerateAction.cs" />
+    <Compile Include="SmartGenerate\GenerateStringExpression.cs" />
+    <Compile Include="SmartGenerate\GenerateReturn.cs" />
+    <Compile Include="SmartGenerate\GenerateNearestVariable.cs" />
+    <Compile Include="SmartGenerate\GenerateFlowControl.cs" />
+    <Compile Include="SmartGenerate\GenerateElse.cs" />
+    <Compile Include="SmartGenerate\GenerateAfterPropertyAssignment.cs" />
+    <Compile Include="SmartGenerate\GenerateSwitchCase.cs" />
+    <Compile Include="SmartGenerate\GeneratePropertyBody.cs" />
+    <Compile Include="SmartGenerate\GenerateStructMembers.cs" />
+    <Compile Include="SmartGenerate\GenerateInterfaceMembers.cs" />
+    <Compile Include="SmartGenerate\GenerateEnumMembers.cs" />
+    <Compile Include="SmartGenerate\GenerateClassMembers.cs" />
+    <Compile Include="SmartGenerate\GenerateClasses.cs" />
+    <Compile Include="SmartGenerate\GenerateNamespace.cs" />
+    <Compile Include="SmartGenerate\ISmartGenerate.cs" />
+    <Compile Include="SmartGenerate\ISmartGenerateMenuItem.cs" />
+    <Compile Include="SmartGenerate\SmartGenerateAction.cs" />
+    <Compile Include="SmartGenerate\SmartGenerateAttribute.cs" />
+    <Compile Include="SmartGenerate\SmartGenerateBase.cs" />
+    <Compile Include="SmartGenerate\SmartGenerateMenuItem.cs" />
+    <Compile Include="SmartGenerate\SmartGenerateManager.cs" />
     <Compile Include="Statements\ReverseForDirectionContextAction.cs" />
     <Compile Include="Strings\IntroduceStringConstantActionHandler.cs" />
     <Compile Include="Strings\IntroduceStringConstantContextAction.cs" />

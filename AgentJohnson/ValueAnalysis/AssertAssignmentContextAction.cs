@@ -114,7 +114,7 @@ namespace AgentJohnson.ValueAnalysis {
         declaredType = destination.GetExpressionType() as IDeclaredType;
         language = destination.Language;
 
-        IReferenceExpression referenceExpression = assignmentExpression.Dest as IReferenceExpression;
+        IReferenceExpression referenceExpression = destination as IReferenceExpression;
         if(referenceExpression == null) {
           return false;
         }
@@ -131,7 +131,7 @@ namespace AgentJohnson.ValueAnalysis {
 
         _name = reference.GetName();
 
-        range = new TextRange(assignmentExpression.Dest.GetTreeStartOffset(), source.GetTreeStartOffset());
+        range = new TextRange(destination.GetTreeStartOffset(), source.GetTreeStartOffset());
       }
       else {
         ILocalVariable localVariable = localVariableDeclaration as ILocalVariable;

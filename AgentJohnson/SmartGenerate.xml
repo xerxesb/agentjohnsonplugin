@@ -168,5 +168,27 @@
     </Variables>
   </Template>
 
+  <Template uid="AA6EFC53-174B-4EFD-A137-8115C22666C7" text="{0}.$Property$ = $END$;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Property" expression="completeSmart()" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="9BD23D35-AC2A-46E2-AADA-C81D9B53795A" text="{0} = $Value$;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Value" expression="completeSmart()" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="208A11F8-DEE1-4B8B-838F-17DA883DA7A5" text="{0} = new $Instance$($END$);" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Instance" expression="completeSmart()" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="3D13FE3E-7004-42B0-B205-2881C5ADBAD2" text="string.IsNullOrEmpty($SELECTION$)" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables />
+  </Template>
+
 </TemplatesExport>
 
