@@ -267,14 +267,14 @@ namespace AgentJohnson.SmartGenerate {
         return TextRange.InvalidRange;
       }
 
-      TextRange range = new TextRange();
-
       IStatement statement = element.GetContainingElement(typeof(IStatement), true) as IStatement;
-      if(statement != null && block.Contains(statement)) {
-        TextRange range1 = statement.GetTreeTextRange();
-        range = new TextRange(range1.EndOffset + 1);
+      if(statement != null && statement != block && block.Contains(statement)) {
+        TextRange range = statement.GetTreeTextRange();
+
+        return new TextRange(range.EndOffset + 1);
       }
-      return range;
+
+      return TextRange.InvalidRange;
     }
 
     /// <summary>
