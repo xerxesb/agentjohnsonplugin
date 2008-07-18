@@ -179,6 +179,12 @@
   <ItemGroup>
     <Compile Include="ActionHandlerBase.cs" />
     <Compile Include="ContextActionBase.cs" />
+    <Compile Include="Options\SmartGenerateOptionsPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Options\SmartGenerateOptionsPage.Designer.cs">
+      <DependentUpon>SmartGenerateOptionsPage.cs</DependentUpon>
+    </Compile>
     <Compile Include="Options\ImportExportPage.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -203,7 +209,7 @@
     <Compile Include="SmartGenerate\GenerateInterfaceMembers.cs" />
     <Compile Include="SmartGenerate\GenerateEnumMembers.cs" />
     <Compile Include="SmartGenerate\GenerateClassMembers.cs" />
-    <Compile Include="SmartGenerate\GenerateClasses.cs" />
+    <Compile Include="SmartGenerate\GenerateTypes.cs" />
     <Compile Include="SmartGenerate\GenerateNamespace.cs" />
     <Compile Include="SmartGenerate\ISmartGenerate.cs" />
     <Compile Include="SmartGenerate\ISmartGenerateMenuItem.cs" />
@@ -212,6 +218,7 @@
     <Compile Include="SmartGenerate\SmartGenerateBase.cs" />
     <Compile Include="SmartGenerate\SmartGenerateMenuItem.cs" />
     <Compile Include="SmartGenerate\SmartGenerateManager.cs" />
+    <Compile Include="SmartGenerate\SmartGenerateSettings.cs" />
     <Compile Include="Statements\ReverseForDirectionContextAction.cs" />
     <Compile Include="Strings\IntroduceStringConstantActionHandler.cs" />
     <Compile Include="Strings\IntroduceStringConstantContextAction.cs" />
@@ -302,6 +309,10 @@
     <EmbeddedResource Include="Resources\Shades.gif" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Options\SmartGenerateOptionsPage.resx">
+      <DependentUpon>SmartGenerateOptionsPage.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Options\ValueAnalysisDetailsPage.resx">
       <DependentUpon>ValueAnalysisDetailsPage.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -310,6 +321,7 @@
     <EmbeddedResource Include="Resources\StringConstant.gif" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources\SmartGenerate.gif" />
     <Content Include="SmartGenerate.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -6,7 +6,7 @@ using JetBrains.ReSharper.Psi.Tree;
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// </summary>
-  [SmartGenerate(Priority=0)]
+  [SmartGenerate("Add enum member", "Adds a new constant to the enumeration.", Priority=0)]
   public class GenerateEnumMembers : SmartGenerateBase {
     #region Public methods
 

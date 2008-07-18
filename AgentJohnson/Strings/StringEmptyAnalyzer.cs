@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AgentJohnson;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Parsing;
 using JetBrains.ReSharper.Psi.Tree;
 
@@ -59,6 +60,11 @@ namespace AgentJohnson.Strings {
       }
 
       if(node.GetText() != "\"\"") {
+        return null;
+      }
+
+      IAttribute attribute = node.GetContainingElement(typeof(IAttribute), true) as IAttribute;
+      if(attribute != null) {
         return null;
       }
 

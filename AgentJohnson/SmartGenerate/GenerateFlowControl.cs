@@ -6,7 +6,7 @@ using JetBrains.ReSharper.Psi.Tree;
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// </summary>
-  [SmartGenerate(Priority=200)]
+  [SmartGenerate("Generate 'continue' or 'break'", "Generates 'continue' or 'break'.", Priority=200)]
   public class GenerateFlowControl : SmartGenerateBase {
     #region Public methods
 

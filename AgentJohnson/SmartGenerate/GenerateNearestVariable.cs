@@ -10,7 +10,7 @@ using JetBrains.Util;
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// </summary>
-  [SmartGenerate(Priority = 500)]
+  [SmartGenerate("Nearest variable", "Generates code based on the name and type of the nearest variable declaration.", Priority = 500)]
   public class GenerateNearestVariable : SmartGenerateBase {
     #region Protected methods
 

@@ -24,9 +24,9 @@
     </Variables>
   </Template>
 
-  <Template uid="587F88E2-6876-41F2-885C-58AD93BBC8B4" text=",&#xD;&#xA;/// &lt;summary&gt; &quot;$Constant$&quot;.&lt;/summary&gt;&#xD;&#xA;$Constant$" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+  <Template uid="587F88E2-6876-41F2-885C-58AD93BBC8B4" text=",&#xD;&#xA;$Constant$" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
     <Variables>
-      <Variable name="Constant" expression="" initialRange="1" />
+      <Variable name="Constant" expression="" initialRange="0" />
     </Variables>
   </Template>
 
@@ -56,10 +56,10 @@
     </Variables>
   </Template>
 
-  <Template uid="3B6DA53E-E57F-4A22-ACF6-55F65645AF92" text="/// &lt;summary&gt;&#xD;&#xA;/// $Enum$ enumeration&#xD;&#xA;/// &lt;summary&gt;&#xD;&#xA;public enum $Enum$ {&#xD;&#xA;  /// &lt;summary&gt; &quot;$Constant$&quot;.&lt;/summary&gt;&#xD;&#xA;$Constant$$END$&#xD;&#xA;}" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+  <Template uid="3B6DA53E-E57F-4A22-ACF6-55F65645AF92" text="public enum $Enum$ {&#xD;&#xA;  $Constant$$END$&#xD;&#xA;}" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
     <Variables>
-      <Variable name="Enum" expression="getFileNameWithoutExtension()" initialRange="1" />
-      <Variable name="Constant" expression="" initialRange="1" />
+      <Variable name="Enum" expression="getFileNameWithoutExtension()" initialRange="0" />
+      <Variable name="Constant" expression="" initialRange="0" />
     </Variables>
   </Template>
 

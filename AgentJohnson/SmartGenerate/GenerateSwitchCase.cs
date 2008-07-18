@@ -6,7 +6,7 @@ using JetBrains.ReSharper.Psi.Tree;
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// </summary>
-  [SmartGenerate(Priority=0)]
+  [SmartGenerate("'case'", "Adds a new 'case' entry in a 'switch' statement.", Priority=0)]
   public class GenerateSwitchCase : SmartGenerateBase {
     #region Public methods
 

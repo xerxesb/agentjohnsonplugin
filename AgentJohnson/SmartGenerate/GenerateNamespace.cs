@@ -5,7 +5,7 @@ using JetBrains.ReSharper.Psi.Tree;
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// </summary>
-  [SmartGenerate(Priority=0)]
+  [SmartGenerate("Generate namespace", "Generates a new namespace.", Priority=0)]
   public class GenerateNamespace : SmartGenerateBase {
     #region Public methods
 
@@ -22,7 +22,7 @@ namespace AgentJohnson.SmartGenerate {
         return;
       }
 
-      AddMenuItem("'namespace'", "63CBED21-2B8A-4722-B585-6F90C35BC0E5");
+      AddMenuItem("Generate namespace", "63CBED21-2B8A-4722-B585-6F90C35BC0E5");
     }
 
     #endregion

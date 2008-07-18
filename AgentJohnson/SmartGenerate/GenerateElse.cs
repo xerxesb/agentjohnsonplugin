@@ -6,7 +6,7 @@ using JetBrains.ReSharper.Psi.Tree;
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// </summary>
-  [SmartGenerate(Priority=100)]
+  [SmartGenerate("Generate else", "Generates an 'else' or 'else if' statement.", Priority=100)]
   public class GenerateElse : SmartGenerateBase {
     #region Public methods
 

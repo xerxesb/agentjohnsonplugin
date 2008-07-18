@@ -8,7 +8,7 @@ using JetBrains.ReSharper.Psi.Util;
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// </summary>
-  [SmartGenerate(Priority = 1000)]
+  [SmartGenerate("Generate 'return'", "Generates a 'return' statement.", Priority = 1000)]
   public class GenerateReturn : SmartGenerateBase {
     #region Protected methods
 

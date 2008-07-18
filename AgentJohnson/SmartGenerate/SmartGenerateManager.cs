@@ -6,18 +6,38 @@ using System.Xml;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.ComponentModel;
-using JetBrains.Util;
 
 namespace AgentJohnson.SmartGenerate {
+
+  /// <summary>
+  /// 
+  /// </summary>
+  internal class SmartGenerateInfo {
+    public int Priority { get; set; }
+    public string Name { get; set; }
+    public ISmartGenerate Handler { get; set; }
+    public string Description { get; set; }
+
+    /// <summary>
+    /// Returns the fully qualified type name of this instance.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="T:System.String"/> containing a fully qualified type name.
+    /// </returns>
+    public override string ToString() {
+      return Name;
+    }
+  }
+
   /// <summary>
   /// 
   /// </summary>
   [ShellComponentImplementation(ProgramConfigurations.VS_ADDIN)]
   [ShellComponentInterface(ProgramConfigurations.ALL)]
-  public class SmartGenerateManager : ITypeLoadingHandler, IShellComponent, IComparer<Pair<int, ISmartGenerate>> {
+  public class SmartGenerateManager : ITypeLoadingHandler, IShellComponent, IComparer<SmartGenerateInfo> {
     #region Fields
 
-    List<Pair<int, ISmartGenerate>> _handlers = new List<Pair<int, ISmartGenerate>>();
+    List<SmartGenerateInfo> _handlers = new List<SmartGenerateInfo>();
     XmlDocument _templates;
 
     #endregion
@@ -34,6 +54,16 @@ namespace AgentJohnson.SmartGenerate {
       }
     }
 
+    /// <summary>
+    /// Gets the handlers.
+    /// </summary>
+    /// <value>The handlers.</value>
+    internal List<SmartGenerateInfo> Handlers {
+      get {
+        return _handlers;
+      }
+    }
+
     #endregion
 
     #region Public methods
@@ -46,15 +76,15 @@ namespace AgentJohnson.SmartGenerate {
     /// <returns>
     /// Value Condition Less than zero<paramref name="x"/> is less than <paramref name="y"/>.Zero<paramref name="x"/> equals <paramref name="y"/>.Greater than zero<paramref name="x"/> is greater than <paramref name="y"/>.
     /// </returns>
-    public int Compare(Pair<int, ISmartGenerate> x, Pair<int, ISmartGenerate> y) {
-      return x.First - y.First;
+    int IComparer<SmartGenerateInfo>.Compare(SmartGenerateInfo x, SmartGenerateInfo y) {
+      return x.Priority - y.Priority;
     }
 
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
     public void Dispose() {
-      _handlers = new List<Pair<int, ISmartGenerate>>();
+      _handlers = new List<SmartGenerateInfo>();
     }
 
     /// <summary>
@@ -65,8 +95,14 @@ namespace AgentJohnson.SmartGenerate {
     public IEnumerable<ISmartGenerate> GetHandlers() {
       List<ISmartGenerate> result = new List<ISmartGenerate>();
 
-      foreach(Pair<int, ISmartGenerate> pair in _handlers) {
-        result.Add(pair.Second);
+      List<string> disabledHandlers = new List<string>(SmartGenerateSettings.Instance.DisabledActions.Split('|'));
+
+      foreach(SmartGenerateInfo handler in _handlers) {
+        if (disabledHandlers.Contains(handler.Name)) {
+          continue;
+        }
+
+        result.Add(handler.Handler);
       }
 
       return result;
@@ -127,7 +163,8 @@ namespace AgentJohnson.SmartGenerate {
           continue;
         }
 
-        Pair<int, ISmartGenerate> entry = new Pair<int, ISmartGenerate>(smartGenerateAttribute.Priority, handler);
+        SmartGenerateInfo entry = new SmartGenerateInfo {Priority = smartGenerateAttribute.Priority, Name = smartGenerateAttribute.Name, Description = smartGenerateAttribute.Description, Handler = handler};
+
         _handlers.Add(entry);
       }
 

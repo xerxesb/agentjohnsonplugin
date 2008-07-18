@@ -6,7 +6,7 @@ using JetBrains.ReSharper.Psi.Tree;
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// </summary>
-  [SmartGenerate(Priority=0)]
+  [SmartGenerate("Generate interface members", "Generates a new property or method on an interface", Priority=0)]
   public class GenerateInterfaceMembers : SmartGenerateBase {
     #region Public methods
 
@@ -28,8 +28,8 @@ namespace AgentJohnson.SmartGenerate {
         return;
       }
 
-      AddMenuItem("Generate property", "D6EB42DA-2858-46B3-8CB3-E3DEFB245D11");
-      AddMenuItem("Generate method", "B3DB6158-D43E-42EE-8E67-F10CF7344106");
+      AddMenuItem("Property", "D6EB42DA-2858-46B3-8CB3-E3DEFB245D11");
+      AddMenuItem("Method", "B3DB6158-D43E-42EE-8E67-F10CF7344106");
     }
 
     #endregion

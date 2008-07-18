@@ -8,11 +8,21 @@ namespace AgentJohnson.SmartGenerate {
   public sealed class SmartGenerateAttribute : Attribute {
     #region Fields
 
-    string _description = string.Empty;
-    string _name = string.Empty;
+    readonly string _description;
+    readonly string _name;
     int _priority;
 
     #endregion
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SmartGenerateAttribute"/> class.
+    /// </summary>
+    /// <param name="description">The description.</param>
+    /// <param name="name">The name.</param>
+    public SmartGenerateAttribute(string name, string description) {
+      _description = description;
+      _name = name;
+    }
 
     #region Public properties
 
@@ -24,9 +34,6 @@ namespace AgentJohnson.SmartGenerate {
       get {
         return _description ?? string.Empty;
       }
-      set {
-        _description = value;
-      }
     }
 
     /// <summary>
@@ -36,9 +43,6 @@ namespace AgentJohnson.SmartGenerate {
     public string Name {
       get {
         return _name ?? string.Empty;
-      }
-      set {
-        _name = value;
       }
     }
 

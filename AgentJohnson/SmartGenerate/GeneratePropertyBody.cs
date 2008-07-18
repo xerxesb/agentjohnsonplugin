@@ -8,7 +8,7 @@ using JetBrains.ReSharper.Psi.Tree;
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// </summary>
-  [SmartGenerate(Priority=0)]
+  [SmartGenerate("Generate property accessor body", "Generates the body of either a getter or a setter property accessor.", Priority=0)]
   public class GeneratePropertyBody: SmartGenerateBase {
     #region Public methods
 
