@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using AgentJohnson.Exceptions;
 using JetBrains.ActionManagement;
 using JetBrains.CommonControls;
 using JetBrains.DocumentModel;
@@ -14,7 +13,6 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
-using JetBrains.TextControl.Markup;
 using JetBrains.UI.PopupMenu;
 using JetBrains.UI.PopupWindowManager;
 using JetBrains.Util;
@@ -27,6 +25,7 @@ namespace AgentJohnson.SmartGenerate {
   public class SmartGenerate : IActionHandler {
     #region Fields
 
+    IDataContext _context;
     ISolution _solution;
     ITextControl _textControl;
 
@@ -70,6 +69,7 @@ namespace AgentJohnson.SmartGenerate {
     /// <param name="context">The context.</param>
     protected void Execute(ISolution solution, IDataContext context) {
       _solution = solution;
+      _context = context;
       _textControl = context.GetData(DataConstants.TEXT_CONTROL);
 
       IElement element;
@@ -89,17 +89,34 @@ namespace AgentJohnson.SmartGenerate {
       foreach(ISmartGenerate handler in SmartGenerateManager.Instance.GetHandlers()) {
         IEnumerable<ISmartGenerateMenuItem> list = handler.GetMenuItems(solution, context, element);
 
-        if (list == null) {
+        if(list == null) {
           continue;
         }
 
         foreach(ISmartGenerateMenuItem smartGenerateItem in list) {
           AddItem(items, smartGenerateItem);
 
-          if (!range.IsValid) {
+          if(!range.IsValid) {
             range = smartGenerateItem.SelectionRange;
           }
         }
+      }
+
+      List<LiveTemplateItem> liveTemplates = LiveTemplateManager.Instance.GetLiveTemplates(solution, context, element);
+      if(liveTemplates.Count > 0) {
+        items.Add(new SimpleMenuItem {
+          Style = MenuItemStyle.Separator
+        });
+
+        SimpleMenuItem item = new SimpleMenuItem {
+          Text = "Create Live Template",
+          Style = MenuItemStyle.Enabled,
+          Tag = liveTemplates
+        };
+
+        item.Clicked += CreateLiveTemplates_OnClicked;
+
+        items.Add(item);
       }
 
       JetPopupMenu menu = new JetPopupMenu();
@@ -157,16 +174,71 @@ namespace AgentJohnson.SmartGenerate {
     void AddItem(List<SimpleMenuItem> items, ISmartGenerateMenuItem item) {
       string text = item.Text;
 
-      SimpleMenuItem simpleMenuItem = new SimpleMenuItem {Text = text, Style = MenuItemStyle.Enabled, Tag = item};
+      SimpleMenuItem simpleMenuItem;
 
-      if(items.Count < 9) {
-        simpleMenuItem.Mnemonic = (items.Count + 1).ToString();
-        simpleMenuItem.ShortcutText = simpleMenuItem.Mnemonic;
+      if(text == "-") {
+        simpleMenuItem = new SimpleMenuItem {
+          Style = MenuItemStyle.Separator
+        };
+      }
+      else {
+        simpleMenuItem = new SimpleMenuItem {
+          Text = text, Style = MenuItemStyle.Enabled, Tag = item
+        };
+
+        if(items.Count < 9) {
+          simpleMenuItem.Mnemonic = (items.Count + 1).ToString();
+          simpleMenuItem.ShortcutText = simpleMenuItem.Mnemonic;
+        }
+
+        simpleMenuItem.Clicked += Generate;
       }
 
-      simpleMenuItem.Clicked += Generate;
-
       items.Add(simpleMenuItem);
+    }
+
+    /// <summary>
+    /// Handles the OnClicked event of the CreateLiveTemplates control.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+    void CreateLiveTemplates_OnClicked(object sender, EventArgs e) {
+      SimpleMenuItem simpleMenuItem = sender as SimpleMenuItem;
+      if(simpleMenuItem == null) {
+        return;
+      }
+
+      List<LiveTemplateItem> liveTemplates = simpleMenuItem.Tag as List<LiveTemplateItem>;
+      if(liveTemplates == null) {
+        return;
+      }
+
+      List<SimpleMenuItem> items = new List<SimpleMenuItem>();
+
+      foreach(LiveTemplateItem template in liveTemplates) {
+        SimpleMenuItem item = new SimpleMenuItem {
+          Style = MenuItemStyle.Enabled,
+          Text = (template.MenuText ?? string.Empty),
+          Tag = template
+        };
+
+        item.Clicked += LiveTemplateManager.AddLiveTemplate;
+
+        items.Add(item);
+      }
+
+      JetPopupMenu menu = new JetPopupMenu();
+
+      IPopupWindowContext popupWindowContext = _context.GetData(JetBrains.UI.DataConstants.POPUP_WINDOW_CONTEXT);
+      if(popupWindowContext != null) {
+        menu.Layouter = popupWindowContext.CreateLayouter();
+      }
+
+      menu.Caption.Value = WindowlessControl.Create("Create Live Template");
+      menu.SetItems(items);
+      menu.KeyboardAcceleration.SetValue(KeyboardAccelerationFlags.Mnemonics);
+
+      menu.Show();
     }
 
     /// <summary>
@@ -185,29 +257,32 @@ namespace AgentJohnson.SmartGenerate {
         return;
       }
 
-      string template = item.Template;
-
-      if(!template.StartsWith("<Template")) {
-        template = SmartGenerateManager.Instance.GetTemplate(template);
-      }
-
-      if(string.IsNullOrEmpty(template)) {
+      if(item.HandleClick(sender, e)) {
         return;
       }
 
-      JetBrains.Util.TextRange range = item.SelectionRange;
+      Template template;
+
+      string templateText = item.Template;
+
+      if(templateText.StartsWith("<Template")) {
+        XmlDocument doc = new XmlDocument();
+
+        doc.LoadXml(templateText);
+
+        template = Template.CreateFromXml(doc.DocumentElement);
+      }
+      else {
+        template = new Template(string.Empty, string.Empty, templateText, true, true);
+      }
+
+      TextRange range = item.SelectionRange;
 
       if(range.IsValid) {
         _textControl.SelectionModel.SetRange(range);
       }
 
-      XmlDocument doc = new XmlDocument();
-
-      doc.LoadXml(template);
-
-      Template template1 = Template.CreateFromXml(doc.DocumentElement);
-
-      LiveTemplatesController.Instance.ExecuteTemplate(_solution, template1, _textControl);
+      LiveTemplatesController.Instance.ExecuteTemplate(_solution, template, _textControl);
     }
 
     #endregion

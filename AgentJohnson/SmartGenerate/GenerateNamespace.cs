@@ -22,7 +22,7 @@ namespace AgentJohnson.SmartGenerate {
         return;
       }
 
-      AddMenuItem("Generate namespace", "63CBED21-2B8A-4722-B585-6F90C35BC0E5");
+      AddMenuItem("Namespace", "63CBED21-2B8A-4722-B585-6F90C35BC0E5");
     }
 
     #endregion

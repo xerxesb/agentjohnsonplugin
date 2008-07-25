@@ -1,13 +1,14 @@
-﻿using JetBrains.ActionManagement;
+using JetBrains.ActionManagement;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
 
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
+  /// Defines the generate boolean expression class.
   /// </summary>
-  [SmartGenerate("Surround with 'string.IsNullOrEmpty'", "Surrounds the string expression with 'string.IsNullOrEmpty'.", Priority=-20)]
-  public class GenerateStringExpression : SmartGenerateBase {
+  [SmartGenerate("Surround with 'if'", "Surrounds the boolean expression with 'if'.", Priority=-20)]
+  public class GenerateBooleanExpression : SmartGenerateBase {
     #region Public methods
 
     /// <summary>
@@ -24,8 +25,8 @@ namespace AgentJohnson.SmartGenerate {
 
         string typeName = type.GetPresentableName(element.Language);
 
-        if (typeName == "string") {
-          AddMenuItem("Surround with 'string.IsNullOrEmpty'", "3D13FE3E-7004-42B0-B205-2881C5ADBAD2", expression.GetTreeTextRange());
+        if (typeName == "bool") {
+          AddMenuItem("Surround with 'if'", "FA4B31AF-393D-44DB-93D3-F7E48BF97C53", expression.GetTreeTextRange());
           return;
         }
 

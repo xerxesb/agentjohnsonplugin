@@ -11,7 +11,7 @@ using JetBrains.Util;
 
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
-  /// 
+  /// Defines the smart generate base class.
   /// </summary>
   public abstract class SmartGenerateBase : ISmartGenerate {
     #region Fields
@@ -63,11 +63,7 @@ namespace AgentJohnson.SmartGenerate {
     /// <returns>The menu item.</returns>
     [CanBeNull]
     protected ISmartGenerateMenuItem AddMenuItem([NotNull] string text, [NotNull] string template, TextRange selectionRange, params string[] parameters) {
-      string expandedTemplate = template;
-
-      if(!expandedTemplate.StartsWith("<Template")) {
-        expandedTemplate = SmartGenerateManager.Instance.GetTemplate(expandedTemplate);
-      }
+      string expandedTemplate = SmartGenerateManager.Instance.GetTemplate(template);
 
       if(string.IsNullOrEmpty(expandedTemplate)) {
         return null;
@@ -95,6 +91,13 @@ namespace AgentJohnson.SmartGenerate {
     /// <param name="menuItem">The menu item.</param>
     protected void AddMenuItem([NotNull] ISmartGenerateMenuItem menuItem) {
       _items.Add(menuItem);
+    }
+
+    /// <summary>
+    /// Adds the menu separator.
+    /// </summary>
+    protected void AddMenuSeparator() {
+      AddMenuItem(new SmartGenerateMenuSeparator());
     }
 
     /// <summary>
@@ -165,10 +168,12 @@ namespace AgentJohnson.SmartGenerate {
     /// Gets the nearest variable.
     /// </summary>
     /// <param name="element">The element.</param>
+    /// <param name="targetElement">The target element.</param>
     /// <param name="name">The name.</param>
     /// <param name="type">The type.</param>
     /// <param name="isAssigned">if set to <c>true</c> [is assigned].</param>
-    protected static void GetNearestVariable(IElement element, out string name, out IType type, out bool isAssigned) {
+    protected static void GetNearestVariable(IElement element, out IElement targetElement, out string name, out IType type, out bool isAssigned) {
+      targetElement = null;
       name = null;
       type = null;
       isAssigned = false;
@@ -188,6 +193,7 @@ namespace AgentJohnson.SmartGenerate {
               ILocalVariable localVariable = localVariableDeclaration as ILocalVariable;
 
               if(localVariable != null) {
+                targetElement = localVariableDeclaration;
                 name = localVariable.ShortName;
                 type = localVariable.Type;
                 isAssigned = localVariableDeclaration.Initial != null;
@@ -211,6 +217,7 @@ namespace AgentJohnson.SmartGenerate {
               IForeachVariableDeclarationNode foreachVariableDeclarationNode = foreachVariableDeclaration.ToTreeNode();
 
               if(foreachVariableDeclarationNode != null) {
+                targetElement = foreachStatement;
                 name = foreachStatement.IteratorName;
                 type = CSharpTypeFactory.CreateType(foreachVariableDeclarationNode.TypeUsage);
                 isAssigned = true;
@@ -229,6 +236,7 @@ namespace AgentJohnson.SmartGenerate {
                 ILocalVariable localVariable = localVariableDeclaration as ILocalVariable;
 
                 if(localVariable != null) {
+                  targetElement = forStatement;
                   name = localVariable.ShortName;
                   type = localVariable.Type;
                   isAssigned = true;
@@ -243,6 +251,8 @@ namespace AgentJohnson.SmartGenerate {
           if(parametersOwner != null) {
             if(parametersOwner.Parameters.Count > 0) {
               IParameter parameter = parametersOwner.Parameters[0];
+
+              targetElement = parameter as IParameterDeclaration;
               name = parameter.ShortName;
               type = parameter.Type;
               isAssigned = true;
@@ -275,27 +285,6 @@ namespace AgentJohnson.SmartGenerate {
       }
 
       return TextRange.InvalidRange;
-    }
-
-    /// <summary>
-    /// Gets the previous statement.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="block">The block.</param>
-    protected static IStatement GetPreviousStatement(IBlock block, IElement element) {
-      IStatement result = null;
-
-      int caret = element.GetTreeStartOffset();
-
-      foreach(IStatement statement in block.Statements) {
-        if(statement.GetTreeStartOffset() > caret) {
-          break;
-        }
-
-        result = statement;
-      }
-
-      return result;
     }
 
     /// <summary>

@@ -30,6 +30,7 @@ namespace AgentJohnson.SmartGenerate {
 
       string modifier = GetModifier(element, structDeclaration);
 
+      AddMenuItem("Auto property", "166BE49C-D068-476D-BC9C-2B5C3AF21B06", modifier);
       AddMenuItem("Property", "a684b217-f179-431b-a485-e3d76dbe57fd", modifier);
       AddMenuItem("Method", "85BBC654-4EE4-4932-BB0C-E0670FA1BB82", modifier);
     }

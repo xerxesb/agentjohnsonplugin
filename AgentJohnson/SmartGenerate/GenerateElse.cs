@@ -27,7 +27,7 @@ namespace AgentJohnson.SmartGenerate {
         return;
       }
 
-      IIfStatement ifStatement = GetPreviousStatement(block, element) as IIfStatement;
+      IIfStatement ifStatement = StatementUtil.GetPreviousStatement(block, element) as IIfStatement;
       if(ifStatement == null) {
         return;
       }

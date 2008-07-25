@@ -2,6 +2,8 @@
 using JetBrains.ActionManagement;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.ControlFlow2.CSharp;
+using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
@@ -22,11 +24,12 @@ namespace AgentJohnson.SmartGenerate {
     /// <param name="element">The element.</param>
     /// <returns>The items.</returns>
     protected override void GetItems(ISolution solution, IDataContext context, IElement element) {
+      IElement targetElement;
       string name;
       IType type;
       bool isAssigned;
 
-      GetNearestVariable(element, out name, out type, out isAssigned);
+      GetNearestVariable(element, out targetElement, out name, out type, out isAssigned);
       if(type == null) {
         return;
       }
@@ -51,8 +54,10 @@ namespace AgentJohnson.SmartGenerate {
           AddMenuItem("Generate 'switch' from '{0}'", "EBAF3559-41C5-471D-8457-A20C9566D397", range, name);
         }
 
+        string typeName = type.GetPresentableName(element.Language);
+
         IModule module = declaredType.Module;
-        if(module != null) {
+        if(module != null && typeName != "string") {
           IDeclaredType enumerable = TypeFactory.CreateTypeByCLRName("System.Collections.IEnumerable", module);
 
           if(declaredType.IsSubtypeOf(enumerable)) {
@@ -62,16 +67,7 @@ namespace AgentJohnson.SmartGenerate {
       }
       else {
         if(type is IArrayType) {
-          AddMenuItem("Iterate '{0}' via 'foreach'", "9CA009C7-468A-4D3E-ACEC-A12F2FAF4B67", range, name); 
-        }
-      }
-
-      if(type.GetPresentableName(element.Language) == "string") {
-        AddMenuItem("Check if '{0}' is null or empty", "514313A0-91F4-4AE5-B4EB-2BB53736A023", range, name);
-      }
-      else {
-        if(type.IsReferenceType()) {
-          AddMenuItem("Check if '{0}' is null", "F802DB32-A0B1-4227-BE5C-E7D20670284B", range, name);
+          AddMenuItem("Iterate '{0}' via 'foreach'", "9CA009C7-468A-4D3E-ACEC-A12F2FAF4B67", range, name);
         }
       }
 
@@ -79,6 +75,10 @@ namespace AgentJohnson.SmartGenerate {
       // AddMenuItem(items, "var Var = {0}.Method();", "11BACA25-C561-4FE8-934B-41246B7CFAC9", name);
       // AddMenuItem(items, "if ({0}.Method() == Value)...", "43E2C069-A3E6-4649-A374-104A16C59305", name);
       AddMenuItem("Invoke method on '{0}'", "FE9C6A6B-A068-4182-B301-8002FE05A458", range, name);
+
+      if(HasWritableProperty(type)) {
+        AddMenuItem("Assign property on '{0}'", "DA0860C6-535C-489E-940C-841AA6C54C96", range, name);
+      }
     }
 
     #endregion
@@ -121,6 +121,80 @@ namespace AgentJohnson.SmartGenerate {
       }
 
       return false;
+    }
+
+    /// <summary>
+    /// Determines whether [has writable property] [the specified type].
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>
+    /// 	<c>true</c> if [has writable property] [the specified type]; otherwise, <c>false</c>.
+    /// </returns>
+    static bool HasWritableProperty(IType type) {
+      IDeclaredType declaredType = type as IDeclaredType;
+      if(declaredType == null) {
+        return false;
+      }
+
+      ITypeElement typeElement = declaredType.GetTypeElement();
+      if(typeElement == null) {
+        return false;
+      }
+
+      IList<IProperty> properties = typeElement.Properties;
+      if(properties == null || properties.Count == 0) {
+        return false;
+      }
+
+      foreach(IProperty property in properties) {
+        if(property.IsWritable) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    /// <summary>
+    /// Performs the value analysis.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    /// <param name="type">The type.</param>
+    /// <param name="range">The range.</param>
+    /// <param name="name">The name.</param>
+    void PerformValueAnalysis(IElement element, IType type, TextRange range, string name) {
+      if(!type.IsReferenceType()) {
+        return;
+      }
+
+      IFunctionDeclaration functionDeclaration = element.GetContainingElement(typeof(IFunctionDeclaration), true) as IFunctionDeclaration;
+      if(functionDeclaration == null) {
+        return;
+      }
+
+      IReferenceExpression expression = element.GetContainingElement(typeof(IReferenceExpression), true) as IReferenceExpression;
+      if(expression == null) {
+        return;
+      }
+
+      ICSharpControlFlowGraf graf = CSharpControlFlowBuilder.Build(functionDeclaration);
+
+      graf.Inspect(true);
+
+      CSharpControlFlowNullReferenceState state = graf.GetExpressionNullReferenceState(expression);
+
+      switch(state) {
+        case CSharpControlFlowNullReferenceState.UNKNOWN:
+          AddMenuItem("Check if '{0}' is null", "F802DB32-A0B1-4227-BE5C-E7D20670284B", range, name);
+          break;
+        case CSharpControlFlowNullReferenceState.NOT_NULL:
+          break;
+        case CSharpControlFlowNullReferenceState.NULL:
+          AddMenuItem("Check if '{0}' is null", "F802DB32-A0B1-4227-BE5C-E7D20670284B", range, name);
+          break;
+        case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
+          break;
+      }
     }
 
     #endregion

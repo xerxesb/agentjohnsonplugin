@@ -28,7 +28,7 @@ namespace AgentJohnson.SmartGenerate {
         return;
       }
 
-      IExpressionStatement expressionStatement = GetPreviousStatement(block, element) as IExpressionStatement;
+      IExpressionStatement expressionStatement = StatementUtil.GetPreviousStatement(block, element) as IExpressionStatement;
       if(expressionStatement == null) {
         return;
       }
@@ -62,7 +62,7 @@ namespace AgentJohnson.SmartGenerate {
 
       string qualifier = qualifierExpression.GetText();
 
-      AddMenuItem("Assign property on '{0}'", "AA6EFC53-174B-4EFD-A137-8115C22666C7", qualifier);
+      AddMenuItem("Assign another property on '{0}'", "AA6EFC53-174B-4EFD-A137-8115C22666C7", qualifier);
     }
 
     #endregion

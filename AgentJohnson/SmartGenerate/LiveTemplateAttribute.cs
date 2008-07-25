@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// 
   /// </summary>
   [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-  public sealed class SmartGenerateAttribute : Attribute {
+  public sealed class LiveTemplateAttribute : Attribute {
     #region Fields
 
     readonly string _description;
@@ -17,11 +17,11 @@ namespace AgentJohnson.SmartGenerate {
     #region Constructors
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SmartGenerateAttribute"/> class.
+    /// Initializes a new instance of the <see cref="LiveTemplateAttribute"/> class.
     /// </summary>
     /// <param name="description">The description.</param>
     /// <param name="name">The name.</param>
-    public SmartGenerateAttribute(string name, string description) {
+    public LiveTemplateAttribute(string name, string description) {
       _description = description;
       _name = name;
     }

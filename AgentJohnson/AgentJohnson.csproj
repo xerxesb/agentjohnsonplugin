@@ -179,6 +179,7 @@
   <ItemGroup>
     <Compile Include="ActionHandlerBase.cs" />
     <Compile Include="ContextActionBase.cs" />
+    <Compile Include="LiveMacros\SuggestProperty.cs" />
     <Compile Include="Options\SmartGenerateOptionsPage.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -197,6 +198,11 @@
     <Compile Include="Options\ValueAnalysisDetailsPage.Designer.cs">
       <DependentUpon>ValueAnalysisDetailsPage.cs</DependentUpon>
     </Compile>
+    <Compile Include="SmartGenerate\GenerateAssignmentCheck.cs" />
+    <Compile Include="SmartGenerate\LiveTemplateItem.cs" />
+    <Compile Include="SmartGenerate\ILiveTemplate.cs" />
+    <Compile Include="SmartGenerate\GenerateBoolExpression.cs" />
+    <Compile Include="SmartGenerate\GenerateLiveTemplate.cs" />
     <Compile Include="SmartGenerate\GenerateStringExpression.cs" />
     <Compile Include="SmartGenerate\GenerateReturn.cs" />
     <Compile Include="SmartGenerate\GenerateNearestVariable.cs" />
@@ -211,14 +217,23 @@
     <Compile Include="SmartGenerate\GenerateClassMembers.cs" />
     <Compile Include="SmartGenerate\GenerateTypes.cs" />
     <Compile Include="SmartGenerate\GenerateNamespace.cs" />
+    <Compile Include="SmartGenerate\InvocationLiveTemplate.cs" />
     <Compile Include="SmartGenerate\ISmartGenerate.cs" />
     <Compile Include="SmartGenerate\ISmartGenerateMenuItem.cs" />
+    <Compile Include="SmartGenerate\LiveTemplateManager.cs" />
+    <Compile Include="SmartGenerate\LocalVariableDeclarationLiveTemplate.cs" />
+    <Compile Include="SmartGenerate\LocalVariableInitializerLiveTemplate.cs" />
     <Compile Include="SmartGenerate\SmartGenerateAction.cs" />
     <Compile Include="SmartGenerate\SmartGenerateAttribute.cs" />
     <Compile Include="SmartGenerate\SmartGenerateBase.cs" />
+    <Compile Include="SmartGenerate\SmartGenerateInfo.cs" />
+    <Compile Include="SmartGenerate\LiveTemplateAttribute.cs" />
+    <Compile Include="SmartGenerate\LiveTemplateInfo.cs" />
     <Compile Include="SmartGenerate\SmartGenerateMenuItem.cs" />
     <Compile Include="SmartGenerate\SmartGenerateManager.cs" />
+    <Compile Include="SmartGenerate\SmartGenerateMenuSeperator.cs" />
     <Compile Include="SmartGenerate\SmartGenerateSettings.cs" />
+    <Compile Include="SmartGenerate\StatementUtil.cs" />
     <Compile Include="Statements\ReverseForDirectionContextAction.cs" />
     <Compile Include="Strings\IntroduceStringConstantActionHandler.cs" />
     <Compile Include="Strings\IntroduceStringConstantContextAction.cs" />

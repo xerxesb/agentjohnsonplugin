@@ -114,6 +114,12 @@
     </Variables>
   </Template>
 
+  <Template uid="DA0860C6-535C-489E-940C-841AA6C54C96" text="{0}.$Property$ = $END$;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Property" expression="completeSmart()" initialRange="0" />
+    </Variables>
+  </Template>
+
   <Template uid="11BACA25-C561-4FE8-934B-41246B7CFAC9" text="var $Variable$ = {0}.$Method$;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
     <Variables>
       <Variable name="Method" expression="complete()" initialRange="0" />
@@ -188,6 +194,17 @@
 
   <Template uid="3D13FE3E-7004-42B0-B205-2881C5ADBAD2" text="string.IsNullOrEmpty($SELECTION$)" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
     <Variables />
+  </Template>
+
+  <Template uid="FA4B31AF-393D-44DB-93D3-F7E48BF97C53" text="if($SELECTION$) {&#xD;&#xA;  $END$&#xD;&#xA;}&#xD;&#xA;" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables />
+  </Template>
+
+  <Template uid="166BE49C-D068-476D-BC9C-2B5C3AF21B06" text="{0}$Type$ $Property$ {{ get; set; }}&#xD;&#xA;" shortcut="" description="Auto property" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Type" expression="" initialRange="0" />
+      <Variable name="Property" expression="" initialRange="0" />
+    </Variables>
   </Template>
 
 </TemplatesExport>
