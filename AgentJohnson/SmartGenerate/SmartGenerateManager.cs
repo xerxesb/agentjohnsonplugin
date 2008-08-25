@@ -29,7 +29,7 @@ namespace AgentJohnson.SmartGenerate {
     /// <value>The instance.</value>
     public static SmartGenerateManager Instance {
       get {
-        return (SmartGenerateManager)Shell.Instance.GetComponent(typeof(SmartGenerateManager));
+        return Shell.Instance.GetComponent < SmartGenerateManager>();
       }
     }
 

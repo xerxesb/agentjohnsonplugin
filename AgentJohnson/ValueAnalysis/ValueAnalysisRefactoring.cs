@@ -193,15 +193,16 @@ namespace AgentJohnson.ValueAnalysis {
         return;
       }
 
-      ICSharpControlFlowGraf controlFlowGraf = GetControlFlow();
-
-      if(controlFlowGraf == null) {
+      ICSharpControlFlowGraf graf = GetControlFlow();
+      if(graf == null) {
         return;
       }
 
-      CSharpControlFlowNullReferenceState attribute = controlFlowGraf.SuggestReturnValueAnnotationAttribute;
+      ICSharpControlFlowAnalysisResult inspect = graf.Inspect(true);
 
-      switch(attribute) {
+      CSharpControlFlowNullReferenceState state = inspect.SuggestReturnValueAnnotationAttribute;
+
+      switch(state) {
         case CSharpControlFlowNullReferenceState.UNKNOWN:
           break;
         case CSharpControlFlowNullReferenceState.NOT_NULL:
@@ -734,14 +735,17 @@ namespace AgentJohnson.ValueAnalysis {
         return null;
       }
 
+      /*
       try {
-        if (_contextActionDataProvider.InspectControlFlowGraf()) {
+        ICSharpControlFlowAnalysisResult flowAnalysisResult = _contextActionDataProvider.InspectControlFlowGraf();
+        if (flowAnalysisResult.) {
           return null;
         }
       }
       catch {
         return null;
       }
+      */
 
       return graf;
     }

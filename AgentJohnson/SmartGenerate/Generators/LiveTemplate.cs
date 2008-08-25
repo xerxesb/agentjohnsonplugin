@@ -10,11 +10,11 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
   [SmartGenerate("Execute Live Template", "Executes a Live Template.", Priority = -10)]
-  public class GenerateLiveTemplate : SmartGenerateBase {
+  public class LiveTemplate : SmartGenerateBase {
     #region Protected methods
 
     /// <summary>

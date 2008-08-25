@@ -3,11 +3,11 @@ using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
   [SmartGenerate("Surround with 'string.IsNullOrEmpty'", "Surrounds the string expression with 'string.IsNullOrEmpty'.", Priority=-20)]
-  public class GenerateStringExpression : SmartGenerateBase {
+  public class StringExpression : SmartGenerateBase {
     #region Public methods
 
     /// <summary>

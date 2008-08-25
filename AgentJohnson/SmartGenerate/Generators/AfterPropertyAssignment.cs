@@ -4,11 +4,11 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
   [SmartGenerate("Assign property", "Assigns another property on the object.", Priority=0)]
-  public class GenerateAfterPropertyAssignment : SmartGenerateBase {
+  public class AfterPropertyAssignment : SmartGenerateBase {
     #region Public methods
 
     /// <summary>

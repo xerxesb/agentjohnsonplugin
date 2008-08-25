@@ -190,7 +190,9 @@ namespace AgentJohnson.ValueAnalysis {
         return false;
       }
 
-      CSharpControlFlowNullReferenceState state = graf.GetExpressionNullReferenceState(referenceExpression);
+      ICSharpControlFlowAnalysisResult inspect = graf.Inspect(true);
+
+      CSharpControlFlowNullReferenceState state = inspect.GetExpressionNullReferenceState(referenceExpression);
 
       switch(state) {
         case CSharpControlFlowNullReferenceState.UNKNOWN:

@@ -59,7 +59,7 @@ namespace AgentJohnson.Strings {
     /// <value>The instance.</value>
     public static IntroduceStringConstantSettings Instance {
       get {
-        return (IntroduceStringConstantSettings)Shell.Instance.GetComponent(typeof(IntroduceStringConstantSettings));
+        return Shell.Instance.GetComponent<IntroduceStringConstantSettings>();
       }
     }
 

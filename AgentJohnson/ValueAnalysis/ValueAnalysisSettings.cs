@@ -56,7 +56,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// <value>The instance.</value>
     public static ValueAnalysisSettings Instance {
       get {
-        return (ValueAnalysisSettings)Shell.Instance.GetComponent(typeof(ValueAnalysisSettings));
+        return Shell.Instance.GetComponent<ValueAnalysisSettings>();
       }
     }
 

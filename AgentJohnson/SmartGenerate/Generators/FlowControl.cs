@@ -3,11 +3,11 @@ using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
   [SmartGenerate("Generate 'continue' or 'break'", "Generates 'continue' or 'break'.", Priority=200)]
-  public class GenerateFlowControl : SmartGenerateBase {
+  public class FlowControl : SmartGenerateBase {
     #region Public methods
 
     /// <summary>

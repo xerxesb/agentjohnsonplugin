@@ -186,10 +186,8 @@
     </Variables>
   </Template>
 
-  <Template uid="208A11F8-DEE1-4B8B-838F-17DA883DA7A5" text="{0} = new $Instance$($END$);" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
-    <Variables>
-      <Variable name="Instance" expression="completeSmart()" initialRange="0" />
-    </Variables>
+  <Template uid="208A11F8-DEE1-4B8B-838F-17DA883DA7A5" text="{0} = new {1}($END$);" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
+    <Variables/>
   </Template>
 
   <Template uid="3D13FE3E-7004-42B0-B205-2881C5ADBAD2" text="string.IsNullOrEmpty($SELECTION$)" shortcut="" description="" reformat="true" shortenQualifiedReferences="true">
@@ -207,5 +205,18 @@
     </Variables>
   </Template>
 
+  <Template uid="1E9A90C2-2FB9-451F-8566-BA59AAB707DF" text="{0} $result$;&#xD;&#xA;$END$&#xD;&#xA;return $result$;" shortcut="" description="Declare and return result variable" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="Type" expression="" initialRange="0" />
+      <Variable name="result" expression="" initialRange="0" />
+    </Variables>
+  </Template>
+
+  <Template uid="D00FD7E4-EE48-40F0-A126-D1E8AE8C031E" text="{0} $result$ = new {0}();&#xD;&#xA;$END$&#xD;&#xA;return $result$;" shortcut="" description="Declare and return result variable" reformat="true" shortenQualifiedReferences="true">
+    <Variables>
+      <Variable name="result" expression="" initialRange="0" />
+    </Variables>
+  </Template>
+  
 </TemplatesExport>
 

@@ -3,11 +3,11 @@ using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
-  [SmartGenerate("'case'", "Adds a new 'case' entry in a 'switch' statement.", Priority=0)]
-  public class GenerateSwitchCase : SmartGenerateBase {
+  [SmartGenerate("Add enum member", "Adds a new constant to the enumeration.", Priority=0)]
+  public class EnumMembers : SmartGenerateBase {
     #region Public methods
 
     /// <summary>
@@ -18,21 +18,12 @@ namespace AgentJohnson.SmartGenerate {
     /// <param name="element">The element.</param>
     /// <returns>The items.</returns>
     protected override void GetItems(ISolution solution, IDataContext context, IElement element) {
-      ISwitchStatement switchStatement = element.GetContainingElement(typeof(ISwitchStatement), false) as ISwitchStatement;
-      if(switchStatement == null) {
+      IEnumDeclaration enumDeclaration = element.GetContainingElement(typeof(IEnumDeclaration), false) as IEnumDeclaration;
+      if(enumDeclaration == null) {
         return;
       }
 
-      IBlock block = switchStatement.Block;
-      if(block == null) {
-        return;
-      }
-
-      if(element.ToTreeNode().Parent != block) {
-        return;
-      }
-
-      AddMenuItem("'case'", "16E39695-5810-4C3E-A3CD-AB0CC0127C60");
+      AddMenuItem("Add enum member", "587F88E2-6876-41F2-885C-58AD93BBC8B4");
     }
 
     #endregion

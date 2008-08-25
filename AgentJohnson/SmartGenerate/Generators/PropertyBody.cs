@@ -5,11 +5,11 @@ using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
   [SmartGenerate("Generate property accessor body", "Generates the body of either a getter or a setter property accessor.", Priority=0)]
-  public class GeneratePropertyBody: SmartGenerateBase {
+  public class PropertyBody: SmartGenerateBase {
     #region Public methods
 
     /// <summary>

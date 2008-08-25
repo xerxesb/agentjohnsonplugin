@@ -27,7 +27,7 @@ namespace AgentJohnson.FavoriteFiles {
     /// <value>The instance.</value>
     public static FavoriteFilesSettings Instance {
       get {
-        return (FavoriteFilesSettings)Shell.Instance.GetComponent(typeof(FavoriteFilesSettings));
+        return Shell.Instance.GetComponent<FavoriteFilesSettings>();
       }
     }
 
@@ -72,6 +72,10 @@ namespace AgentJohnson.FavoriteFiles {
         return result.ToString();
       }
       set {
+        if (value == null) {
+          return;
+        }
+
         _favoriteFiles = new List<FavoriteFilePath>();
 
         string[] files = value.Split('|');

@@ -3,11 +3,11 @@ using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
-  [SmartGenerate("Generate struct members", "Generates a property or method in a struct.", Priority=0)]
-  public class GenerateStructMembers : SmartGenerateBase {
+  [SmartGenerate("Generate class members", "Generates a new property or method on a class.", Priority=0)]
+  public class ClassMembers : SmartGenerateBase {
     #region Public methods
 
     /// <summary>
@@ -18,17 +18,17 @@ namespace AgentJohnson.SmartGenerate {
     /// <param name="element">The element.</param>
     /// <returns>The items.</returns>
     protected override void GetItems(ISolution solution, IDataContext context, IElement element) {
-      IStructDeclaration structDeclaration = element.GetContainingElement(typeof(IStructDeclaration), true) as IStructDeclaration;
-      if(structDeclaration == null) {
+      IClassDeclaration classDeclaration = element.GetContainingElement(typeof(IClassDeclaration), true) as IClassDeclaration;
+      if(classDeclaration == null) {
         return;
       }
 
       IElement memberDeclaration = element.GetContainingElement(typeof(IClassMemberDeclaration), true);
-      if(memberDeclaration != null && !(memberDeclaration is IStructDeclaration)) {
+      if(memberDeclaration != null && !(memberDeclaration is IClassDeclaration)) {
         return;
       }
 
-      string modifier = GetModifier(element, structDeclaration);
+      string modifier = ModifierUtil.GetModifier(element, classDeclaration);
 
       AddMenuItem("Auto property", "166BE49C-D068-476D-BC9C-2B5C3AF21B06", modifier);
       AddMenuItem("Property", "a684b217-f179-431b-a485-e3d76dbe57fd", modifier);

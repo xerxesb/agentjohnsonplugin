@@ -3,11 +3,11 @@ using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
   [SmartGenerate("Generate else", "Generates an 'else' or 'else if' statement.", Priority=100)]
-  public class GenerateElse : SmartGenerateBase {
+  public class Else : SmartGenerateBase {
     #region Public methods
 
     /// <summary>

@@ -5,12 +5,12 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.LiveTemplates {
   /// <summary>
   /// 
   /// </summary>
   [LiveTemplate("After local variable of type", "Executes a Live Template after the declaration of a local variable of a type.")]
-  public class LocalVariableDeclarationLiveTemplate : ILiveTemplate {
+  public class AfterLocalVariableDeclaration : ILiveTemplate {
     #region Public methods
 
     /// <summary>

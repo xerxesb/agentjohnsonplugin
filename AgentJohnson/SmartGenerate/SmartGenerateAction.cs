@@ -109,7 +109,7 @@ namespace AgentJohnson.SmartGenerate {
         });
 
         SimpleMenuItem item = new SimpleMenuItem {
-          Text = "Create Live Template",
+          Text = "Create live template",
           Style = MenuItemStyle.Enabled,
           Tag = liveTemplates
         };
@@ -234,7 +234,7 @@ namespace AgentJohnson.SmartGenerate {
         menu.Layouter = popupWindowContext.CreateLayouter();
       }
 
-      menu.Caption.Value = WindowlessControl.Create("Create Live Template");
+      menu.Caption.Value = WindowlessControl.Create("Create live template");
       menu.SetItems(items);
       menu.KeyboardAcceleration.SetValue(KeyboardAccelerationFlags.Mnemonics);
 

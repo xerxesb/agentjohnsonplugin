@@ -3,12 +3,12 @@ using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// Defines the generate boolean expression class.
   /// </summary>
   [SmartGenerate("Surround with 'if'", "Surrounds the boolean expression with 'if'.", Priority=-20)]
-  public class GenerateBooleanExpression : SmartGenerateBase {
+  public class BooleanExpression : SmartGenerateBase {
     #region Public methods
 
     /// <summary>

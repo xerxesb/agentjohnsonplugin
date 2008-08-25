@@ -33,7 +33,7 @@ namespace AgentJohnson.SmartGenerate {
     /// <value>The instance.</value>
     public static LiveTemplateManager Instance {
       get {
-        return (LiveTemplateManager)Shell.Instance.GetComponent(typeof(LiveTemplateManager));
+        return Shell.Instance.GetComponent<LiveTemplateManager>();
       }
     }
 

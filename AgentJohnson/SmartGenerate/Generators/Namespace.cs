@@ -2,11 +2,11 @@
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
   [SmartGenerate("Generate namespace", "Generates a new namespace.", Priority=0)]
-  public class GenerateNamespace : SmartGenerateBase {
+  public class Namespace : SmartGenerateBase {
     #region Public methods
 
     /// <summary>

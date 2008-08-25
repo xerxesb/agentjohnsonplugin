@@ -6,12 +6,12 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.Util;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// Defines the generate assignment check class.
   /// </summary>
   [SmartGenerate("Generate check if variable is null", "Generates statements that check for null or empty string.", Priority=0)]
-  public class GenerateAssignmentCheck: SmartGenerateBase {
+  public class AssignmentCheck: SmartGenerateBase {
     #region Public methods
 
     /// <summary>

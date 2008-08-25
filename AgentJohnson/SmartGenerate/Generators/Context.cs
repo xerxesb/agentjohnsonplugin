@@ -9,11 +9,11 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.Util;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
-  [SmartGenerate("Nearest variable", "Generates code based on the name and type of the nearest variable declaration.", Priority = 500)]
-  public class GenerateNearestVariable : SmartGenerateBase {
+  [SmartGenerate("Context", "Generates code based on the current context.", Priority = 500)]
+  public class Context : SmartGenerateBase {
     #region Protected methods
 
     /// <summary>
@@ -40,7 +40,7 @@ namespace AgentJohnson.SmartGenerate {
         AddMenuItem("Assign value to '{0}'", "9BD23D35-AC2A-46E2-AADA-C81D9B53795A", range, name);
 
         if(HasAccessableConstructor(type)) {
-          AddMenuItem("Assign new instance to '{0}'", "208A11F8-DEE1-4B8B-838F-17DA883DA7A5", range, name);
+          AddMenuItem("Assign new instance to '{0}'", "208A11F8-DEE1-4B8B-838F-17DA883DA7A5", range, name, type.GetPresentableName(element.Language));
         }
 
         return;
@@ -179,9 +179,9 @@ namespace AgentJohnson.SmartGenerate {
 
       ICSharpControlFlowGraf graf = CSharpControlFlowBuilder.Build(functionDeclaration);
 
-      graf.Inspect(true);
+      ICSharpControlFlowAnalysisResult inspect = graf.Inspect(true);
 
-      CSharpControlFlowNullReferenceState state = graf.GetExpressionNullReferenceState(expression);
+      CSharpControlFlowNullReferenceState state = inspect.GetExpressionNullReferenceState(expression);
 
       switch(state) {
         case CSharpControlFlowNullReferenceState.UNKNOWN:

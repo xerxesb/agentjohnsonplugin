@@ -5,11 +5,11 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
   [SmartGenerate("Generate 'return'", "Generates a 'return' statement.", Priority = 1000)]
-  public class GenerateReturn : SmartGenerateBase {
+  public class Return : SmartGenerateBase {
     #region Protected methods
 
     /// <summary>

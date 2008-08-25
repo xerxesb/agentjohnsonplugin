@@ -3,11 +3,11 @@ using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
   [SmartGenerate("Generate interface members", "Generates a new property or method on an interface", Priority=0)]
-  public class GenerateInterfaceMembers : SmartGenerateBase {
+  public class InterfaceMembers : SmartGenerateBase {
     #region Public methods
 
     /// <summary>
