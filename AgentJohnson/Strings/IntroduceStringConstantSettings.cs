@@ -104,6 +104,10 @@ namespace AgentJohnson.Strings {
       set {
         _classNames = new List<string>();
 
+        if (string.IsNullOrEmpty(value)) {
+          return;
+        }
+
         string[] classes = value.Split('|');
 
         foreach(string className in classes) {
@@ -113,6 +117,7 @@ namespace AgentJohnson.Strings {
         }
       }
     }
+
     /// <summary>
     /// Gets or sets the transform identifier mode.
     /// </summary>
@@ -160,6 +165,8 @@ namespace AgentJohnson.Strings {
       }
 
       XmlExternalizationUtil.ReadFromXml(element, this);
+
+
     }
 
     /// <summary>

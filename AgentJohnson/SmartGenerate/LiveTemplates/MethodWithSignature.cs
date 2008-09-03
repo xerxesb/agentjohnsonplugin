@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Text;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
@@ -6,8 +7,8 @@ using JetBrains.ReSharper.Psi.Tree;
 namespace AgentJohnson.SmartGenerate.LiveTemplates {
   /// <summary>
   /// </summary>
-  [LiveTemplate("Body in method that returns a type", "Generates a body in method that returns a type")]
-  public class MethodBody : ILiveTemplate {
+  [LiveTemplate("Method with signature", "Generate body in a method with a signature")]
+  public class MethodWithSignature : ILiveTemplate {
     #region Public methods
 
     /// <summary>
@@ -38,20 +39,26 @@ namespace AgentJohnson.SmartGenerate.LiveTemplates {
         return null;
       }
 
-      IType returnType = method.ReturnType;
-      string returnTypeName = returnType.GetPresentableName(element.Language);
-      if(returnTypeName == "void" || string.IsNullOrEmpty(returnTypeName)) {
-        return null;
+      StringBuilder signatureBuilder = new StringBuilder();
+      bool first = true;
+
+      foreach(IParameter parameter in method.Parameters) {
+        if(!first) {
+          signatureBuilder.Append(", ");
+        }
+        first = false;
+
+        signatureBuilder.Append(parameter.Type.GetLongPresentableName(element.Language));
       }
 
-      LiveTemplateItem liveTemplateItem = new LiveTemplateItem {
-        MenuText = string.Format("Body in method that returns '{0}'", returnTypeName),
-        Description = string.Format("Body in method that returns '{0}'", returnTypeName),
-        Shortcut = string.Format("Body in method that returns '{0}'", returnTypeName)
-      };
+      string signature = signatureBuilder.ToString();
 
       return new List<LiveTemplateItem> {
-        liveTemplateItem
+        new LiveTemplateItem {
+          MenuText = string.Format("Body in method with signature ({0})", signature),
+          Description = string.Format("Body in method with signature ({0})", signature),
+          Shortcut = string.Format("Body in method with signature ({0})", signature)
+        }
       };
     }
 

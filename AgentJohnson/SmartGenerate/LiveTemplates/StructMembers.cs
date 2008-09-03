@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using JetBrains.ActionManagement;
-using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 
@@ -14,12 +12,11 @@ namespace AgentJohnson.SmartGenerate.LiveTemplates {
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="dataContext">The data context.</param>
-    /// <param name="previousStatement">The previous statement.</param>
-    /// <param name="element">The element.</param>
+    /// <param name="parameters">The parameters.</param>
     /// <returns>The items.</returns>
-    public IEnumerable<LiveTemplateItem> GetItems(ISolution solution, IDataContext dataContext, IStatement previousStatement, IElement element) {
+    public IEnumerable<LiveTemplateItem> GetItems(SmartGenerateParameters parameters) {
+      IElement element = parameters.Element;
+
       IStructDeclaration structDeclaration = element.GetContainingElement(typeof(IStructDeclaration), true) as IStructDeclaration;
       if(structDeclaration == null) {
         return null;

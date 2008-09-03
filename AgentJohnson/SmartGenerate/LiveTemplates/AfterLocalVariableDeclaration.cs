@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using JetBrains.ActionManagement;
-using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
@@ -9,19 +7,19 @@ namespace AgentJohnson.SmartGenerate.LiveTemplates {
   /// <summary>
   /// 
   /// </summary>
-  [LiveTemplate("After local variable of type", "Executes a Live Template after the declaration of a local variable of a type.")]
+  // [LiveTemplate("After local variable of type", "Executes a Live Template after the declaration of a local variable of a type.")]
   public class AfterLocalVariableDeclaration : ILiveTemplate {
     #region Public methods
 
     /// <summary>
     /// Gets the name of the template.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="dataContext">The data context.</param>
-    /// <param name="previousStatement">The previous statement.</param>
-    /// <param name="element">The element.</param>
-    /// <returns></returns>
-    public IEnumerable<LiveTemplateItem> GetItems(ISolution solution, IDataContext dataContext, IStatement previousStatement, IElement element) {
+    /// <param name="parameters">The parameters.</param>
+    /// <returns>The items.</returns>
+    public IEnumerable<LiveTemplateItem> GetItems(SmartGenerateParameters parameters) {
+      IElement element = parameters.Element;
+      IStatement previousStatement = parameters.PreviousStatement;
+
       IDeclarationStatement declarationStatement = previousStatement as IDeclarationStatement;
       if(declarationStatement == null) {
         return null;

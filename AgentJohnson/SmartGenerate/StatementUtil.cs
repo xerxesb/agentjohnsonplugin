@@ -1,5 +1,9 @@
-﻿using JetBrains.ReSharper.Psi.CSharp.Tree;
+﻿using System.Collections.Generic;
+using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.CSharp;
+using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.Util;
 
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
@@ -7,6 +11,27 @@ namespace AgentJohnson.SmartGenerate {
   /// </summary>
   public static class StatementUtil {
     #region Public methods
+
+    /// <summary>
+    /// Gets the new statement position.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    /// <returns>The new statement position.</returns>
+    public static TextRange GetNewStatementPosition(IElement element) {
+      IBlock block = element.GetContainingElement(typeof(IBlock), true) as IBlock;
+      if(block == null) {
+        return TextRange.InvalidRange;
+      }
+
+      IStatement statement = element.GetContainingElement(typeof(IStatement), true) as IStatement;
+      if(statement != null && statement != block && block.Contains(statement)) {
+        TextRange range = statement.GetTreeTextRange();
+
+        return new TextRange(range.EndOffset + 1);
+      }
+
+      return TextRange.InvalidRange;
+    }
 
     /// <summary>
     /// Gets the previous statement.

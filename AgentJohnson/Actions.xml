@@ -14,6 +14,7 @@
 
   <action id="AgentJohnson.IntroduceStringConstant" text="Introduce String Constant"/>
   <action id="AgentJohnson.InvertReturnValue" text="Invert Return Value"/>
+  <action id="SmartGenerate2" text="Internal Use Only"/>
 
   <insert group-id="Refactor" position="last">
     <action-ref id="AgentJohnson.IntroduceStringConstant"/>

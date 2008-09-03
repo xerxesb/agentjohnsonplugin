@@ -51,13 +51,12 @@ namespace AgentJohnson.SmartGenerate {
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="context">The context.</param>
-    /// <param name="element">The element.</param>
-    public List<LiveTemplateItem> GetLiveTemplates(ISolution solution, IDataContext context, IElement element) {
+    /// <param name="parameters">The parameters.</param>
+    /// <returns>The live templates.</returns>
+    public List<LiveTemplateItem> GetLiveTemplates(SmartGenerateParameters parameters) {
       List<LiveTemplateItem> result = new List<LiveTemplateItem>();
 
-      IStatement previousStatement = StatementUtil.GetPreviousStatement(element);
+      parameters.PreviousStatement = StatementUtil.GetPreviousStatement(parameters.Element);
 
       foreach(LiveTemplateInfo liveTemplateInfo in LiveTemplateInfos) {
         ConstructorInfo constructor = liveTemplateInfo.Type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, new Type[0], null);
@@ -67,7 +66,7 @@ namespace AgentJohnson.SmartGenerate {
           continue;
         }
 
-        IEnumerable<LiveTemplateItem> liveTemplateItems = liveTemplate.GetItems(solution, context, previousStatement, element);
+        IEnumerable<LiveTemplateItem> liveTemplateItems = liveTemplate.GetItems(parameters);
         if(liveTemplateItems == null) {
           continue;
         }

@@ -2,11 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Xml;
-using JetBrains.ActionManagement;
-using JetBrains.ProjectModel;
 using JetBrains.ReSharper.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.LiveTemplates.Templates;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
 
@@ -20,14 +17,13 @@ namespace AgentJohnson.SmartGenerate.Generators {
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="context">The context.</param>
-    /// <param name="element">The element.</param>
-    /// <returns>The items.</returns>
-    protected override void GetItems(ISolution solution, IDataContext context, IElement element) {
-      IStatement previousStatement = StatementUtil.GetPreviousStatement(element);
+    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    protected override void GetItems(SmartGenerateParameters smartGenerateParameters) {
+      IElement element = smartGenerateParameters.Element;
 
-      TextRange range = GetNewStatementPosition(element);
+      smartGenerateParameters.PreviousStatement = StatementUtil.GetPreviousStatement(element);
+
+      TextRange defaultRange = StatementUtil.GetNewStatementPosition(element);
 
       foreach(LiveTemplateInfo liveTemplateInfo in LiveTemplateManager.Instance.LiveTemplateInfos) {
         ConstructorInfo constructor = liveTemplateInfo.Type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, new Type[0], null);
@@ -37,7 +33,7 @@ namespace AgentJohnson.SmartGenerate.Generators {
           continue;
         }
 
-        IEnumerable<LiveTemplateItem> liveTemplateItems = handler.GetItems(solution, context, previousStatement, element);
+        IEnumerable<LiveTemplateItem> liveTemplateItems = handler.GetItems(smartGenerateParameters);
         if(liveTemplateItems == null) {
           continue;
         }
@@ -58,6 +54,11 @@ namespace AgentJohnson.SmartGenerate.Generators {
 
             foreach(string key in liveTemplateMenuItem.Variables.Keys) {
               xml = xml.Replace("$" + key + "$", liveTemplateMenuItem.Variables[key]);
+            }
+
+            TextRange range = liveTemplateMenuItem.Range;
+            if(range == TextRange.InvalidRange) {
+              range = defaultRange;
             }
 
             AddMenuItem(template.Description, xml, range);

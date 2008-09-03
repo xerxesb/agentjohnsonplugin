@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Security;
 using JetBrains.ActionManagement;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
@@ -25,14 +26,12 @@ namespace AgentJohnson.SmartGenerate {
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="context">The context.</param>
-    /// <param name="element">The element.</param>
+    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
     /// <returns>The items.</returns>
-    public virtual IEnumerable<ISmartGenerateMenuItem> GetMenuItems(ISolution solution, IDataContext context, IElement element) {
+    public virtual IEnumerable<ISmartGenerateMenuItem> GetMenuItems(SmartGenerateParameters smartGenerateParameters) {
       _items = new List<ISmartGenerateMenuItem>();
 
-      GetItems(solution, context, element);
+      GetItems(smartGenerateParameters);
 
       return _items;
     }
@@ -73,6 +72,11 @@ namespace AgentJohnson.SmartGenerate {
 
       if(parameters.Length > 0) {
         text = string.Format(text, parameters);
+
+        for(int n = 0; n < parameters.Length; n++) {
+          parameters[n] = SecurityElement.Escape(parameters[n]);
+        }
+
         expandedTemplate = string.Format(expandedTemplate, parameters);
       }
 
@@ -103,133 +107,8 @@ namespace AgentJohnson.SmartGenerate {
     /// <summary>
     /// Gets the smart generate items.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="context">The context.</param>
-    /// <param name="element">The element.</param>
-    protected abstract void GetItems(ISolution solution, IDataContext context, IElement element);
-
-    /// <summary>
-    /// Gets the nearest variable.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="targetElement">The target element.</param>
-    /// <param name="name">The name.</param>
-    /// <param name="type">The type.</param>
-    /// <param name="isAssigned">if set to <c>true</c> [is assigned].</param>
-    protected static void GetNearestVariable(IElement element, out IElement targetElement, out string name, out IType type, out bool isAssigned) {
-      targetElement = null;
-      name = null;
-      type = null;
-      isAssigned = false;
-
-      ITreeNode node = element.ToTreeNode();
-
-      while(node != null) {
-        // local variable
-        IDeclarationStatement declarationStatement = node as IDeclarationStatement;
-        if(declarationStatement != null) {
-          IList<ILocalVariableDeclaration> localVariableDeclarations = declarationStatement.VariableDeclarations;
-
-          if(localVariableDeclarations.Count == 1) {
-            ILocalVariableDeclaration localVariableDeclaration = localVariableDeclarations[0];
-
-            if(localVariableDeclaration != null) {
-              ILocalVariable localVariable = localVariableDeclaration as ILocalVariable;
-
-              if(localVariable != null) {
-                targetElement = localVariableDeclaration;
-                name = localVariable.ShortName;
-                type = localVariable.Type;
-                isAssigned = localVariableDeclaration.Initial != null;
-                return;
-              }
-            }
-          }
-        }
-
-        ITreeNode prevSibling = node.PrevSibling;
-
-        if(prevSibling == null) {
-          node = node.Parent;
-
-          // foreach
-          IForeachStatement foreachStatement = node as IForeachStatement;
-          if(foreachStatement != null) {
-            IForeachVariableDeclaration foreachVariableDeclaration = foreachStatement.IteratorDeclaration;
-
-            if(foreachVariableDeclaration != null) {
-              IForeachVariableDeclarationNode foreachVariableDeclarationNode = foreachVariableDeclaration.ToTreeNode();
-
-              if(foreachVariableDeclarationNode != null) {
-                targetElement = foreachStatement;
-                name = foreachStatement.IteratorName;
-                type = CSharpTypeFactory.CreateType(foreachVariableDeclarationNode.TypeUsage);
-                isAssigned = true;
-                return;
-              }
-            }
-          }
-
-          // for
-          IForStatement forStatement = node as IForStatement;
-          if(forStatement != null) {
-            IList<ILocalVariableDeclaration> initializerDeclarations = forStatement.InitializerDeclarations;
-            if(initializerDeclarations.Count == 1) {
-              ILocalVariableDeclaration localVariableDeclaration = initializerDeclarations[0];
-              if(localVariableDeclaration != null) {
-                ILocalVariable localVariable = localVariableDeclaration as ILocalVariable;
-
-                if(localVariable != null) {
-                  targetElement = forStatement;
-                  name = localVariable.ShortName;
-                  type = localVariable.Type;
-                  isAssigned = true;
-                  return;
-                }
-              }
-            }
-          }
-
-          // parameter
-          IParametersOwner parametersOwner = node as IParametersOwner;
-          if(parametersOwner != null) {
-            if(parametersOwner.Parameters.Count > 0) {
-              IParameter parameter = parametersOwner.Parameters[0];
-
-              targetElement = parameter as IParameterDeclaration;
-              name = parameter.ShortName;
-              type = parameter.Type;
-              isAssigned = true;
-              return;
-            }
-          }
-        }
-        else {
-          node = prevSibling;
-        }
-      }
-    }
-
-    /// <summary>
-    /// Gets the new statement position.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    /// <returns>The new statement position.</returns>
-    protected static TextRange GetNewStatementPosition(IElement element) {
-      IBlock block = element.GetContainingElement(typeof(IBlock), true) as IBlock;
-      if(block == null) {
-        return TextRange.InvalidRange;
-      }
-
-      IStatement statement = element.GetContainingElement(typeof(IStatement), true) as IStatement;
-      if(statement != null && statement != block && block.Contains(statement)) {
-        TextRange range = statement.GetTreeTextRange();
-
-        return new TextRange(range.EndOffset + 1);
-      }
-
-      return TextRange.InvalidRange;
-    }
+    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    protected abstract void GetItems(SmartGenerateParameters smartGenerateParameters);
 
     /// <summary>
     /// Determines whether [is after last statement] [the specified element].

@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Reflection;
+using System.Windows.Forms;
 using System.Xml;
+using AgentJohnson.SmartGenerate.Scopes;
 using JetBrains.ActionManagement;
 using JetBrains.CommonControls;
 using JetBrains.DocumentModel;
-using JetBrains.IDE;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.CodeInsight.Services.Util;
 using JetBrains.ReSharper.LiveTemplates.Execution;
@@ -13,6 +16,7 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
+using JetBrains.UI;
 using JetBrains.UI.PopupMenu;
 using JetBrains.UI.PopupWindowManager;
 using JetBrains.Util;
@@ -21,10 +25,10 @@ namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// Handles Smart Generation, see <c>Actions.xml</c>
   /// </summary>
-  [ActionHandler("SmartGenerate")]
-  public class SmartGenerate : IActionHandler {
+  public class SmartGenerateAction : IActionHandler {
     #region Fields
 
+    protected static int _scopeIndex;
     IDataContext _context;
     ISolution _solution;
     ITextControl _textControl;
@@ -39,7 +43,7 @@ namespace AgentJohnson.SmartGenerate {
     ///<param name="context"><c>DataContext</c></param>
     ///<param name="nextExecute">delegate to call</param>
     public void Execute(IDataContext context, DelegateExecute nextExecute) {
-      ISolution solution = context.GetData(DataConstants.SOLUTION);
+      ISolution solution = context.GetData(JetBrains.IDE.DataConstants.SOLUTION);
       if(solution == null) {
         return;
       }
@@ -55,7 +59,7 @@ namespace AgentJohnson.SmartGenerate {
     ///<param name="presentation">presentation to update</param>
     ///<param name="nextUpdate">delegate to call</param>
     public bool Update(IDataContext context, ActionPresentation presentation, DelegateUpdate nextUpdate) {
-      return context.CheckAllNotNull(DataConstants.SOLUTION);
+      return context.CheckAllNotNull(JetBrains.IDE.DataConstants.SOLUTION);
     }
 
     #endregion
@@ -70,7 +74,9 @@ namespace AgentJohnson.SmartGenerate {
     protected void Execute(ISolution solution, IDataContext context) {
       _solution = solution;
       _context = context;
-      _textControl = context.GetData(DataConstants.TEXT_CONTROL);
+      _textControl = context.GetData(JetBrains.IDE.DataConstants.TEXT_CONTROL);
+
+      ResetIndex();
 
       IElement element;
 
@@ -86,8 +92,22 @@ namespace AgentJohnson.SmartGenerate {
 
       TextRange range = TextRange.InvalidRange;
 
+      List<ScopeEntry> scope = Scope.Populate(element);
+      if(_scopeIndex >= scope.Count) {
+        _scopeIndex = scope.Count - 1;
+      }
+      if(_scopeIndex < 0) {
+        _scopeIndex = 0;
+      }
+
       foreach(ISmartGenerate handler in SmartGenerateManager.Instance.GetHandlers()) {
-        IEnumerable<ISmartGenerateMenuItem> list = handler.GetMenuItems(solution, context, element);
+        IEnumerable<ISmartGenerateMenuItem> list = handler.GetMenuItems(new SmartGenerateParameters {
+          Solution = solution,
+          Context = context,
+          Element = element,
+          Scope = scope,
+          ScopeIndex = _scopeIndex
+        });
 
         if(list == null) {
           continue;
@@ -102,7 +122,14 @@ namespace AgentJohnson.SmartGenerate {
         }
       }
 
-      List<LiveTemplateItem> liveTemplates = LiveTemplateManager.Instance.GetLiveTemplates(solution, context, element);
+      List<LiveTemplateItem> liveTemplates = LiveTemplateManager.Instance.GetLiveTemplates(new SmartGenerateParameters {
+        Solution = solution,
+        Context = context,
+        Element = element,
+        Scope = scope,
+        ScopeIndex = _scopeIndex
+      });
+
       if(liveTemplates.Count > 0) {
         items.Add(new SimpleMenuItem {
           Style = MenuItemStyle.Separator
@@ -129,6 +156,21 @@ namespace AgentJohnson.SmartGenerate {
       menu.Caption.Value = WindowlessControl.Create("Smart Generate");
       menu.SetItems(items);
       menu.KeyboardAcceleration.SetValue(KeyboardAccelerationFlags.Mnemonics);
+
+      Bitmap right = ImageLoader.GetImage("AgentJohnson.Resources.LeftArrow.png", Assembly.GetExecutingAssembly());
+      Bitmap left = ImageLoader.GetImage("AgentJohnson.Resources.RightArrow.png", Assembly.GetExecutingAssembly());
+
+      menu.ToolbarButtons.Add(new ToolbarItemInfo(new PresentableItem(right), "Previous in scope", Keys.Left, false, delegate {
+        _scopeIndex++;
+        IUpdatableAction action = ActionManager.Instance.GetAction("SmartGenerate2");
+        ActionManager.Instance.ExecuteAction(action as IExecutableAction);
+      }));
+
+      menu.ToolbarButtons.Add(new ToolbarItemInfo(new PresentableItem(left), "Next in scope", Keys.None, false, delegate {
+        _scopeIndex--;
+        IUpdatableAction action = ActionManager.Instance.GetAction("SmartGenerate2");
+        ActionManager.Instance.ExecuteAction(action as IExecutableAction);
+      }));
 
       menu.Show();
     }
@@ -162,6 +204,13 @@ namespace AgentJohnson.SmartGenerate {
       return true;
     }
 
+    /// <summary>
+    /// Resets the index.
+    /// </summary>
+    protected virtual void ResetIndex() {
+      _scopeIndex = 0;
+    }
+
     #endregion
 
     #region Private methods
@@ -183,7 +232,9 @@ namespace AgentJohnson.SmartGenerate {
       }
       else {
         simpleMenuItem = new SimpleMenuItem {
-          Text = text, Style = MenuItemStyle.Enabled, Tag = item
+          Text = text,
+          Style = MenuItemStyle.Enabled,
+          Tag = item
         };
 
         if(items.Count < 9) {
@@ -229,7 +280,7 @@ namespace AgentJohnson.SmartGenerate {
 
       JetPopupMenu menu = new JetPopupMenu();
 
-      IPopupWindowContext popupWindowContext = _context.GetData(JetBrains.UI.DataConstants.POPUP_WINDOW_CONTEXT);
+      IPopupWindowContext popupWindowContext = _context.GetData(DataConstants.POPUP_WINDOW_CONTEXT);
       if(popupWindowContext != null) {
         menu.Layouter = popupWindowContext.CreateLayouter();
       }
@@ -283,6 +334,29 @@ namespace AgentJohnson.SmartGenerate {
       }
 
       LiveTemplatesController.Instance.ExecuteTemplate(_solution, template, _textControl);
+    }
+
+    #endregion
+  }
+
+  /// <summary>
+  /// Defines the smart generate action1 class.
+  /// </summary>
+  [ActionHandler("SmartGenerate")]
+  public class SmartGenerateAction1 : SmartGenerateAction {
+  }
+
+  /// <summary>
+  /// Defines the smart generate action2 class.
+  /// </summary>
+  [ActionHandler("SmartGenerate2")]
+  public class SmartGenerateAction2 : SmartGenerateAction {
+    #region Protected methods
+
+    /// <summary>
+    /// Resets the index.
+    /// </summary>
+    protected override void ResetIndex() {
     }
 
     #endregion

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using JetBrains.ActionManagement;
+using AgentJohnson.SmartGenerate.Scopes;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.ControlFlow2.CSharp;
@@ -12,29 +12,26 @@ using JetBrains.Util;
 namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
-  [SmartGenerate("Context", "Generates code based on the current context.", Priority = 500)]
-  public class Context : SmartGenerateBase {
+  [SmartGenerate("Local Variable Context", "Generates code based on the current local variable context.", Priority = 500)]
+  public class LocalVariableContext : SmartGenerateBase {
     #region Protected methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="context">The context.</param>
-    /// <param name="element">The element.</param>
-    /// <returns>The items.</returns>
-    protected override void GetItems(ISolution solution, IDataContext context, IElement element) {
-      IElement targetElement;
-      string name;
-      IType type;
-      bool isAssigned;
-
-      GetNearestVariable(element, out targetElement, out name, out type, out isAssigned);
-      if(type == null) {
+    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    protected override void GetItems(SmartGenerateParameters smartGenerateParameters) {
+      IElement element = smartGenerateParameters.Element;
+      List<ScopeEntry> scope = smartGenerateParameters.Scope;
+      if(scope.Count == 0) {
         return;
       }
 
-      TextRange range = GetNewStatementPosition(element);
+      string name = scope[smartGenerateParameters.ScopeIndex].Name;
+      IType type = scope[smartGenerateParameters.ScopeIndex].Type;
+      bool isAssigned = scope[smartGenerateParameters.ScopeIndex].IsAssigned;
+
+      TextRange range = StatementUtil.GetNewStatementPosition(element);
 
       if(!isAssigned) {
         AddMenuItem("Assign value to '{0}'", "9BD23D35-AC2A-46E2-AADA-C81D9B53795A", range, name);
@@ -74,11 +71,11 @@ namespace AgentJohnson.SmartGenerate.Generators {
       // AddMenuItem(items, "if ({0}.<Method>)...", "1438A7F2-B12C-4784-BFDE-A803FA8F1279", name);
       // AddMenuItem(items, "var Var = {0}.Method();", "11BACA25-C561-4FE8-934B-41246B7CFAC9", name);
       // AddMenuItem(items, "if ({0}.Method() == Value)...", "43E2C069-A3E6-4649-A374-104A16C59305", name);
-      AddMenuItem("Invoke method on '{0}'", "FE9C6A6B-A068-4182-B301-8002FE05A458", range, name);
+      // AddMenuItem("Invoke method on '{0}'", "FE9C6A6B-A068-4182-B301-8002FE05A458", range, name);
 
-      if(HasWritableProperty(type)) {
-        AddMenuItem("Assign property on '{0}'", "DA0860C6-535C-489E-940C-841AA6C54C96", range, name);
-      }
+      // if(HasWritableProperty(type)) {
+      //   AddMenuItem("Assign property on '{0}'", "DA0860C6-535C-489E-940C-841AA6C54C96", range, name);
+      // }
     }
 
     #endregion

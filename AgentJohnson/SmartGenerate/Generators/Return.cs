@@ -1,6 +1,4 @@
-﻿using JetBrains.ActionManagement;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Psi;
+﻿using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
@@ -15,11 +13,10 @@ namespace AgentJohnson.SmartGenerate.Generators {
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="context">The context.</param>
-    /// <param name="element">The element.</param>
-    /// <returns>The items.</returns>
-    protected override void GetItems(ISolution solution, IDataContext context, IElement element) {
+    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    protected override void GetItems(SmartGenerateParameters smartGenerateParameters) {
+      IElement element = smartGenerateParameters.Element;
+
       if(!IsAfterLastStatement(element)) {
         return;
       }
@@ -29,6 +26,7 @@ namespace AgentJohnson.SmartGenerate.Generators {
         return;
       }
 
+      IBlock body = null;
       string typeName = string.Empty;
       IType returnType = null;
 
@@ -36,6 +34,11 @@ namespace AgentJohnson.SmartGenerate.Generators {
       if(function != null) {
         returnType = function.ReturnType;
         typeName = returnType.GetPresentableName(element.Language);
+
+        IFunctionDeclaration functionDeclaration = function as IFunctionDeclaration;
+        if(functionDeclaration != null) {
+          body = functionDeclaration.Body;
+        }
       }
       else {
         IProperty property = block.GetContainingTypeMemberDeclaration() as IProperty;
@@ -45,15 +48,14 @@ namespace AgentJohnson.SmartGenerate.Generators {
           if(accessorDeclaration != null && accessorDeclaration.Kind == AccessorKind.GETTER) {
             returnType = property.Type;
             typeName = returnType.GetPresentableName(element.Language);
+            body = accessorDeclaration.Body;
           }
         }
       }
 
       // return;
       if(string.IsNullOrEmpty(typeName) || typeName == "void") {
-        IFunctionDeclaration functionDeclaration = function as IFunctionDeclaration;
-
-        if(functionDeclaration != null && functionDeclaration.Body != block) {
+        if(body != block && body != null) {
           AddMenuItem("return;", "19B0E24A-C3C3-489A-BF20-122C5114D7FF");
         }
       }

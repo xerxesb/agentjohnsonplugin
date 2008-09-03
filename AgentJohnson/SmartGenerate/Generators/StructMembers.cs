@@ -1,23 +1,20 @@
-﻿using JetBrains.ActionManagement;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
+﻿using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 
 namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
-  [SmartGenerate("Generate struct members", "Generates a property or method in a struct.", Priority=0)]
+  [SmartGenerate("Generate struct members", "Generates a property or method in a struct.", Priority = 0)]
   public class StructMembers : SmartGenerateBase {
-    #region Public methods
+    #region Protected methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="context">The context.</param>
-    /// <param name="element">The element.</param>
-    /// <returns>The items.</returns>
-    protected override void GetItems(ISolution solution, IDataContext context, IElement element) {
+    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    protected override void GetItems(SmartGenerateParameters smartGenerateParameters) {
+      IElement element = smartGenerateParameters.Element;
+
       IStructDeclaration structDeclaration = element.GetContainingElement(typeof(IStructDeclaration), true) as IStructDeclaration;
       if(structDeclaration == null) {
         return;

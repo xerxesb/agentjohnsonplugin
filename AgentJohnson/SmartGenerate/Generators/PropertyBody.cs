@@ -1,6 +1,4 @@
-﻿using JetBrains.ActionManagement;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Psi;
+﻿using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
@@ -8,18 +6,17 @@ using JetBrains.ReSharper.Psi.Tree;
 namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
-  [SmartGenerate("Generate property accessor body", "Generates the body of either a getter or a setter property accessor.", Priority=0)]
-  public class PropertyBody: SmartGenerateBase {
-    #region Public methods
+  [SmartGenerate("Generate property accessor body", "Generates the body of either a getter or a setter property accessor.", Priority = 0)]
+  public class PropertyBody : SmartGenerateBase {
+    #region Protected methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="context">The context.</param>
-    /// <param name="element">The element.</param>
-    /// <returns>The items.</returns>
-    protected override void GetItems(ISolution solution, IDataContext context, IElement element) {
+    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    protected override void GetItems(SmartGenerateParameters smartGenerateParameters) {
+      IElement element = smartGenerateParameters.Element;
+
       IProperty propertyDeclaration = element.GetContainingElement(typeof(IPropertyDeclaration), true) as IProperty;
       if(propertyDeclaration == null) {
         return;

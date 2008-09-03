@@ -13,11 +13,10 @@ namespace AgentJohnson.SmartGenerate.Generators {
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="context">The context.</param>
-    /// <param name="element">The element.</param>
-    /// <returns>The items.</returns>
-    protected override void GetItems(ISolution solution, IDataContext context, IElement element) {
+    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    protected override void GetItems(SmartGenerateParameters smartGenerateParameters) {
+      IElement element = smartGenerateParameters.Element;
+
       IElement classLikeDeclaration = element.GetContainingElement(typeof(IClassLikeDeclaration), true);
       if(classLikeDeclaration != null) {
         return;

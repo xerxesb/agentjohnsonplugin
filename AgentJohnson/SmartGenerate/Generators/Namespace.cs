@@ -1,23 +1,18 @@
-﻿using JetBrains.ActionManagement;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Psi.Tree;
+﻿using JetBrains.ReSharper.Psi.Tree;
 
 namespace AgentJohnson.SmartGenerate.Generators {
   /// <summary>
   /// </summary>
-  [SmartGenerate("Generate namespace", "Generates a new namespace.", Priority=0)]
+  [SmartGenerate("Generate namespace", "Generates a new namespace.", Priority = 0)]
   public class Namespace : SmartGenerateBase {
-    #region Public methods
+    #region Protected methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="context">The context.</param>
-    /// <param name="element">The element.</param>
-    /// <returns>The items.</returns>
-    protected override void GetItems(ISolution solution, IDataContext context, IElement element) {
-      IElement namespaceDeclaration = element.GetContainingElement(typeof(INamespaceDeclaration), true);
+    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    protected override void GetItems(SmartGenerateParameters smartGenerateParameters) {
+      IElement namespaceDeclaration = smartGenerateParameters.Element.GetContainingElement(typeof(INamespaceDeclaration), true);
       if(namespaceDeclaration != null) {
         return;
       }

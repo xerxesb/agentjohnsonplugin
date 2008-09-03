@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using JetBrains.Util;
 
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
@@ -9,6 +10,17 @@ namespace AgentJohnson.SmartGenerate {
     #region Fields
 
     readonly Dictionary<string, string> _variables = new Dictionary<string, string>();
+
+    #endregion
+
+    #region Constructors
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LiveTemplateItem"/> class.
+    /// </summary>
+    public LiveTemplateItem() {
+      Range = TextRange.InvalidRange;
+    }
 
     #endregion
 
@@ -28,6 +40,11 @@ namespace AgentJohnson.SmartGenerate {
     [CanBeNull]
     public string MenuText { get; set; }
 
+    /// <summary>
+    /// Gets or sets the range.
+    /// </summary>
+    /// <value>The range.</value>
+    public TextRange Range { get; set; }
     /// <summary>
     /// Gets or sets the name of the template.
     /// </summary>

@@ -1,7 +1,4 @@
 using System.Collections.Generic;
-using JetBrains.ActionManagement;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Psi.Tree;
 
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
@@ -13,8 +10,10 @@ namespace AgentJohnson.SmartGenerate {
     /// <summary>
     /// Gets the items.
     /// </summary>
+    /// <param name="parameters">The parameters.</param>
+    /// <returns>The menu items.</returns>
     /// <value>The items.</value>
-    IEnumerable<ISmartGenerateMenuItem> GetMenuItems(ISolution solution, IDataContext context, IElement element);
+    IEnumerable<ISmartGenerateMenuItem> GetMenuItems(SmartGenerateParameters parameters);
 
     #endregion
   }

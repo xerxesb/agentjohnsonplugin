@@ -195,13 +195,14 @@
     </Compile>
     <Compile Include="SmartGenerate\Generators\AssignmentCheck.cs" />
     <Compile Include="SmartGenerate\Generators\MethodBody.cs" />
+    <Compile Include="SmartGenerate\SmartGenerateParameters.cs" />
     <Compile Include="SmartGenerate\LiveTemplateItem.cs" />
     <Compile Include="SmartGenerate\ILiveTemplate.cs" />
     <Compile Include="SmartGenerate\Generators\BoolExpression.cs" />
     <Compile Include="SmartGenerate\Generators\LiveTemplate.cs" />
     <Compile Include="SmartGenerate\Generators\StringExpression.cs" />
     <Compile Include="SmartGenerate\Generators\Return.cs" />
-    <Compile Include="SmartGenerate\Generators\Context.cs" />
+    <Compile Include="SmartGenerate\Generators\LocalVariableContext.cs" />
     <Compile Include="SmartGenerate\Generators\FlowControl.cs" />
     <Compile Include="SmartGenerate\Generators\Else.cs" />
     <Compile Include="SmartGenerate\Generators\AfterPropertyAssignment.cs" />
@@ -221,11 +222,16 @@
     <Compile Include="SmartGenerate\LiveTemplates\AfterLocalVariableInitializer.cs" />
     <Compile Include="SmartGenerate\LiveTemplates\ClassMembers.cs" />
     <Compile Include="SmartGenerate\LiveTemplates\InterfaceMembers.cs" />
+    <Compile Include="SmartGenerate\LiveTemplates\LocalVariableContext.cs" />
     <Compile Include="SmartGenerate\LiveTemplates\MethodBody.cs" />
+    <Compile Include="SmartGenerate\LiveTemplates\MethodWithSignature.cs" />
     <Compile Include="SmartGenerate\LiveTemplates\OutsideNamespace.cs" />
+    <Compile Include="SmartGenerate\LiveTemplates\StringExpression.cs" />
     <Compile Include="SmartGenerate\LiveTemplates\StructMembers.cs" />
     <Compile Include="SmartGenerate\LiveTemplates\Types.cs" />
     <Compile Include="SmartGenerate\ModifierUtil.cs" />
+    <Compile Include="SmartGenerate\Scopes\Scope.cs" />
+    <Compile Include="SmartGenerate\Scopes\ScopeEntry.cs" />
     <Compile Include="SmartGenerate\SmartGenerateAction.cs" />
     <Compile Include="SmartGenerate\SmartGenerateAttribute.cs" />
     <Compile Include="SmartGenerate\SmartGenerateBase.cs" />
@@ -340,6 +346,8 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\SmartGenerate.gif" />
+    <EmbeddedResource Include="Resources\LeftArrow.png" />
+    <EmbeddedResource Include="Resources\RightArrow.png" />
     <Content Include="SmartGenerate.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
