@@ -1,0 +1,1 @@
+C:\Windows\Microsoft.NET\Framework64\v3.5\msbuild.exe AgentJohnson.Setup.Proj

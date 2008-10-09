@@ -1,0 +1,38 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<!-- Home folder for the PowerToys build site. -->
+		<AgentJohnsonHomeDir>$(MSBuildProjectDirectory)/..</AgentJohnsonHomeDir>
+		<!-- Binaries dir; redirect the build output by setting it externally. -->
+		<AgentJohnsonBinariesDir Condition="'$(AgentJohnsonBinariesDir)'==''">$(AgentJohnsonHomeDir)/AgentJohnson/Bin</AgentJohnsonBinariesDir>
+	</PropertyGroup>
+	
+	<PropertyGroup>
+		 
+		<!-- Name of the plugin product and of the plugin folder in the R# plugins store, as well. -->
+		<ProductName>Agent Johnson</ProductName>
+		
+		<!-- Version of R# (two components only) that the plugin is targeting. -->
+		<ReSharperVersion2>4.1</ReSharperVersion2>
+		
+		<!-- Plugin vendor name. -->
+		<CompanyName>Jakob Christensen</CompanyName>
+		
+		<!-- Upgrade code for the plugin. -->
+		<!-- Should be unique for each of the plugins, but should not change within the plugin lifetime. All of the plugin versions should feature the same Upgrade Code. -->
+		<UpgradeCode>{727C8EEB-091F-4528-8280-F3788DD013A0}</UpgradeCode>
+		
+		<!-- Version of Visual Studio we're installing for. -->
+		<!-- Can be overridden on the command line when running the installation. -->
+		<VsVersion>9.0</VsVersion>
+
+		<!-- The plugin assembly file. -->
+		<AssemblyFile>$(AgentJohnsonBinariesDir)/AgentJohnson.dll</AssemblyFile>
+
+		<!-- The GUIDs that must be unique for each of the plugins. -->
+		<MsiComponentGuid00>{1EC26675-FB44-4F37-839A-3CF195320E9A}</MsiComponentGuid00>
+		<MsiComponentGuid01>{08EACD66-2A2C-404B-8CF6-EC91D408761D}</MsiComponentGuid01>
+    <DefineSolutionProperties>false</DefineSolutionProperties>
+    </PropertyGroup>
+
+	<Import Project="$(AgentJohnsonHomeDir)/Setup/AgentJohnsonSetup.Targets"/>
+</Project>
