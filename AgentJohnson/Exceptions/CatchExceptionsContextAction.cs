@@ -173,7 +173,6 @@ namespace AgentJohnson.Exceptions {
         return;
       }
 
-
       IReferenceExpression reference = invocationExpression.InvokedExpression as IReferenceExpression;
       if(reference == null) {
         return;

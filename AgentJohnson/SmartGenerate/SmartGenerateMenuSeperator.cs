@@ -6,10 +6,6 @@ namespace AgentJohnson.SmartGenerate {
   /// 
   /// </summary>
   public class SmartGenerateMenuSeparator : ISmartGenerateMenuItem {
-    /// <summary>
-    /// 
-    /// </summary>
-    public event EventHandler Clicked;
 
     #region Public properties
 

@@ -110,34 +110,6 @@ namespace AgentJohnson.SmartGenerate {
     /// <param name="smartGenerateParameters">The get menu items parameters.</param>
     protected abstract void GetItems(SmartGenerateParameters smartGenerateParameters);
 
-    /// <summary>
-    /// Determines whether [is after last statement] [the specified element].
-    /// </summary>
-    /// <param name="element">The element.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is after last statement] [the specified element]; otherwise, <c>false</c>.
-    /// </returns>
-    protected static bool IsAfterLastStatement(IElement element) {
-      IBlock block = element.GetContainingElement(typeof(IBlock), true) as IBlock;
-      if(block == null) {
-        return false;
-      }
-
-      if(block.Statements.Count <= 0) {
-        return true;
-      }
-
-      IStatement statement = block.Statements[block.Statements.Count - 1];
-      DocumentRange range = statement.GetDocumentRange();
-
-      int end = range.TextRange.StartOffset + range.TextRange.Length;
-      if(end > element.GetTreeTextRange().StartOffset) {
-        return false;
-      }
-
-      return true;
-    }
-
     #endregion
   }
 }

@@ -17,7 +17,7 @@ namespace AgentJohnson.SmartGenerate.Generators {
     protected override void GetItems(SmartGenerateParameters smartGenerateParameters) {
       IElement element = smartGenerateParameters.Element;
 
-      if(!IsAfterLastStatement(element)) {
+      if(!StatementUtil.IsAfterLastStatement(element)) {
         return;
       }
 

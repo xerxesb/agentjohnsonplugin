@@ -54,6 +54,7 @@ namespace AgentJohnson.SmartGenerate.Generators {
 
             foreach(string key in liveTemplateMenuItem.Variables.Keys) {
               xml = xml.Replace("$" + key + "$", liveTemplateMenuItem.Variables[key]);
+              template.Description = template.Description.Replace("$" + key + "$", liveTemplateMenuItem.Variables[key]);
             }
 
             TextRange range = liveTemplateMenuItem.Range;

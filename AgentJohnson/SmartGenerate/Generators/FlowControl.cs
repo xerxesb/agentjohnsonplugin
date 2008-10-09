@@ -26,7 +26,7 @@ namespace AgentJohnson.SmartGenerate.Generators {
         return;
       }
 
-      if(!IsAfterLastStatement(element)) {
+      if(!StatementUtil.IsAfterLastStatement(element)) {
         return;
       }
 

@@ -1,9 +1,6 @@
-using JetBrains.DocumentModel;
-using JetBrains.ReSharper;
 using JetBrains.ActionManagement;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 
@@ -11,7 +8,7 @@ namespace AgentJohnson {
   /// <summary>
   /// Represents a ActionHandlerBase.
   /// </summary>
-  public abstract class ActionHandlerBase: IActionHandler {
+  public abstract class ActionHandlerBase : IActionHandler {
     #region Protected methods
 
     /// <summary>
@@ -37,22 +34,7 @@ namespace AgentJohnson {
         return null;
       }
 
-      IProjectFile projectFile = DocumentManager.GetInstance(solution).GetProjectFile(textControl.Document);
-      if(projectFile == null) {
-        return null;
-      }
-
-      PsiManager psiManager = PsiManager.GetInstance(solution);
-      if(psiManager == null) {
-        return null;
-      }
-
-      ICSharpFile file = psiManager.GetPsiFile(projectFile) as ICSharpFile;
-      if(file == null) {
-        return null;
-      }
-
-      return file.FindTokenAt(textControl.CaretModel.Offset);
+      return TextControlToPsi.GetElementFromCaretPosition<IElement>(solution, textControl);
     }
 
     /// <summary>
@@ -66,18 +48,7 @@ namespace AgentJohnson {
 
     #endregion
 
-    #region IActionHandler Members
-
-    /// <summary>
-    /// Updates action visual presentation. If presentation.Enabled is set to false, Execute
-    /// will not be called.
-    /// </summary>
-    /// <param name="context">DataContext</param>
-    /// <param name="presentation">presentation to update</param>
-    /// <param name="nextUpdate">delegate to call</param>
-    bool IActionHandler.Update(IDataContext context, ActionPresentation presentation, DelegateUpdate nextUpdate) {
-      return Update(context);
-    }
+    #region Private methods
 
     /// <summary>
     /// Executes action. Called after Update, that set ActionPresentation.Enabled to true.
@@ -91,6 +62,17 @@ namespace AgentJohnson {
       }
 
       Execute(solution, context);
+    }
+
+    /// <summary>
+    /// Updates action visual presentation. If presentation.Enabled is set to false, Execute
+    /// will not be called.
+    /// </summary>
+    /// <param name="context">DataContext</param>
+    /// <param name="presentation">presentation to update</param>
+    /// <param name="nextUpdate">delegate to call</param>
+    bool IActionHandler.Update(IDataContext context, ActionPresentation presentation, DelegateUpdate nextUpdate) {
+      return Update(context);
     }
 
     #endregion

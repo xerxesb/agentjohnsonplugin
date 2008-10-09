@@ -1,29 +1,38 @@
-﻿using System.Collections.Generic;
-using AgentJohnson.SmartGenerate.Scopes;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.ControlFlow2.CSharp;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Resolve;
-using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.ReSharper.Psi.Util;
-using JetBrains.Util;
+﻿// <copyright file="LocalVariableContext.cs" company="Jakob Christensen">
+//   Copyright (c) Jakob Christensen. All rights reserved.
+// </copyright>
 
-namespace AgentJohnson.SmartGenerate.Generators {
+namespace AgentJohnson.SmartGenerate.Generators
+{
+  using System.Collections.Generic;
+  using JetBrains.ProjectModel;
+  using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Psi.ControlFlow2.CSharp;
+  using JetBrains.ReSharper.Psi.CSharp.Tree;
+  using JetBrains.ReSharper.Psi.Resolve;
+  using JetBrains.ReSharper.Psi.Tree;
+  using JetBrains.ReSharper.Psi.Util;
+  using JetBrains.Util;
+  using Scopes;
+
   /// <summary>
+  /// Defines the local variable context class.
   /// </summary>
   [SmartGenerate("Local Variable Context", "Generates code based on the current local variable context.", Priority = 500)]
-  public class LocalVariableContext : SmartGenerateBase {
+  public class LocalVariableContext : SmartGenerateBase
+  {
     #region Protected methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
     /// <param name="smartGenerateParameters">The get menu items parameters.</param>
-    protected override void GetItems(SmartGenerateParameters smartGenerateParameters) {
+    protected override void GetItems(SmartGenerateParameters smartGenerateParameters)
+    {
       IElement element = smartGenerateParameters.Element;
       List<ScopeEntry> scope = smartGenerateParameters.Scope;
-      if(scope.Count == 0) {
+      if (scope.Count == 0)
+      {
         return;
       }
 
@@ -33,10 +42,12 @@ namespace AgentJohnson.SmartGenerate.Generators {
 
       TextRange range = StatementUtil.GetNewStatementPosition(element);
 
-      if(!isAssigned) {
+      if (!isAssigned)
+      {
         AddMenuItem("Assign value to '{0}'", "9BD23D35-AC2A-46E2-AADA-C81D9B53795A", range, name);
 
-        if(HasAccessableConstructor(type)) {
+        if (HasAccessableConstructor(type))
+        {
           AddMenuItem("Assign new instance to '{0}'", "208A11F8-DEE1-4B8B-838F-17DA883DA7A5", range, name, type.GetPresentableName(element.Language));
         }
 
@@ -44,26 +55,32 @@ namespace AgentJohnson.SmartGenerate.Generators {
       }
 
       IDeclaredType declaredType = type as IDeclaredType;
-      if(declaredType != null) {
+      if (declaredType != null)
+      {
         IEnum enumerate = declaredType.GetTypeElement() as IEnum;
 
-        if(enumerate != null) {
+        if (enumerate != null)
+        {
           AddMenuItem("Generate 'switch' from '{0}'", "EBAF3559-41C5-471D-8457-A20C9566D397", range, name);
         }
 
         string typeName = type.GetPresentableName(element.Language);
 
         IModule module = declaredType.Module;
-        if(module != null && typeName != "string") {
+        if (module != null && typeName != "string")
+        {
           IDeclaredType enumerable = TypeFactory.CreateTypeByCLRName("System.Collections.IEnumerable", module);
 
-          if(declaredType.IsSubtypeOf(enumerable)) {
+          if (declaredType.IsSubtypeOf(enumerable))
+          {
             AddMenuItem("Iterate '{0}' via 'foreach'", "9CA009C7-468A-4D3E-ACEC-A12F2FAF4B67", range, name);
           }
         }
       }
-      else {
-        if(type is IArrayType) {
+      else
+      {
+        if (type is IArrayType)
+        {
           AddMenuItem("Iterate '{0}' via 'foreach'", "9CA009C7-468A-4D3E-ACEC-A12F2FAF4B67", range, name);
         }
       }
@@ -85,32 +102,38 @@ namespace AgentJohnson.SmartGenerate.Generators {
     /// <summary>
     /// Determines whether the specified type has constructor.
     /// </summary>
-    /// <param name="type">The type.</param>
+    /// <param name="type">The type parameter.</param>
     /// <returns>
     /// 	<c>true</c> if the specified type has constructor; otherwise, <c>false</c>.
     /// </returns>
-    static bool HasAccessableConstructor(IType type) {
+    private static bool HasAccessableConstructor(IType type)
+    {
       IDeclaredType declaredType = type as IDeclaredType;
-      if(declaredType == null) {
+      if (declaredType == null)
+      {
         return false;
       }
 
       ResolveResult resolve = declaredType.Resolve();
 
       IClass classDeclaration = resolve.DeclaredElement as IClass;
-      if(classDeclaration == null) {
+      if (classDeclaration == null)
+      {
         return false;
       }
 
       IList<IConstructor> constructors = classDeclaration.Constructors;
 
-      foreach(IConstructor constructor in constructors) {
-        if(constructor.IsAbstract || constructor.IsStatic) {
+      foreach (IConstructor constructor in constructors)
+      {
+        if (constructor.IsAbstract || constructor.IsStatic)
+        {
           continue;
         }
 
         AccessRights rights = constructor.GetAccessRights();
-        if(rights == AccessRights.PRIVATE) {
+        if (rights == AccessRights.PRIVATE)
+        {
           continue;
         }
 
@@ -123,28 +146,34 @@ namespace AgentJohnson.SmartGenerate.Generators {
     /// <summary>
     /// Determines whether [has writable property] [the specified type].
     /// </summary>
-    /// <param name="type">The type.</param>
+    /// <param name="type">The type parameter.</param>
     /// <returns>
     /// 	<c>true</c> if [has writable property] [the specified type]; otherwise, <c>false</c>.
     /// </returns>
-    static bool HasWritableProperty(IType type) {
+    private static bool HasWritableProperty(IType type)
+    {
       IDeclaredType declaredType = type as IDeclaredType;
-      if(declaredType == null) {
+      if (declaredType == null)
+      {
         return false;
       }
 
       ITypeElement typeElement = declaredType.GetTypeElement();
-      if(typeElement == null) {
+      if (typeElement == null)
+      {
         return false;
       }
 
       IList<IProperty> properties = typeElement.Properties;
-      if(properties == null || properties.Count == 0) {
+      if (properties == null || properties.Count == 0)
+      {
         return false;
       }
 
-      foreach(IProperty property in properties) {
-        if(property.IsWritable) {
+      foreach (IProperty property in properties)
+      {
+        if (property.IsWritable)
+        {
           return true;
         }
       }
@@ -156,21 +185,25 @@ namespace AgentJohnson.SmartGenerate.Generators {
     /// Performs the value analysis.
     /// </summary>
     /// <param name="element">The element.</param>
-    /// <param name="type">The type.</param>
+    /// <param name="type">The type parameter.</param>
     /// <param name="range">The range.</param>
-    /// <param name="name">The name.</param>
-    void PerformValueAnalysis(IElement element, IType type, TextRange range, string name) {
-      if(!type.IsReferenceType()) {
+    /// <param name="name">The variable name.</param>
+    private void PerformValueAnalysis(IElement element, IType type, TextRange range, string name)
+    {
+      if (!type.IsReferenceType())
+      {
         return;
       }
 
       IFunctionDeclaration functionDeclaration = element.GetContainingElement(typeof(IFunctionDeclaration), true) as IFunctionDeclaration;
-      if(functionDeclaration == null) {
+      if (functionDeclaration == null)
+      {
         return;
       }
 
       IReferenceExpression expression = element.GetContainingElement(typeof(IReferenceExpression), true) as IReferenceExpression;
-      if(expression == null) {
+      if (expression == null)
+      {
         return;
       }
 
@@ -180,7 +213,8 @@ namespace AgentJohnson.SmartGenerate.Generators {
 
       CSharpControlFlowNullReferenceState state = inspect.GetExpressionNullReferenceState(expression);
 
-      switch(state) {
+      switch (state)
+      {
         case CSharpControlFlowNullReferenceState.UNKNOWN:
           AddMenuItem("Check if '{0}' is null", "F802DB32-A0B1-4227-BE5C-E7D20670284B", range, name);
           break;

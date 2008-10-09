@@ -9,6 +9,7 @@ using JetBrains.ActionManagement;
 using JetBrains.CommonControls;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper;
 using JetBrains.ReSharper.CodeInsight.Services.Util;
 using JetBrains.ReSharper.LiveTemplates.Execution;
 using JetBrains.ReSharper.LiveTemplates.Templates;
@@ -103,6 +104,7 @@ namespace AgentJohnson.SmartGenerate {
       foreach(ISmartGenerate handler in SmartGenerateManager.Instance.GetHandlers()) {
         IEnumerable<ISmartGenerateMenuItem> list = handler.GetMenuItems(new SmartGenerateParameters {
           Solution = solution,
+          TextControl = _textControl,
           Context = context,
           Element = element,
           Scope = scope,
@@ -123,6 +125,7 @@ namespace AgentJohnson.SmartGenerate {
       }
 
       List<LiveTemplateItem> liveTemplates = LiveTemplateManager.Instance.GetLiveTemplates(new SmartGenerateParameters {
+        TextControl = _textControl,
         Solution = solution,
         Context = context,
         Element = element,
@@ -280,7 +283,7 @@ namespace AgentJohnson.SmartGenerate {
 
       JetPopupMenu menu = new JetPopupMenu();
 
-      IPopupWindowContext popupWindowContext = _context.GetData(DataConstants.POPUP_WINDOW_CONTEXT);
+      IPopupWindowContext popupWindowContext = _context.GetData(JetBrains.UI.DataConstants.POPUP_WINDOW_CONTEXT);
       if(popupWindowContext != null) {
         menu.Layouter = popupWindowContext.CreateLayouter();
       }

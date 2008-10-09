@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30428</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{4223E1C5-7AC8-4B81-942F-F331B972028C}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -128,6 +129,11 @@
       <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v4.1\Bin\JetBrains.ReSharper.Daemon.CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="JetBrains.ReSharper.IDECore, Version=4.1.933.3, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v4.1\Bin\JetBrains.ReSharper.IDECore.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="JetBrains.ReSharper.Intentions, Version=4.1.928.1, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v4.1\Bin\JetBrains.ReSharper.Intentions.dll</HintPath>
@@ -174,6 +180,7 @@
   <ItemGroup>
     <Compile Include="ActionHandlerBase.cs" />
     <Compile Include="ContextActionBase.cs" />
+    <Compile Include="LiveMacros\PullParameters.cs" />
     <Compile Include="LiveMacros\SuggestProperty.cs" />
     <Compile Include="Options\SmartGenerateOptionsPage.cs">
       <SubType>UserControl</SubType>
@@ -193,8 +200,13 @@
     <Compile Include="Options\ValueAnalysisDetailsPage.Designer.cs">
       <DependentUpon>ValueAnalysisDetailsPage.cs</DependentUpon>
     </Compile>
+    <Compile Include="Refactorings\ImplementICloneableActionHandler.cs" />
+    <Compile Include="Refactorings\ImplementIDisposableActionHandler.cs" />
+    <Compile Include="Refactorings\ImplementISerializableActionHandler.cs" />
+    <Compile Include="Refactorings\ImplementProxyClassActionHandler.cs" />
     <Compile Include="SmartGenerate\Generators\AssignmentCheck.cs" />
     <Compile Include="SmartGenerate\Generators\MethodBody.cs" />
+    <Compile Include="SmartGenerate\LiveTemplates\Return.cs" />
     <Compile Include="SmartGenerate\SmartGenerateParameters.cs" />
     <Compile Include="SmartGenerate\LiveTemplateItem.cs" />
     <Compile Include="SmartGenerate\ILiveTemplate.cs" />
@@ -243,7 +255,12 @@
     <Compile Include="SmartGenerate\SmartGenerateMenuSeperator.cs" />
     <Compile Include="SmartGenerate\SmartGenerateSettings.cs" />
     <Compile Include="SmartGenerate\StatementUtil.cs" />
+    <Compile Include="Statements\MakeVirtual.cs" />
+    <Compile Include="Statements\NegateIfCondition.cs" />
+    <Compile Include="Statements\PullParameters.cs" />
     <Compile Include="Statements\ReverseForDirectionContextAction.cs" />
+    <Compile Include="Statements\MakeAbstract.cs" />
+    <Compile Include="Statements\SortCaseStatements.cs" />
     <Compile Include="Strings\IntroduceStringConstantActionHandler.cs" />
     <Compile Include="Strings\IntroduceStringConstantContextAction.cs" />
     <Compile Include="Strings\IntroduceStringConstantRefactoring.cs" />

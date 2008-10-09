@@ -1,26 +1,33 @@
-using System.Collections.Generic;
-using AgentJohnson.Exceptions;
-using AgentJohnson.Strings;
-using AgentJohnson.ValueAnalysis;
-using JetBrains.Application.Progress;
-using JetBrains.DocumentModel;
-using JetBrains.ReSharper.Daemon;
-using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Tree;
+// <copyright file="DaemonStageProcess.cs" company="Sitecore A/S">
+//   Copyright (c) Sitecore A/S. All rights reserved.
+// </copyright>
 
-namespace AgentJohnson {
+namespace AgentJohnson
+{
+  using System.Collections.Generic;
+  using Exceptions;
+  using JetBrains.Application.Progress;
+  using JetBrains.DocumentModel;
+  using JetBrains.ReSharper.Daemon;
+  using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Psi.CSharp.Tree;
+  using JetBrains.ReSharper.Psi.Tree;
+  using Strings;
+  using ValueAnalysis;
+
   /// <summary>
+  /// Defines the daemon stage process class.
   /// </summary>
-  public class DaemonStageProcess : ElementVisitor, IDaemonStageProcess, IRecursiveElementProcessor {
+  public class DaemonStageProcess : ElementVisitor, IDaemonStageProcess, IRecursiveElementProcessor
+  {
     #region Fields
 
-    readonly List<HighlightingInfo> _highlightings = new List<HighlightingInfo>();
-    readonly IDaemonProcess _process;
+    private readonly List<HighlightingInfo> highlightings = new List<HighlightingInfo>();
+    private readonly IDaemonProcess process;
 
-    readonly IStatementAnalyzer[] _statementAnalyzers;
-    readonly ITokenTypeAnalyzer[] _tokenTypeAnalyzers;
-    readonly ITypeMemberDeclarationAnalyzer[] _typeMemberDeclarationAnalyzers;
+    private readonly IStatementAnalyzer[] _statementAnalyzers;
+    private readonly ITokenTypeAnalyzer[] _tokenTypeAnalyzers;
+    private readonly ITypeMemberDeclarationAnalyzer[] _typeMemberDeclarationAnalyzers;
 
     #endregion
 
@@ -30,21 +37,25 @@ namespace AgentJohnson {
     /// Initializes a new instance of the <see cref="DaemonStageProcess"/> class.
     /// </summary>
     /// <param name="daemonProcess">The daemon process.</param>
-    public DaemonStageProcess(IDaemonProcess daemonProcess) {
-      _process = daemonProcess;
+    public DaemonStageProcess(IDaemonProcess daemonProcess)
+    {
+      this.process = daemonProcess;
 
-      _statementAnalyzers = new IStatementAnalyzer[] {
-                                                       new DocumentThrownExceptionAnalyzer(_process.Solution),
-                                                       new ReturnAnalyzer(_process.Solution)
-                                                     };
+      this._statementAnalyzers = new IStatementAnalyzer[]
+      {
+        new DocumentThrownExceptionAnalyzer(this.process.Solution),
+        new ReturnAnalyzer(this.process.Solution)
+      };
 
-      _tokenTypeAnalyzers = new ITokenTypeAnalyzer[] {
-                                                       new StringEmptyAnalyzer(_process.Solution)
-                                                     };
+      this._tokenTypeAnalyzers = new ITokenTypeAnalyzer[]
+      {
+        new StringEmptyAnalyzer(this.process.Solution)
+      };
 
-      _typeMemberDeclarationAnalyzers = new ITypeMemberDeclarationAnalyzer[] {
-                                                                               new ValueAnalysisAnalyzer(_process.Solution)
-                                                                             };
+      this._typeMemberDeclarationAnalyzers = new ITypeMemberDeclarationAnalyzer[]
+      {
+        new ValueAnalysisAnalyzer(this.process.Solution)
+      };
     }
 
     #endregion
@@ -61,21 +72,24 @@ namespace AgentJohnson {
     /// New highlightings and embedded objects. Return <c>null</c> if this stage doesn't produce
     /// any of them.
     /// </returns>
-    public DaemonStageProcessResult Execute() {
-      ICSharpFile file = (ICSharpFile)PsiManager.GetInstance(_process.Solution).GetPsiFile(_process.ProjectFile);
-      if(file == null) {
+    public DaemonStageProcessResult Execute()
+    {
+      ICSharpFile file = (ICSharpFile)PsiManager.GetInstance(this.process.Solution).GetPsiFile(this.process.ProjectFile);
+      if (file == null)
+      {
         return null;
       }
 
-      if (file.Language.Name != "CSHARP") {
+      if (file.Language.Name != "CSHARP")
+      {
         return null;
       }
 
-      ProcessFile(file);
+      this.ProcessFile(file);
 
       var result = new DaemonStageProcessResult();
       result.FullyRehighlighted = true;
-      result.Highlightings = _highlightings.ToArray();
+      result.Highlightings = this.highlightings.ToArray();
 
       return result;
     }
@@ -84,8 +98,9 @@ namespace AgentJohnson {
     /// Interiors the should be processed.
     /// </summary>
     /// <param name="element">The element.</param>
-    /// <returns></returns>
-    public bool InteriorShouldBeProcessed(IElement element) {
+    /// <returns>Returns the boolean.</returns>
+    public bool InteriorShouldBeProcessed(IElement element)
+    {
       return true;
     }
 
@@ -93,26 +108,29 @@ namespace AgentJohnson {
     /// Processes the after interior.
     /// </summary>
     /// <param name="element">The element.</param>
-    public void ProcessAfterInterior(IElement element) {
+    public void ProcessAfterInterior(IElement element)
+    {
     }
 
     /// <summary>
     /// Processes the before interior.
     /// </summary>
     /// <param name="element">The element.</param>
-    public void ProcessBeforeInterior(IElement element) {
-      ProcessStatements(element);
+    public void ProcessBeforeInterior(IElement element)
+    {
+      this.ProcessStatements(element);
 
-      ProcessTypeMemberDeclarations(element);
+      this.ProcessTypeMemberDeclarations(element);
 
-      ProcessTokenTypes(element);
+      this.ProcessTokenTypes(element);
     }
 
     /// <summary>
     /// Processes the file.
     /// </summary>
-    /// <param name="file">The file.</param>
-    public void ProcessFile(ICSharpFile file) {
+    /// <param name="file">The file process.</param>
+    public void ProcessFile(ICSharpFile file)
+    {
       file.ProcessDescendants(this);
     }
 
@@ -124,33 +142,40 @@ namespace AgentJohnson {
     /// Adds the highlighting.
     /// </summary>
     /// <param name="highlighting">The highlighting.</param>
-    void AddHighlighting(SuggestionBase highlighting) {
+    private void AddHighlighting(SuggestionBase highlighting)
+    {
       DocumentRange range = highlighting.Range;
-      if (!range.IsValid) {
+      if (!range.IsValid)
+      {
         return;
       }
 
-      _highlightings.Add(new HighlightingInfo(range, highlighting));
+      this.highlightings.Add(new HighlightingInfo(range, highlighting));
     }
 
     /// <summary>
     /// Processes the statements.
     /// </summary>
     /// <param name="element">The element.</param>
-    void ProcessStatements(IElement element) {
+    private void ProcessStatements(IElement element)
+    {
       var statement = element as IStatement;
-      if(statement == null) {
+      if (statement == null)
+      {
         return;
       }
 
-      foreach(IStatementAnalyzer analyzer in _statementAnalyzers) {
+      foreach (IStatementAnalyzer analyzer in this._statementAnalyzers)
+      {
         SuggestionBase[] result = analyzer.Analyze(statement);
-        if(result == null) {
+        if (result == null)
+        {
           continue;
         }
 
-        foreach(SuggestionBase highlighting in result) {
-          AddHighlighting(highlighting);
+        foreach (SuggestionBase highlighting in result)
+        {
+          this.AddHighlighting(highlighting);
         }
       }
     }
@@ -159,20 +184,25 @@ namespace AgentJohnson {
     /// Processes the token types.
     /// </summary>
     /// <param name="element">The element.</param>
-    void ProcessTokenTypes(IElement element) {
+    private void ProcessTokenTypes(IElement element)
+    {
       var tokenType = element as ITokenNode;
-      if(tokenType == null) {
+      if (tokenType == null)
+      {
         return;
       }
 
-      foreach(ITokenTypeAnalyzer analyzer in _tokenTypeAnalyzers) {
+      foreach (ITokenTypeAnalyzer analyzer in this._tokenTypeAnalyzers)
+      {
         SuggestionBase[] result = analyzer.Analyze(tokenType);
-        if(result == null) {
+        if (result == null)
+        {
           continue;
         }
 
-        foreach(SuggestionBase highlighting in result) {
-          AddHighlighting(highlighting);
+        foreach (SuggestionBase highlighting in result)
+        {
+          this.AddHighlighting(highlighting);
         }
       }
     }
@@ -181,20 +211,25 @@ namespace AgentJohnson {
     /// Processes the function declarations.
     /// </summary>
     /// <param name="element">The element.</param>
-    void ProcessTypeMemberDeclarations(IElement element) {
+    private void ProcessTypeMemberDeclarations(IElement element)
+    {
       var typeMemberDeclaration = element as ITypeMemberDeclaration;
-      if(typeMemberDeclaration == null) {
+      if (typeMemberDeclaration == null)
+      {
         return;
       }
 
-      foreach(ITypeMemberDeclarationAnalyzer analyzer in _typeMemberDeclarationAnalyzers) {
+      foreach (ITypeMemberDeclarationAnalyzer analyzer in this._typeMemberDeclarationAnalyzers)
+      {
         SuggestionBase[] result = analyzer.Analyze(typeMemberDeclaration);
-        if(result == null) {
+        if (result == null)
+        {
           continue;
         }
 
-        foreach(SuggestionBase highlighting in result) {
-          AddHighlighting(highlighting);
+        foreach (SuggestionBase highlighting in result)
+        {
+          this.AddHighlighting(highlighting);
         }
       }
     }
@@ -209,11 +244,15 @@ namespace AgentJohnson {
     /// <value>
     /// 	<c>true</c> if [processing is finished]; otherwise, <c>false</c>.
     /// </value>
-    public bool ProcessingIsFinished {
-      get {
-        if(_process.InterruptFlag) {
+    public bool ProcessingIsFinished
+    {
+      get
+      {
+        if (this.process.InterruptFlag)
+        {
           throw new ProcessCancelledException();
         }
+
         return false;
       }
     }

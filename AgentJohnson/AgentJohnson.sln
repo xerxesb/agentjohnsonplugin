@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentJohnson", "AgentJohnson.csproj", "{4223E1C5-7AC8-4B81-942F-F331B972028C}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "AgentJohnson.Setup", "..\AgentJohnson.Setup\AgentJohnson.Setup.vdproj", "{673A3DF1-707C-424F-99F3-BB2F62F70BF0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,8 +13,6 @@ Global
 		{4223E1C5-7AC8-4B81-942F-F331B972028C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4223E1C5-7AC8-4B81-942F-F331B972028C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4223E1C5-7AC8-4B81-942F-F331B972028C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{673A3DF1-707C-424F-99F3-BB2F62F70BF0}.Debug|Any CPU.ActiveCfg = Debug
-		{673A3DF1-707C-424F-99F3-BB2F62F70BF0}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

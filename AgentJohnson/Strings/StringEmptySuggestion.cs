@@ -11,6 +11,9 @@ namespace AgentJohnson.Strings {
 
     #region Constants
 
+    /// <summary>
+    /// "StringEmpty"
+    /// </summary>
     public const string NAME = "StringEmpty";
 
     #endregion

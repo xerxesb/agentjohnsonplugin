@@ -14,10 +14,22 @@
 
   <action id="AgentJohnson.IntroduceStringConstant" text="Introduce String Constant"/>
   <action id="AgentJohnson.InvertReturnValue" text="Invert Return Value"/>
+  <action id="AgentJohnson.ImplementICloneable" text="Implement ICloneable"/>
+  <action id="AgentJohnson.ImplementIDisposable" text="Implement IDisposable"/>
+  <action id="AgentJohnson.ImplementISerializable" text="Implement ISerializable"/>
+  <action id="AgentJohnson.ImplementProxyClass" text="Implement proxy class"/>
   <action id="SmartGenerate2" text="Internal Use Only"/>
 
   <insert group-id="Refactor" position="last">
+    <separator />
     <action-ref id="AgentJohnson.IntroduceStringConstant"/>
     <action-ref id="AgentJohnson.InvertReturnValue"/>
+    <separator />
+    <action-group id="ImplementInterfaces" text="Implement Interfaces">
+      <action-ref id="AgentJohnson.ImplementICloneable"/>
+      <action-ref id="AgentJohnson.ImplementIDisposable"/>
+      <action-ref id="AgentJohnson.ImplementISerializable"/>
+      <action-ref id="AgentJohnson.ImplementProxyClass"/>
+    </action-group>
   </insert>
 </actions>

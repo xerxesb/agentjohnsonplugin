@@ -94,7 +94,7 @@ namespace AgentJohnson.Exceptions {
 
         using(CommandCookie.Create(string.Format("Context Action {0}", Text))){
           psiManager.DoTransaction(delegate {
-                                     Execute(solution, invocationExpression);
+                                     Execute(invocationExpression);
                                    });
         }
       }
@@ -179,7 +179,7 @@ namespace AgentJohnson.Exceptions {
     /// <summary>
     /// Executes this instance.
     /// </summary>
-    static void Execute(ISolution solution, IInvocationExpression invocationExpression) {
+    static void Execute(IInvocationExpression invocationExpression) {
       ITypeMemberDeclaration typeMemberDeclaration = invocationExpression.GetContainingTypeMemberDeclaration();
       if(typeMemberDeclaration == null){
         return;
@@ -380,7 +380,7 @@ namespace AgentJohnson.Exceptions {
             typeName = typeName.Substring(2);
           }
 
-          string[] entry = new string[] { typeName, exceptionNode.InnerXml };
+          string[] entry = new[] { typeName, exceptionNode.InnerXml };
 
           result.Add(entry);
         }

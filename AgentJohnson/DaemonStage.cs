@@ -18,7 +18,7 @@ namespace AgentJohnson {
     /// <param name="process">The process.</param>
     /// <returns></returns>
     public override IDaemonStageProcess CreateProcess(IDaemonProcess process) {
-      if(!IsSupported(process.ProjectFile)){
+      if(!IsSupported(process.ProjectFile)) {
         return null;
       }
       return new DaemonStageProcess(process);

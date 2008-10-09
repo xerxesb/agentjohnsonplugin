@@ -1,4 +1,5 @@
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 
 namespace AgentJohnson.SmartGenerate.Scopes {
@@ -13,6 +14,13 @@ namespace AgentJohnson.SmartGenerate.Scopes {
     /// </summary>
     /// <value>The element.</value>
     public IElement Element { get; set; }
+
+    /// <summary>
+    /// Gets or sets the expression.
+    /// </summary>
+    /// <value>The expression.</value>
+    public IReferenceExpression Expression { get; set; }
+
     /// <summary>
     /// Gets or sets a value indicating whether this instance is assigned.
     /// </summary>
@@ -20,11 +28,13 @@ namespace AgentJohnson.SmartGenerate.Scopes {
     /// 	<c>true</c> if this instance is assigned; otherwise, <c>false</c>.
     /// </value>
     public bool IsAssigned { get; set; }
+
     /// <summary>
     /// Gets or sets the name.
     /// </summary>
     /// <value>The name.</value>
     public string Name { get; set; }
+
     /// <summary>
     /// Gets or sets the type.
     /// </summary>

@@ -4,6 +4,7 @@ using JetBrains.ActionManagement;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.TextControl;
 
 namespace AgentJohnson.SmartGenerate {
   /// <summary>
@@ -46,6 +47,12 @@ namespace AgentJohnson.SmartGenerate {
     /// </summary>
     /// <value>The solution.</value>
     public ISolution Solution { get; set; }
+
+    /// <summary>
+    /// Gets or sets the text control.
+    /// </summary>
+    /// <value>The text control.</value>
+    public ITextControl TextControl { get; set; }
 
     #endregion
   }
