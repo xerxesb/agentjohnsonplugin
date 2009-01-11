@@ -180,6 +180,7 @@
   <ItemGroup>
     <Compile Include="ActionHandlerBase.cs" />
     <Compile Include="ContextActionBase.cs" />
+    <Compile Include="Enums\SortEnums.cs" />
     <Compile Include="LiveMacros\PullParameters.cs" />
     <Compile Include="LiveMacros\SuggestProperty.cs" />
     <Compile Include="Options\SmartGenerateOptionsPage.cs">

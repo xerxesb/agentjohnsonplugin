@@ -1,20 +1,28 @@
-using JetBrains.ActionManagement;
-using JetBrains.Application;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper;
-using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.Caches;
-using JetBrains.ReSharper.Psi.CSharp;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.TextControl;
-using JetBrains.Util;
+// <copyright file="ImplementIDisposableActionHandler.cs" company="Sitecore A/S">
+//   Copyright (c) Sitecore A/S. All rights reserved.
+// </copyright>
 
-namespace AgentJohnson.Refactorings {
+namespace AgentJohnson.Refactorings
+{
+  using JetBrains.ActionManagement;
+  using JetBrains.Application;
+  using JetBrains.ProjectModel;
+  using JetBrains.ReSharper;
+  using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Psi.Caches;
+  using JetBrains.ReSharper.Psi.CSharp;
+  using JetBrains.ReSharper.Psi.CSharp.Tree;
+  using JetBrains.ReSharper.Psi.Tree;
+  using JetBrains.ReSharper.Psi.Util;
+  using JetBrains.TextControl;
+  using JetBrains.Util;
+
   /// <summary>
+  /// Defines the implement I disposable action handler class.
   /// </summary>
   [ActionHandler("AgentJohnson.ImplementIDisposable")]
-  public class ImplementIDisposableActionHandler : ActionHandlerBase {
+  public class ImplementIDisposableActionHandler : ActionHandlerBase
+  {
     #region Protected methods
 
     /// <summary>
@@ -22,35 +30,41 @@ namespace AgentJohnson.Refactorings {
     /// </summary>
     /// <param name="solution">The solution.</param>
     /// <param name="context">The context.</param>
-    protected override void Execute(ISolution solution, IDataContext context) {
-      if(!context.CheckAllNotNull(JetBrains.IDE.DataConstants.SOLUTION)) {
+    protected override void Execute(ISolution solution, IDataContext context)
+    {
+      if (!context.CheckAllNotNull(JetBrains.IDE.DataConstants.SOLUTION))
+      {
         return;
       }
 
       ITextControl textControl = context.GetData(JetBrains.IDE.DataConstants.TEXT_CONTROL);
-      if(textControl == null) {
+      if (textControl == null)
+      {
         return;
       }
 
       IElement element = TextControlToPsi.GetElementFromCaretPosition<IElement>(solution, textControl);
-      if(element == null) {
+      if (element == null)
+      {
         return;
       }
 
       IClassDeclaration classDeclaration = element.ToTreeNode().Parent as IClassDeclaration;
-      if(classDeclaration == null) {
+      if (classDeclaration == null)
+      {
         return;
       }
 
-      using(ModificationCookie cookie = textControl.Document.EnsureWritable()) {
-        if(cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS) {
+      using (ModificationCookie cookie = textControl.Document.EnsureWritable())
+      {
+        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+        {
           return;
         }
 
-        using(CommandCookie.Create("Context Action Implement IDisposable")) {
-          PsiManager.GetInstance(solution).DoTransaction(delegate {
-            Execute(solution, classDeclaration);
-          });
+        using (CommandCookie.Create("Context Action Implement IDisposable"))
+        {
+          PsiManager.GetInstance(solution).DoTransaction(delegate { Execute(solution, classDeclaration); });
         }
       }
     }
@@ -59,26 +73,34 @@ namespace AgentJohnson.Refactorings {
     /// Updates the specified context.
     /// </summary>
     /// <param name="context">The context.</param>
-    /// <returns></returns>
-    protected override bool Update(IDataContext context) {
-      if(!context.CheckAllNotNull(JetBrains.IDE.DataConstants.SOLUTION)) {
+    /// <returns><c>true</c>, if the update succeeds.</returns>
+    protected override bool Update(IDataContext context)
+    {
+      if (!context.CheckAllNotNull(JetBrains.IDE.DataConstants.SOLUTION))
+      {
         return false;
       }
 
       IElement element = GetElementAtCaret(context);
-      if(element == null) {
+      if (element == null)
+      {
         return false;
       }
 
       IClassDeclaration classDeclaration = element.ToTreeNode().Parent as IClassDeclaration;
-      if(classDeclaration == null) {
+      if (classDeclaration == null)
+      {
         return false;
       }
 
-      foreach(IDeclaredType type in classDeclaration.SuperTypes) {
+      IDeclaredType[] types = MiscUtil.GetAllSuperTypes(classDeclaration.DeclaredElement);
+
+      foreach (IDeclaredType type in types)
+      {
         string typeName = type.GetLongPresentableName(element.Language);
 
-        if(typeName == "System.IDisposable") {
+        if (typeName == "System.IDisposable")
+        {
           return false;
         }
       }
@@ -95,12 +117,13 @@ namespace AgentJohnson.Refactorings {
     /// </summary>
     /// <param name="classDeclaration">The class declaration.</param>
     /// <param name="factory">The factory.</param>
-    static void AddDestructor(IClassDeclaration classDeclaration, CSharpElementFactory factory) {
-      const string code = @"~Disposable() {
+    private static void AddDestructor(IClassDeclaration classDeclaration, CSharpElementFactory factory)
+    {
+      const string Code = @"~Disposable() {
           DisposeObject(false);
         }";
 
-      IClassMemberDeclaration memberDeclaration = factory.CreateTypeMemberDeclaration(code) as IClassMemberDeclaration;
+      IClassMemberDeclaration memberDeclaration = factory.CreateTypeMemberDeclaration(Code) as IClassMemberDeclaration;
 
       classDeclaration.AddClassMemberDeclaration(memberDeclaration);
     }
@@ -110,7 +133,8 @@ namespace AgentJohnson.Refactorings {
     /// </summary>
     /// <param name="classDeclaration">The class declaration.</param>
     /// <param name="factory">The factory.</param>
-    static void AddDisposeMethod(IClassDeclaration classDeclaration, CSharpElementFactory factory) {
+    private static void AddDisposeMethod(IClassDeclaration classDeclaration, CSharpElementFactory factory)
+    {
       const string code = @"
         public void Dispose() {
           DisposeObject(true);
@@ -127,7 +151,8 @@ namespace AgentJohnson.Refactorings {
     /// </summary>
     /// <param name="classDeclaration">The class declaration.</param>
     /// <param name="factory">The factory.</param>
-    static void AddDisposeObjectMethod(IClassDeclaration classDeclaration, CSharpElementFactory factory) {
+    private static void AddDisposeObjectMethod(IClassDeclaration classDeclaration, CSharpElementFactory factory)
+    {
       const string code = @"
         void DisposeObject(bool disposing) {
           if(_disposed) {
@@ -150,7 +175,8 @@ namespace AgentJohnson.Refactorings {
     /// </summary>
     /// <param name="classDeclaration">The class declaration.</param>
     /// <param name="factory">The factory.</param>
-    static void AddField(IClassDeclaration classDeclaration, CSharpElementFactory factory) {
+    private static void AddField(IClassDeclaration classDeclaration, CSharpElementFactory factory)
+    {
       const string code = @"
         bool _disposed;
         ";
@@ -165,11 +191,13 @@ namespace AgentJohnson.Refactorings {
     /// </summary>
     /// <param name="solution">The solution.</param>
     /// <param name="classDeclaration">The class declaration.</param>
-    static void AddInterface(ISolution solution, IClassDeclaration classDeclaration) {
+    private static void AddInterface(ISolution solution, IClassDeclaration classDeclaration)
+    {
       IDeclarationsCache cache = PsiManager.GetInstance(solution).GetDeclarationsCache(DeclarationsCacheScope.SolutionScope(solution, true), true);
 
       ITypeElement typeElement = cache.GetTypeElementByCLRName("System.IDisposable");
-      if(typeElement == null) {
+      if (typeElement == null)
+      {
         return;
       }
 
@@ -183,9 +211,11 @@ namespace AgentJohnson.Refactorings {
     /// </summary>
     /// <param name="solution">The solution.</param>
     /// <param name="classDeclaration">The class declaration.</param>
-    static void Execute(ISolution solution, IClassDeclaration classDeclaration) {
+    private static void Execute(ISolution solution, IClassDeclaration classDeclaration)
+    {
       CSharpElementFactory factory = CSharpElementFactory.GetInstance(classDeclaration.GetProject());
-      if(factory == null) {
+      if (factory == null)
+      {
         return;
       }
 

@@ -165,6 +165,17 @@ namespace AgentJohnson.Refactorings
           {
             parameters.Append(", ");
             arguments.Append(", ");
+          }                                          
+          if (parameter.Kind == ParameterKind.OUTPUT)
+          {
+            parameters.Append("out ");
+            arguments.Append("out ");
+          }
+
+          if (parameter.Kind == ParameterKind.REFERENCE)
+          {
+            parameters.Append("ref ");
+            arguments.Append("ref ");
           }
 
           parameters.Append(parameter.Type.GetPresentableName(cls.Language));
