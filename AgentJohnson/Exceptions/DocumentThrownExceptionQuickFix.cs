@@ -1,16 +1,19 @@
-using System.Collections.Generic;
-using JetBrains.ReSharper.Daemon;
-using JetBrains.Util;
+namespace AgentJohnson.Exceptions
+{
+  using System.Collections.Generic;
+  using JetBrains.ReSharper.Feature.Services.Bulbs;
+  using JetBrains.ReSharper.Intentions;
+  using JetBrains.Util;
 
-namespace AgentJohnson.Exceptions {
   /// <summary>
-  /// 
+  /// Defines the document thrown exception quick fix class.
   /// </summary>
   [QuickFix]
-  public class DocumentThrownExceptionQuickFix : IQuickFix {
+  public class DocumentThrownExceptionQuickFix : IQuickFix
+  {
     #region Fields
 
-    readonly DocumentThrownExceptionWarning _warning;
+    private readonly DocumentThrownExceptionWarning _warning;
 
     #endregion
 
@@ -20,8 +23,9 @@ namespace AgentJohnson.Exceptions {
     /// Initializes a new instance of the <see cref="DocumentThrownExceptionQuickFix"/> class.
     /// </summary>
     /// <param name="warning">The suggestion.</param>
-    public DocumentThrownExceptionQuickFix(DocumentThrownExceptionWarning warning) {
-      _warning = warning;
+    public DocumentThrownExceptionQuickFix(DocumentThrownExceptionWarning warning)
+    {
+      this._warning = warning;
     }
 
     #endregion
@@ -34,7 +38,8 @@ namespace AgentJohnson.Exceptions {
     /// </summary>
     /// <param name="cache"></param>
     /// <returns></returns>
-    public bool IsAvailable(IUserDataHolder cache) {
+    public bool IsAvailable(IUserDataHolder cache)
+    {
       return true;
     }
 
@@ -46,11 +51,14 @@ namespace AgentJohnson.Exceptions {
     /// Gets the items.
     /// </summary>
     /// <value>The items.</value>
-    public IBulbItem[] Items {
-      get {
-        List<IBulbItem> items = new List<IBulbItem>();
-
-        items.Add(new DocumentThrownExceptionBulbItem(_warning));
+    public IBulbItem[] Items
+    {
+      get
+      {
+        List<IBulbItem> items = new List<IBulbItem>
+        {
+          new DocumentThrownExceptionBulbItem(this._warning)
+        };
 
         return items.ToArray();
       }

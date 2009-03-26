@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
-using JetBrains.ReSharper.Psi.Tree;
+﻿namespace AgentJohnson.SmartGenerate.LiveTemplates
+{
+  using System.Collections.Generic;
+  using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.SmartGenerate.LiveTemplates {
   /// <summary>
   /// </summary>
   [LiveTemplate("Outside namespace", "Executes a Live Template outside a namespace.")]
-  public class OutsideNamespace : ILiveTemplate {
+  public class OutsideNamespace : ILiveTemplate
+  {
     #region Public methods
 
     /// <summary>
@@ -13,21 +15,25 @@ namespace AgentJohnson.SmartGenerate.LiveTemplates {
     /// </summary>
     /// <param name="parameters">The parameters.</param>
     /// <returns>The items.</returns>
-    public IEnumerable<LiveTemplateItem> GetItems(SmartGenerateParameters parameters) {
+    public IEnumerable<LiveTemplateItem> GetItems(SmartGenerateParameters parameters)
+    {
       IElement element = parameters.Element;
 
       IElement namespaceDeclaration = element.GetContainingElement(typeof(INamespaceDeclaration), true);
-      if(namespaceDeclaration != null) {
+      if (namespaceDeclaration != null)
+      {
         return null;
       }
 
-      LiveTemplateItem liveTemplateItem = new LiveTemplateItem {
+      LiveTemplateItem liveTemplateItem = new LiveTemplateItem
+      {
         MenuText = "Outside namespace",
         Description = "Outside namespace",
         Shortcut = "Outside namespace"
       };
 
-      return new List<LiveTemplateItem> {
+      return new List<LiveTemplateItem>
+      {
         liveTemplateItem
       };
     }

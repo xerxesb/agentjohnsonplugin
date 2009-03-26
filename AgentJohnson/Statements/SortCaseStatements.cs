@@ -6,16 +6,13 @@ namespace AgentJohnson.Statements
 {
   using System.Collections.Generic;
   using System.Text;
-  using JetBrains.Application;
-  using JetBrains.ProjectModel;
-  using JetBrains.ReSharper.Daemon;
+  using JetBrains.ReSharper.Intentions;
+  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.ReSharper.Psi.Util;
-  using JetBrains.TextControl;
-  using JetBrains.Util;
 
   /// <summary>
   /// Defines the make abstract class.
@@ -28,9 +25,8 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Initializes a new instance of the <see cref="SortCaseStatements"/> class.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
-    public SortCaseStatements(ISolution solution, ITextControl textControl) : base(solution, textControl)
+    /// <param name="provider">The provider.</param>
+    public SortCaseStatements(ICSharpContextActionDataProvider provider) : base(provider)
     {
     }
 
@@ -88,18 +84,46 @@ namespace AgentJohnson.Statements
     /// <param name="element">The element.</param>
     protected override void Execute(IElement element)
     {
-      using (ModificationCookie cookie = this.TextControl.Document.EnsureWritable())
+      ISwitchStatement switchStatement = element.ToTreeNode().Parent as ISwitchStatement;
+      if (switchStatement == null)
       {
-        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
-        {
-          return;
-        }
-
-        using (CommandCookie.Create("Context Action Sort Cases"))
-        {
-          PsiManager.GetInstance(this.Solution).DoTransaction(delegate { this.Sort(element); });
-        }
+        return;
       }
+
+      IBlock block = switchStatement.Block;
+      if (block == null)
+      {
+        return;
+      }
+
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
+      if (factory == null)
+      {
+        return;
+      }
+
+      IList<IStatement> statements = block.Statements;
+      if (statements == null)
+      {
+        return;
+      }
+
+      var list = new List<KeyCode>();
+
+      GetCases(list, statements);
+
+      list.Sort(this);
+
+      StringBuilder code = new StringBuilder("{\r\n");
+
+      foreach (KeyCode keyCode in list)
+      {
+        code.Append(keyCode.Code);
+      }
+
+      code.Append("\r\n}");
+
+      switchStatement.SetBlock(factory.CreateBlock(code.ToString()));
     }
 
     /// <summary>
@@ -169,7 +193,7 @@ namespace AgentJohnson.Statements
         return true;
       }
 
-      bool isEnumType = MiscUtil.IsEnumType(type);
+      bool isEnumType = TypesUtil.IsEnumType(type);
       if (isEnumType)
       {
         return true;
@@ -213,7 +237,7 @@ namespace AgentJohnson.Statements
           }
 
           caseValue = null;
-          
+
           ICSharpExpression valueExpression = switchLabelStatement.ValueExpression;
           if (valueExpression != null)
           {
@@ -234,54 +258,6 @@ namespace AgentJohnson.Statements
           Code = code.ToString()
         });
       }
-    }
-
-    /// <summary>
-    /// Converts to abstract.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    private void Sort(IElement element)
-    {
-      ISwitchStatement switchStatement = element.ToTreeNode().Parent as ISwitchStatement;
-      if (switchStatement == null)
-      {
-        return;
-      }
-
-      IBlock block = switchStatement.Block;
-      if (block == null)
-      {
-        return;
-      }
-
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetProject());
-      if (factory == null)
-      {
-        return;
-      }
-
-      IList<IStatement> statements = block.Statements;
-      if (statements == null)
-      {
-        return;
-      }
-
-      var list = new List<KeyCode>();
-
-      GetCases(list, statements);
-
-      list.Sort(this);
-
-      StringBuilder code = new StringBuilder("{\r\n");
-
-      foreach (KeyCode keyCode in list)
-      {
-        code.Append(keyCode.Code);
-      }
-
-      code.Append("\r\n}");
-
-      switchStatement.SetBlock(factory.CreateBlock(code.ToString()));
     }
 
     #endregion

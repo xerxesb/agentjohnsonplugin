@@ -1,23 +1,25 @@
-using System;
-using JetBrains.Application;
-using JetBrains.DocumentModel;
-using JetBrains.ReSharper.Daemon;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.TextControl;
-using JetBrains.Util;
+namespace AgentJohnson
+{
+  using System;
+  using JetBrains.Application;
+  using JetBrains.ProjectModel;
+  using JetBrains.ReSharper.Feature.Services.Bulbs;
+  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
+  using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Psi.Tree;
+  using JetBrains.TextControl;
+  using JetBrains.Util;
 
-namespace AgentJohnson {
   /// <summary>
   /// Represents the base of a context action.
   /// </summary>
-  public abstract class ContextActionBase: IContextAction, IBulbItem {
+  public abstract class ContextActionBase : CSharpContextActionBase, IBulbItem, IBulbAction
+  {
     #region Fields
 
-    readonly ISolution _solution;
-    readonly ITextControl _textControl;
+    private readonly ICSharpContextActionDataProvider provider;
+    private bool startTransaction = true;
 
     #endregion
 
@@ -26,24 +28,41 @@ namespace AgentJohnson {
     /// <summary>
     /// Initializes a new instance of the <see cref="ContextActionBase"/> class.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
-    public ContextActionBase(ISolution solution, ITextControl textControl) {
-      _solution = solution;
-      _textControl = textControl;
+    /// <param name="provider">The provider.</param>
+    protected ContextActionBase(ICSharpContextActionDataProvider provider) : base(provider)
+    {
+      this.provider = provider;
     }
 
     #endregion
 
-    #region Public properties
+    #region Protected properties
 
     /// <summary>
     /// Gets the solution.
     /// </summary>
     /// <value>The solution.</value>
-    public ISolution Solution {
-      get {
-        return _solution;
+    protected ISolution Solution
+    {
+      get
+      {
+        return this.provider.Solution;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether [start transaction].
+    /// </summary>
+    /// <value><c>true</c> if [start transaction]; otherwise, <c>false</c>.</value>
+    protected bool StartTransaction
+    {
+      get
+      {
+        return this.startTransaction;
+      }
+      set
+      {
+        this.startTransaction = value;
       }
     }
 
@@ -51,9 +70,11 @@ namespace AgentJohnson {
     /// Gets the text control.
     /// </summary>
     /// <value>The text control.</value>
-    public ITextControl TextControl {
-      get {
-        return _textControl;
+    protected ITextControl TextControl
+    {
+      get
+      {
+        return this.provider.TextControl;
       }
     }
 
@@ -68,55 +89,18 @@ namespace AgentJohnson {
     protected abstract void Execute(IElement element);
 
     /// <summary>
-    /// Gets the element as the caret position.
+    /// Called to apply context action. No locks is taken before call
     /// </summary>
-    /// <returns>The element.</returns>
-    protected IElement GetElementAtCaret() {
-      IProjectFile projectFile = DocumentManager.GetInstance(_solution).GetProjectFile(_textControl.Document);
-      if(projectFile == null) {
-        return null;
-      }
-
-      PsiManager psiManager = PsiManager.GetInstance(_solution);
-      if(psiManager == null){
-        return null;
-      }
-
-      ICSharpFile file = psiManager.GetPsiFile(projectFile) as ICSharpFile;
-      if(file == null) {
-        return null;
-      }
-
-      return file.FindTokenAt(_textControl.CaretModel.Offset);
-    }
-
-    /// <summary>
-    /// Modifies the specified handler.
-    /// </summary>
-    /// <param name="handler">The handler.</param>
-    protected void Modify(TransactionHandler handler) {
-      PsiManager psiManager = PsiManager.GetInstance(Solution);
-      if(psiManager == null){
+    /// <param name="param"></param>
+    protected override void ExecuteInternal(params object[] param)
+    {
+      if (this.startTransaction)
+      {
+        this.Modify(delegate { this.Execute(param[0] as IElement); } );
         return;
       }
 
-      using(ModificationCookie cookie = TextControl.Document.EnsureWritable()) {
-        if(cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS) {
-          return;
-        }
-
-        using(CommandCookie.Create(string.Format("Context Action {0}", GetText()))){
-          psiManager.DoTransaction(handler);
-        }
-      }
-    }
-
-    /// <summary>
-    /// Gets the items.
-    /// </summary>
-    /// <returns>The items.</returns>
-    protected virtual IBulbItem[] GetItems() {
-      return new IBulbItem[] { this };
+      this.Execute(param[0] as IElement);
     }
 
     /// <summary>
@@ -134,32 +118,100 @@ namespace AgentJohnson {
     /// </returns>
     protected abstract bool IsAvailable(IElement element);
 
+    /// <summary>
+    /// Called to check if ContextAction is available.
+    /// ReadLock is taken
+    /// Will not be called if PsiManager, ProjectFile of Solution == null
+    /// </summary>
+    /// <returns></returns>
+    protected override bool IsAvailableInternal()
+    {
+      Shell.Instance.Locks.AssertReadAccessAllowed();
+
+      IElement element = this.provider.SelectedElement;
+      if (element == null)
+      {
+        return false;
+      }
+
+      return this.IsAvailable(element);
+    }
+
+    /// <summary>
+    /// Modifies the specified handler.
+    /// </summary>
+    /// <param name="handler">The handler.</param>
+    private void Modify(TransactionHandler handler)
+    {
+      PsiManager psiManager = PsiManager.GetInstance(this.Solution);
+      if (psiManager == null)
+      {
+        return;
+      }
+
+      using (ModificationCookie cookie = this.TextControl.Document.EnsureWritable())
+      {
+        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+        {
+          return;
+        }
+
+        using (CommandCookie.Create(string.Format("Context Action {0}", this.GetText())))
+        {
+          psiManager.DoTransaction(handler);
+        }
+      }
+    }
+
+    #endregion
+
+    #region Private methods
+
+    /// <summary>
+    /// Executes the specified solution.
+    /// </summary>
+    /// <param name="solution">The solution.</param>
+    /// <param name="textControl">The text control.</param>
+    void IBulbItem.Execute(ISolution solution, ITextControl textControl)
+    {
+      if (this.Solution != solution || this.TextControl != textControl)
+      {
+        throw new InvalidOperationException();
+      }
+
+      Shell.Instance.Locks.AssertReadAccessAllowed();
+
+      IElement element = this.provider.SelectedElement;
+      if (element == null)
+      {
+        return;
+      }
+
+      if (this.startTransaction)
+      {
+        this.Modify(delegate { this.Execute(element); });
+        return;
+      }
+
+      this.Execute(element);
+    }
+
     #endregion
 
     #region IBulbAction Members
 
     /// <summary>
-    /// Check if this action is available at the constructed context.
-    /// Actions could store precalculated info in <paramref name="cache" /> to share it between different actions
-    /// </summary>
-    bool IBulbAction.IsAvailable(IUserDataHolder cache) {
-      Shell.Instance.Locks.AssertReadAccessAllowed();
-
-      IElement element = GetElementAtCaret();
-      if(element == null) {
-        return false;
-      }
-
-      return IsAvailable(element);
-    }
-
-    /// <summary>
     /// Gets the items.
     /// </summary>
     /// <value>The items.</value>
-    IBulbItem[] IBulbAction.Items {
-      get {
-        return GetItems();
+    public override IBulbItem[] Items
+    {
+      get
+      {
+        return new[]
+        {
+          this
+        };
       }
     }
 
@@ -168,32 +220,14 @@ namespace AgentJohnson {
     #region IBulbItem Members
 
     /// <summary>
-    /// Executes the specified solution.
-    /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
-    void IBulbItem.Execute(ISolution solution, ITextControl textControl) {
-      if(_solution != solution || _textControl != textControl) {
-        throw new InvalidOperationException();
-      }
-
-      Shell.Instance.Locks.AssertReadAccessAllowed();
-
-      IElement element = GetElementAtCaret();
-      if(element == null) {
-        return;
-      }
-
-      Execute(element);
-    }
-
-    /// <summary>
     /// Gets the text.
     /// </summary>
     /// <value>The text.</value>
-    string IBulbItem.Text {
-      get {
-        return GetText();
+    string IBulbItem.Text
+    {
+      get
+      {
+        return this.GetText();
       }
     }
 

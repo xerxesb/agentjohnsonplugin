@@ -52,7 +52,7 @@ namespace AgentJohnson.FavoriteFiles {
     /// </summary>                             
     /// <remarks>This is for serialization only.</remarks>
     /// <value>The files.</value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = true)]
+    [XmlExternalizable(true)]
     public string SerializableFavoriteFiles {
       get {
         StringBuilder result = new StringBuilder();
@@ -154,8 +154,8 @@ namespace AgentJohnson.FavoriteFiles {
     /// </summary>
     /// <param name="element">The element.</param>
     /// <returns></returns>
-    public bool WriteToXml(XmlElement element) {
-      return XmlExternalizationUtil.WriteToXml(element, this);
+    public void WriteToXml(XmlElement element) {
+      XmlExternalizationUtil.WriteToXml(element, this);
     }
 
     #endregion

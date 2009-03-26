@@ -4,15 +4,11 @@
 
 namespace AgentJohnson.Statements
 {
-  using JetBrains.Application;
-  using JetBrains.ProjectModel;
-  using JetBrains.ReSharper.Daemon;
-  using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Intentions;
+  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
-  using JetBrains.TextControl;
-  using JetBrains.Util;
 
   /// <summary>
   /// Defines the negate if condition class.
@@ -25,9 +21,8 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Initializes a new instance of the <see cref="NegateIfCondition"/> class.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
-    public NegateIfCondition(ISolution solution, ITextControl textControl) : base(solution, textControl)
+    /// <param name="provider">The provider.</param>
+    public NegateIfCondition(ICSharpContextActionDataProvider provider) : base(provider)
     {
     }
 
@@ -41,18 +36,7 @@ namespace AgentJohnson.Statements
     /// <param name="element">The element.</param>
     protected override void Execute(IElement element)
     {
-      using (ModificationCookie cookie = this.TextControl.Document.EnsureWritable())
-      {
-        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
-        {
-          return;
-        }
-
-        using (CommandCookie.Create("Context Action Negate If Condition"))
-        {
-          PsiManager.GetInstance(this.Solution).DoTransaction(delegate { Negate(element); });
-        }
-      }
+      Negate(element);
     }
 
     /// <summary>
@@ -115,7 +99,7 @@ namespace AgentJohnson.Statements
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetProject());
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
       if (factory == null)
       {
         return;

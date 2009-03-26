@@ -20,7 +20,7 @@ namespace AgentJohnson.SmartGenerate.Generators
   /// Defines the generate assignment check class.
   /// </summary>
   [SmartGenerate("Generate check if variable is null", "Generates statements that check for null or empty string.", Priority = 0)]
-  public class AssignmentCheck : SmartGenerateBase
+  public class AssignmentCheck : SmartGenerateHandlerBase
   {
     #region Protected methods
 
@@ -52,13 +52,13 @@ namespace AgentJohnson.SmartGenerate.Generators
 
       if (type.GetPresentableName(element.Language) == "string")
       {
-        AddMenuItem("Check if '{0}' is null or empty", "514313A0-91F4-4AE5-B4EB-2BB53736A023", range, name);
+        this.AddAction("Check if '{0}' is null or empty", "514313A0-91F4-4AE5-B4EB-2BB53736A023", range, name);
       }
       else
       {
         if (type.IsReferenceType())
         {
-          AddMenuItem("Check if '{0}' is null", "F802DB32-A0B1-4227-BE5C-E7D20670284B", range, name);
+          this.AddAction("Check if '{0}' is null", "F802DB32-A0B1-4227-BE5C-E7D20670284B", range, name);
         }
       }
     }
@@ -110,7 +110,7 @@ namespace AgentJohnson.SmartGenerate.Generators
     {
       const CSharpControlFlowNullReferenceState UNKNOWN = CSharpControlFlowNullReferenceState.UNKNOWN;
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetProject());
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
 
       IStatement statement = factory.CreateStatement("if(" + name + " == null) { }");
       IStatement anchorSatement = StatementUtil.GetPreviousStatement(element);
@@ -139,7 +139,7 @@ namespace AgentJohnson.SmartGenerate.Generators
         return UNKNOWN;
       }
 
-      IFunctionDeclaration functionDeclaration = ifStatement.GetContainingElement<IFunctionDeclaration>(true);
+      ICSharpFunctionDeclaration functionDeclaration = ifStatement.GetContainingElement<ICSharpFunctionDeclaration>(true);
       if (functionDeclaration == null)
       {
         return UNKNOWN;

@@ -27,10 +27,6 @@ namespace AgentJohnson.Options {
       this.methodsGridView = new System.Windows.Forms.DataGridView();
       this.ClassNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.groupBox1 = new System.Windows.Forms.GroupBox();
-      this.groupBox4 = new System.Windows.Forms.GroupBox();
-      this.rbLeave = new System.Windows.Forms.RadioButton();
-      this.rbCamelCase = new System.Windows.Forms.RadioButton();
-      this.rbUppercase = new System.Windows.Forms.RadioButton();
       this.groupBox3 = new System.Windows.Forms.GroupBox();
       this.rbReplaceWithNothing = new System.Windows.Forms.RadioButton();
       this.rbReplaceWithUnderscore = new System.Windows.Forms.RadioButton();
@@ -38,7 +34,6 @@ namespace AgentJohnson.Options {
       this.groupBox2.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.methodsGridView)).BeginInit();
       this.groupBox1.SuspendLayout();
-      this.groupBox4.SuspendLayout();
       this.groupBox3.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -86,60 +81,15 @@ namespace AgentJohnson.Options {
       // 
       this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                   | System.Windows.Forms.AnchorStyles.Right)));
-      this.groupBox1.Controls.Add(this.groupBox4);
       this.groupBox1.Controls.Add(this.groupBox3);
       this.groupBox1.Location = new System.Drawing.Point(6, 168);
       this.groupBox1.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
       this.groupBox1.Name = "groupBox1";
       this.groupBox1.Padding = new System.Windows.Forms.Padding(6);
-      this.groupBox1.Size = new System.Drawing.Size(370, 191);
+      this.groupBox1.Size = new System.Drawing.Size(370, 95);
       this.groupBox1.TabIndex = 1;
       this.groupBox1.TabStop = false;
       this.groupBox1.Text = "Identifier Naming";
-      // 
-      // groupBox4
-      // 
-      this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                  | System.Windows.Forms.AnchorStyles.Right)));
-      this.groupBox4.Controls.Add(this.rbLeave);
-      this.groupBox4.Controls.Add(this.rbCamelCase);
-      this.groupBox4.Controls.Add(this.rbUppercase);
-      this.groupBox4.Location = new System.Drawing.Point(9, 93);
-      this.groupBox4.Name = "groupBox4";
-      this.groupBox4.Size = new System.Drawing.Size(352, 89);
-      this.groupBox4.TabIndex = 1;
-      this.groupBox4.TabStop = false;
-      this.groupBox4.Text = "Transformation";
-      // 
-      // rbLeave
-      // 
-      this.rbLeave.AutoSize = true;
-      this.rbLeave.Location = new System.Drawing.Point(7, 65);
-      this.rbLeave.Name = "rbLeave";
-      this.rbLeave.Size = new System.Drawing.Size(55, 17);
-      this.rbLeave.TabIndex = 2;
-      this.rbLeave.Text = "Leave";
-      this.rbLeave.UseVisualStyleBackColor = true;
-      // 
-      // rbCamelCase
-      // 
-      this.rbCamelCase.AutoSize = true;
-      this.rbCamelCase.Location = new System.Drawing.Point(7, 42);
-      this.rbCamelCase.Name = "rbCamelCase";
-      this.rbCamelCase.Size = new System.Drawing.Size(84, 17);
-      this.rbCamelCase.TabIndex = 1;
-      this.rbCamelCase.Text = "Pascal Case";
-      this.rbCamelCase.UseVisualStyleBackColor = true;
-      // 
-      // rbUppercase
-      // 
-      this.rbUppercase.AutoSize = true;
-      this.rbUppercase.Location = new System.Drawing.Point(7, 19);
-      this.rbUppercase.Name = "rbUppercase";
-      this.rbUppercase.Size = new System.Drawing.Size(77, 17);
-      this.rbUppercase.TabIndex = 0;
-      this.rbUppercase.Text = "Uppercase";
-      this.rbUppercase.UseVisualStyleBackColor = true;
       // 
       // groupBox3
       // 
@@ -177,7 +127,7 @@ namespace AgentJohnson.Options {
       // cbGenerateXmlComment
       // 
       this.cbGenerateXmlComment.AutoSize = true;
-      this.cbGenerateXmlComment.Location = new System.Drawing.Point(22, 366);
+      this.cbGenerateXmlComment.Location = new System.Drawing.Point(22, 269);
       this.cbGenerateXmlComment.Name = "cbGenerateXmlComment";
       this.cbGenerateXmlComment.Size = new System.Drawing.Size(142, 17);
       this.cbGenerateXmlComment.TabIndex = 2;
@@ -196,8 +146,6 @@ namespace AgentJohnson.Options {
       this.groupBox2.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)(this.methodsGridView)).EndInit();
       this.groupBox1.ResumeLayout(false);
-      this.groupBox4.ResumeLayout(false);
-      this.groupBox4.PerformLayout();
       this.groupBox3.ResumeLayout(false);
       this.groupBox3.PerformLayout();
       this.ResumeLayout(false);
@@ -211,10 +159,6 @@ namespace AgentJohnson.Options {
     private System.Windows.Forms.DataGridView methodsGridView;
     private System.Windows.Forms.DataGridViewTextBoxColumn ClassNameColumn;
     private System.Windows.Forms.GroupBox groupBox1;
-    private System.Windows.Forms.GroupBox groupBox4;
-    private System.Windows.Forms.RadioButton rbLeave;
-    private System.Windows.Forms.RadioButton rbCamelCase;
-    private System.Windows.Forms.RadioButton rbUppercase;
     private System.Windows.Forms.GroupBox groupBox3;
     private System.Windows.Forms.RadioButton rbReplaceWithNothing;
     private System.Windows.Forms.RadioButton rbReplaceWithUnderscore;

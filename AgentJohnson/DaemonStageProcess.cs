@@ -4,11 +4,11 @@
 
 namespace AgentJohnson
 {
-  using System.Collections.Generic;
+  using System;
   using Exceptions;
-  using JetBrains.Application.Progress;
   using JetBrains.DocumentModel;
   using JetBrains.ReSharper.Daemon;
+  using JetBrains.ReSharper.Daemon.CSharp.Stages;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
@@ -18,16 +18,13 @@ namespace AgentJohnson
   /// <summary>
   /// Defines the daemon stage process class.
   /// </summary>
-  public class DaemonStageProcess : ElementVisitor, IDaemonStageProcess, IRecursiveElementProcessor
+  public class DaemonStageProcess : CSharpDaemonStageProcessBase 
   {
     #region Fields
 
-    private readonly List<HighlightingInfo> highlightings = new List<HighlightingInfo>();
-    private readonly IDaemonProcess process;
-
-    private readonly IStatementAnalyzer[] _statementAnalyzers;
-    private readonly ITokenTypeAnalyzer[] _tokenTypeAnalyzers;
-    private readonly ITypeMemberDeclarationAnalyzer[] _typeMemberDeclarationAnalyzers;
+    private readonly IStatementAnalyzer[] statementAnalyzers;
+    private readonly ITokenTypeAnalyzer[] tokenTypeAnalyzers;
+    private readonly ITypeMemberDeclarationAnalyzer[] typeMemberDeclarationAnalyzers;
 
     #endregion
 
@@ -36,25 +33,23 @@ namespace AgentJohnson
     /// <summary>
     /// Initializes a new instance of the <see cref="DaemonStageProcess"/> class.
     /// </summary>
-    /// <param name="daemonProcess">The daemon process.</param>
-    public DaemonStageProcess(IDaemonProcess daemonProcess)
+    /// <param name="process">The process.</param>
+    public DaemonStageProcess(IDaemonProcess process) : base(process)
     {
-      this.process = daemonProcess;
-
-      this._statementAnalyzers = new IStatementAnalyzer[]
+      this.statementAnalyzers = new IStatementAnalyzer[]
       {
-        new DocumentThrownExceptionAnalyzer(this.process.Solution),
-        new ReturnAnalyzer(this.process.Solution)
+        new DocumentThrownExceptionAnalyzer(this.DaemonProcess.Solution),
+        new ReturnAnalyzer(this.DaemonProcess.Solution)
       };
 
-      this._tokenTypeAnalyzers = new ITokenTypeAnalyzer[]
+      this.tokenTypeAnalyzers = new ITokenTypeAnalyzer[]
       {
-        new StringEmptyAnalyzer(this.process.Solution)
+        new StringEmptyAnalyzer(this.DaemonProcess.Solution)
       };
 
-      this._typeMemberDeclarationAnalyzers = new ITypeMemberDeclarationAnalyzer[]
+      this.typeMemberDeclarationAnalyzers = new ITypeMemberDeclarationAnalyzer[]
       {
-        new ValueAnalysisAnalyzer(this.process.Solution)
+        new ValueAnalysisAnalyzer(this.DaemonProcess.Solution)
       };
     }
 
@@ -63,75 +58,29 @@ namespace AgentJohnson
     #region Public methods
 
     /// <summary>
-    /// Executes the process and returns resulting highlightings and embedded objects to be inserted into the editor.
+    /// Executes the process.
     /// The process should check for <see cref="P:JetBrains.ReSharper.Daemon.IDaemonProcess.InterruptFlag"/> periodically (with intervals less than 100 ms)
     /// and throw <see cref="T:JetBrains.Application.Progress.ProcessCancelledException"/> if it is true.
     /// Failing to do so may cause the program to prevent user from typing while analysing the code.
+    /// Stage results should be passed to <param name="commiter"/>. If DaemonStageResult is <c>null</c>, it means that no highlightings available
     /// </summary>
-    /// <returns>
-    /// New highlightings and embedded objects. Return <c>null</c> if this stage doesn't produce
-    /// any of them.
-    /// </returns>
-    public DaemonStageProcessResult Execute()
+    /// <param name="commiter"></param>
+    public override void Execute(Action<DaemonStageResult> commiter)
     {
-      ICSharpFile file = (ICSharpFile)PsiManager.GetInstance(this.process.Solution).GetPsiFile(this.process.ProjectFile);
-      if (file == null)
-      {
-        return null;
-      }
-
-      if (file.Language.Name != "CSHARP")
-      {
-        return null;
-      }
-
-      this.ProcessFile(file);
-
-      var result = new DaemonStageProcessResult();
-      result.FullyRehighlighted = true;
-      result.Highlightings = this.highlightings.ToArray();
-
-      return result;
-    }
-
-    /// <summary>
-    /// Interiors the should be processed.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    /// <returns>Returns the boolean.</returns>
-    public bool InteriorShouldBeProcessed(IElement element)
-    {
-      return true;
-    }
-
-    /// <summary>
-    /// Processes the after interior.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    public void ProcessAfterInterior(IElement element)
-    {
+      HighlightInFile(file => file.ProcessDescendants(this), commiter);
     }
 
     /// <summary>
     /// Processes the before interior.
     /// </summary>
     /// <param name="element">The element.</param>
-    public void ProcessBeforeInterior(IElement element)
+    public override void ProcessBeforeInterior(IElement element)
     {
       this.ProcessStatements(element);
 
       this.ProcessTypeMemberDeclarations(element);
 
       this.ProcessTokenTypes(element);
-    }
-
-    /// <summary>
-    /// Processes the file.
-    /// </summary>
-    /// <param name="file">The file process.</param>
-    public void ProcessFile(ICSharpFile file)
-    {
-      file.ProcessDescendants(this);
     }
 
     #endregion
@@ -145,12 +94,12 @@ namespace AgentJohnson
     private void AddHighlighting(SuggestionBase highlighting)
     {
       DocumentRange range = highlighting.Range;
-      if (!range.IsValid)
+      if (!range.IsValid())
       {
         return;
       }
 
-      this.highlightings.Add(new HighlightingInfo(range, highlighting));
+      this.AddHighlighting(range, highlighting);
     }
 
     /// <summary>
@@ -165,7 +114,7 @@ namespace AgentJohnson
         return;
       }
 
-      foreach (IStatementAnalyzer analyzer in this._statementAnalyzers)
+      foreach (IStatementAnalyzer analyzer in this.statementAnalyzers)
       {
         SuggestionBase[] result = analyzer.Analyze(statement);
         if (result == null)
@@ -192,7 +141,7 @@ namespace AgentJohnson
         return;
       }
 
-      foreach (ITokenTypeAnalyzer analyzer in this._tokenTypeAnalyzers)
+      foreach (ITokenTypeAnalyzer analyzer in this.tokenTypeAnalyzers)
       {
         SuggestionBase[] result = analyzer.Analyze(tokenType);
         if (result == null)
@@ -219,7 +168,7 @@ namespace AgentJohnson
         return;
       }
 
-      foreach (ITypeMemberDeclarationAnalyzer analyzer in this._typeMemberDeclarationAnalyzers)
+      foreach (ITypeMemberDeclarationAnalyzer analyzer in this.typeMemberDeclarationAnalyzers)
       {
         SuggestionBase[] result = analyzer.Analyze(typeMemberDeclaration);
         if (result == null)
@@ -231,29 +180,6 @@ namespace AgentJohnson
         {
           this.AddHighlighting(highlighting);
         }
-      }
-    }
-
-    #endregion
-
-    #region IRecursiveElementProcessor Members
-
-    /// <summary>
-    /// Gets a value indicating whether [processing is finished].
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if [processing is finished]; otherwise, <c>false</c>.
-    /// </value>
-    public bool ProcessingIsFinished
-    {
-      get
-      {
-        if (this.process.InterruptFlag)
-        {
-          throw new ProcessCancelledException();
-        }
-
-        return false;
       }
     }
 

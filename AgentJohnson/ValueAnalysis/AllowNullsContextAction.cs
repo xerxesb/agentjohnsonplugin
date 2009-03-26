@@ -1,52 +1,32 @@
-using System.Collections.Generic;
-using JetBrains.DocumentModel;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Daemon;
-using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
-using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.Caches;
-using JetBrains.ReSharper.Psi.CodeStyle;
-using JetBrains.ReSharper.Psi.CSharp;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Tree;
+namespace AgentJohnson.ValueAnalysis
+{
+  using System.Collections.Generic;
+  using JetBrains.Application.Progress;
+  using JetBrains.DocumentModel;
+  using JetBrains.ProjectModel;
+  using JetBrains.ReSharper.Intentions;
+  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Psi.Caches;
+  using JetBrains.ReSharper.Psi.CodeStyle;
+  using JetBrains.ReSharper.Psi.CSharp;
+  using JetBrains.ReSharper.Psi.CSharp.Tree;
+  using JetBrains.ReSharper.Psi.Tree;
 
-using JetBrains.TextControl;
-using JetBrains.Application.Progress;
-
-namespace AgentJohnson.ValueAnalysis {
   /// <summary>
   /// Represents the Context Action.
   /// </summary>
   [ContextAction(Description = "Annotates a function with the Allow Null attribute.", Name = "Annotate with Allow Null attributes for all parameters", Priority = -1, Group = "C#")]
-  public class AllowNullsContextAction : OneItemContextActionBase {
+  public class AllowNullsContextAction : ContextActionBase
+  {
     #region Constructor
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="AllowNullsContextAction"/> class.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
-    public AllowNullsContextAction(ISolution solution, ITextControl textControl) : base(solution, textControl) {
-    }
-
-    #endregion
-
-    #region Public properties
-
-    /// <summary>
-    /// Gets the text.
-    /// </summary>
-    /// <value>The text.</value>
-    public override string Text {
-      get {
-        string attribute = ValueAnalysisSettings.Instance.AllowNullAttribute;
-
-        int n = attribute.LastIndexOf('.');
-        if (n >= 0){
-          attribute = attribute.Substring(n + 1);
-        }
-
-        return string.Format("Annotate with '{0}'", attribute);
-      }
+    /// <param name="provider">The provider.</param>
+    public AllowNullsContextAction(ICSharpContextActionDataProvider provider) : base(provider)
+    {
     }
 
     #endregion
@@ -56,61 +36,92 @@ namespace AgentJohnson.ValueAnalysis {
     /// <summary>
     /// Executes the internal.
     /// </summary>
-    protected override void ExecuteInternal() {
-      if(string.IsNullOrEmpty(ValueAnalysisSettings.Instance.AllowNullAttribute)){
+    protected override void Execute(IElement element)
+    {
+      if (string.IsNullOrEmpty(ValueAnalysisSettings.Instance.AllowNullAttribute))
+      {
         return;
       }
 
-      if(!IsAvailableInternal()){
+      if (!this.IsAvailableInternal())
+      {
         return;
       }
 
-      ITypeMemberDeclaration typeMemberDeclaration = GetTypeMemberDeclaration();
-      if(typeMemberDeclaration == null){
+      ITypeMemberDeclaration typeMemberDeclaration = this.GetTypeMemberDeclaration();
+      if (typeMemberDeclaration == null)
+      {
         return;
       }
 
       IAttributesOwnerDeclaration attributesOwnerDeclaration = typeMemberDeclaration as IAttributesOwnerDeclaration;
-      if(attributesOwnerDeclaration == null){
+      if (attributesOwnerDeclaration == null)
+      {
         return;
       }
 
       ITypeElement typeElement = GetAttribute(typeMemberDeclaration, ValueAnalysisSettings.Instance.AllowNullAttribute);
-      if(typeElement == null){
+      if (typeElement == null)
+      {
         return;
       }
 
       LanguageService languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
-      if(languageService == null){
+      if (languageService == null)
+      {
         return;
       }
 
       CodeFormatter codeFormatter = languageService.CodeFormatter;
-      if(codeFormatter == null){
+      if (codeFormatter == null)
+      {
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(typeMemberDeclaration.GetProject());
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(typeMemberDeclaration.GetPsiModule());
 
-      IAttribute attribute = factory.CreateTypeMemberDeclaration("[" + ValueAnalysisSettings.Instance.AllowNullAttribute + "(\"*\")]void Foo(){}", new object[] {}).Attributes[0];
+      IAttribute attribute = factory.CreateTypeMemberDeclaration("[" + ValueAnalysisSettings.Instance.AllowNullAttribute + "(\"*\")]void Foo(){}", new object[]
+      {
+      }).Attributes[0];
 
       attribute = attributesOwnerDeclaration.AddAttributeAfter(attribute, null);
 
       string name = attribute.TypeReference.GetName();
-      if(!name.EndsWith("Attribute")){
+      if (!name.EndsWith("Attribute"))
+      {
         return;
       }
 
+      /*
       IReferenceName referenceName = factory.CreateReferenceName(name.Substring(0, name.Length - "Attribute".Length), new object[0]);
       referenceName = attribute.Name.ReplaceBy(referenceName);
 
-      if(referenceName.Reference.Resolve().DeclaredElement != typeElement){
+      if (referenceName.Reference.Resolve().DeclaredElement != typeElement)
+      {
         referenceName.Reference.BindTo(typeElement);
       }
+      */
 
       DocumentRange range = attribute.GetDocumentRange();
       IPsiRangeMarker marker = (attribute as IElement).GetManager().CreatePsiRangeMarker(range);
-      codeFormatter.Optimize(attribute.GetContainingFile(), marker, false, true, NullProgressIndicator.INSTANCE);
+      codeFormatter.Optimize(attribute.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
+    }
+
+    /// <summary>
+    /// Gets the text.
+    /// </summary>
+    /// <value>The text.</value>
+    protected override string GetText()
+    {
+      string attribute = ValueAnalysisSettings.Instance.AllowNullAttribute;
+
+      int n = attribute.LastIndexOf('.');
+      if (n >= 0)
+      {
+        attribute = attribute.Substring(n + 1);
+      }
+
+      return string.Format("Annotate with '{0}'", attribute);
     }
 
     /// <summary>
@@ -119,28 +130,34 @@ namespace AgentJohnson.ValueAnalysis {
     /// Will not be called if PsiManager, ProjectFile of Solution == null
     /// </summary>
     /// <returns></returns>
-    protected override bool IsAvailableInternal() {
-      if(string.IsNullOrEmpty(ValueAnalysisSettings.Instance.AllowNullAttribute)){
+    protected override bool IsAvailable(IElement element)
+    {
+      if (string.IsNullOrEmpty(ValueAnalysisSettings.Instance.AllowNullAttribute))
+      {
         return false;
       }
 
-      ITypeMemberDeclaration typeMemberDeclaration = GetTypeMemberDeclaration();
-      if(typeMemberDeclaration == null){
+      ITypeMemberDeclaration typeMemberDeclaration = this.GetTypeMemberDeclaration();
+      if (typeMemberDeclaration == null)
+      {
         return false;
       }
 
       ITypeElement typeElement = GetAttribute(typeMemberDeclaration, ValueAnalysisSettings.Instance.AllowNullAttribute);
-      if(typeElement == null) {
+      if (typeElement == null)
+      {
         return false;
       }
 
       IParametersOwner parametersOwner = typeMemberDeclaration as IParametersOwner;
-      if(parametersOwner == null || parametersOwner.Parameters.Count == 0){
+      if (parametersOwner == null || parametersOwner.Parameters.Count == 0)
+      {
         return false;
       }
 
       IAttributesOwner attributesOwner = typeMemberDeclaration as IAttributesOwner;
-      if(attributesOwner == null){
+      if (attributesOwner == null)
+      {
         return false;
       }
 
@@ -148,16 +165,19 @@ namespace AgentJohnson.ValueAnalysis {
 
       IList<IAttributeInstance> attributeInstances = attributesOwner.GetAttributeInstances(clrTypeName, true);
 
-      foreach(IAttributeInstance instance in attributeInstances){
+      foreach (IAttributeInstance instance in attributeInstances)
+      {
         ConstantValue2 allowNull = instance.PositionParameter(0).ConstantValue;
 
-        if(allowNull.Value == null){
+        if (allowNull.Value == null)
+        {
           continue;
         }
 
         string allowNullName = allowNull.Value as string;
 
-        if(allowNullName == "*"){
+        if (allowNullName == "*")
+        {
           return false;
         }
       }
@@ -175,16 +195,17 @@ namespace AgentJohnson.ValueAnalysis {
     /// <param name="typeMemberDeclaration">The type member declaration.</param>
     /// <param name="attributeName">Name of the attribute.</param>
     /// <returns></returns>
-    static ITypeElement GetAttribute(IElement typeMemberDeclaration, string attributeName) {
+    private static ITypeElement GetAttribute(IElement typeMemberDeclaration, string attributeName)
+    {
       ISolution solution = typeMemberDeclaration.GetManager().Solution;
 
-      DeclarationsCacheScope declarationsCacheScope = DeclarationsCacheScope.SolutionScope(solution, true);
+      IDeclarationsScope scope = DeclarationsScopeFactory.SolutionScope(solution, true);
+      IDeclarationsCache cache = PsiManager.GetInstance(solution).GetDeclarationsCache(scope, true);
 
-      IDeclarationsCache declarationsCache = PsiManager.GetInstance(solution).GetDeclarationsCache(declarationsCacheScope, true);
+      ITypeElement typeElement = cache.GetTypeElementByCLRName(attributeName);
 
-      ITypeElement typeElement = declarationsCache[attributeName] as ITypeElement;
-
-      if(typeElement == null){
+      if (typeElement == null)
+      {
         return null;
       }
 
@@ -202,23 +223,28 @@ namespace AgentJohnson.ValueAnalysis {
     /// Gets the type member declaration.
     /// </summary>
     /// <returns>The type member declaration.</returns>
-    ITypeMemberDeclaration GetTypeMemberDeclaration() {
-      IElement element = Provider.SelectedElement;
-      if(element == null){
+    private ITypeMemberDeclaration GetTypeMemberDeclaration()
+    {
+      IElement element = this.Provider.SelectedElement;
+      if (element == null)
+      {
         return null;
       }
 
       ITypeMemberDeclaration typeMemberDeclaration = null;
 
       ITreeNode treeNode = element as ITreeNode;
-      if(treeNode != null){
+      if (treeNode != null)
+      {
         typeMemberDeclaration = treeNode.Parent as ITypeMemberDeclaration;
       }
 
-      if(typeMemberDeclaration == null){
+      if (typeMemberDeclaration == null)
+      {
         IIdentifierNode identifierNode = element as IIdentifierNode;
 
-        if(identifierNode != null){
+        if (identifierNode != null)
+        {
           typeMemberDeclaration = identifierNode.Parent as ITypeMemberDeclaration;
         }
       }

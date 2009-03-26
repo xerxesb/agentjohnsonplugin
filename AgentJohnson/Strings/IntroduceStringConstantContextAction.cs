@@ -1,22 +1,24 @@
-using AgentJohnson;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Daemon;
-using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.TextControl;
+namespace AgentJohnson.Strings
+{
+  using JetBrains.ReSharper.Intentions;
+  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.Strings {
   /// <summary>
+  /// Defines the introduce string constant context action class.
   /// </summary>
-  [ContextAction(Description="Generates a string constant from the literal string.", Name="Introduce string constant", Priority=-1, Group="C#")]
-  public class IntroduceStringConstantContextAction : ContextActionBase {
+  [ContextAction(Description = "Generates a string constant from the literal string.", Name = "Introduce string constant", Priority = -1, Group = "C#")]
+  public class IntroduceStringConstantContextAction : ContextActionBase
+  {
     #region Constructor
 
     /// <summary>
     /// Initializes a new instance of the <see cref="IntroduceStringConstantContextAction"/> class.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
-    public IntroduceStringConstantContextAction(ISolution solution, ITextControl textControl) : base(solution, textControl) {
+    /// <param name="provider">The provider.</param>
+    public IntroduceStringConstantContextAction(ICSharpContextActionDataProvider provider) : base(provider)
+    {
+      this.StartTransaction = false;
     }
 
     #endregion
@@ -27,8 +29,9 @@ namespace AgentJohnson.Strings {
     /// Executes this instance.
     /// </summary>
     /// <param name="element">The element.</param>
-    protected override void Execute(IElement element) {
-      IntroduceStringConstantRefactoring introduceStringConstantRefactoring = new IntroduceStringConstantRefactoring(Solution, TextControl);
+    protected override void Execute(IElement element)
+    {
+      IntroduceStringConstantRefactoring introduceStringConstantRefactoring = new IntroduceStringConstantRefactoring(this.Solution, this.TextControl);
 
       introduceStringConstantRefactoring.Execute();
     }
@@ -37,7 +40,8 @@ namespace AgentJohnson.Strings {
     /// Gets the text.
     /// </summary>
     /// <returns>The text.</returns>
-    protected override string GetText() {
+    protected override string GetText()
+    {
       return "Introduce String Constant";
     }
 
@@ -48,7 +52,8 @@ namespace AgentJohnson.Strings {
     /// <returns>
     /// 	<c>true</c> if this instance is available; otherwise, <c>false</c>.
     /// </returns>
-    protected override bool IsAvailable(IElement element) {
+    protected override bool IsAvailable(IElement element)
+    {
       return IntroduceStringConstantRefactoring.IsAvailable(element);
     }
 

@@ -5,7 +5,7 @@ namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// 
   /// </summary>
-  public interface ISmartGenerateMenuItem {
+  public interface ISmartGenerateAction {
     #region Public properties
 
     /// <summary>

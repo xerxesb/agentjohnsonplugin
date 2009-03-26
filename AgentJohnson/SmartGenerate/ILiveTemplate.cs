@@ -1,10 +1,12 @@
-using System.Collections.Generic;
+namespace AgentJohnson.SmartGenerate
+{
+  using System.Collections.Generic;
 
-namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// 
   /// </summary>
-  public interface ILiveTemplate {
+  public interface ILiveTemplate
+  {
     #region Public methods
 
     /// <summary>

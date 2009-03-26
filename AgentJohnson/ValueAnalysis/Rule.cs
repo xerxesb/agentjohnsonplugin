@@ -175,7 +175,7 @@ namespace AgentJohnson.ValueAnalysis {
         return null;
       }
 
-      IModule module = type.Module;
+      IPsiModule module = type.Module;
       if(module == null) {
         return null;
       }

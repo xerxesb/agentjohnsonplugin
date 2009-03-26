@@ -17,7 +17,6 @@ namespace AgentJohnson.Strings {
     List<string> _classNames;
     bool _generateXmlComment;
     int _replaceSpacesMode;
-    int _transformIdentifierMode;
 
     #endregion
 
@@ -44,7 +43,7 @@ namespace AgentJohnson.Strings {
     /// Gets or sets a value indicating whether [generate XML comment].
     /// </summary>
     /// <value><c>true</c> if [generate XML comment]; otherwise, <c>false</c>.</value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = true)]
+    [XmlExternalizable(true)]
     public bool GenerateXmlComment {
       get {
         return _generateXmlComment;
@@ -67,7 +66,7 @@ namespace AgentJohnson.Strings {
     /// Gets or sets the replace spaces mode.
     /// </summary>
     /// <value>The replace spaces mode.</value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = 0)]
+    [XmlExternalizable(0)]
     public int ReplaceSpacesMode {
       get {
         return _replaceSpacesMode;
@@ -82,7 +81,7 @@ namespace AgentJohnson.Strings {
     /// </summary>                             
     /// <remarks>This is for serialization only.</remarks>
     /// <value>The class names.</value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = "")]
+    [XmlExternalizable("")]
     public string SerializableClassNames {
       get {
         StringBuilder result = new StringBuilder();
@@ -115,20 +114,6 @@ namespace AgentJohnson.Strings {
             _classNames.Add(className);
           }
         }
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the transform identifier mode.
-    /// </summary>
-    /// <value>The transform identifier mode.</value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = 0)]
-    public int TransformIdentifierMode {
-      get {
-        return _transformIdentifierMode;
-      }
-      set {
-        _transformIdentifierMode = value;
       }
     }
 
@@ -174,8 +159,8 @@ namespace AgentJohnson.Strings {
     /// </summary>
     /// <param name="element">The element.</param>
     /// <returns></returns>
-    bool IXmlExternalizable.WriteToXml(XmlElement element) {
-      return XmlExternalizationUtil.WriteToXml(element, this);
+    void IXmlExternalizable.WriteToXml(XmlElement element) {
+      XmlExternalizationUtil.WriteToXml(element, this);
     }
 
     #endregion
@@ -220,7 +205,6 @@ namespace AgentJohnson.Strings {
 
       GenerateXmlComment = GetAttributeString(node, "generatexmlcomment") == "true";
       ReplaceSpacesMode = int.Parse(GetAttributeString(node, "replacespacesmode"));
-      TransformIdentifierMode = int.Parse(GetAttributeString(node, "transformidentifiermode"));
 
       _classNames.Clear();
 
@@ -244,8 +228,6 @@ namespace AgentJohnson.Strings {
       writer.WriteAttributeString("generatexmlcomment", GenerateXmlComment ? "true" : "false");
 
       writer.WriteAttributeString("replacespacesmode", ReplaceSpacesMode.ToString());
-
-      writer.WriteAttributeString("transformidentifiermode", TransformIdentifierMode.ToString());
 
       foreach(string className in ClassNames) {
         writer.WriteElementString("class", className);

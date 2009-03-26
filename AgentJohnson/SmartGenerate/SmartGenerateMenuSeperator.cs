@@ -5,7 +5,7 @@ namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// 
   /// </summary>
-  public class SmartGenerateMenuSeparator : ISmartGenerateMenuItem {
+  public class SmartGenerateMenuSeparator : ISmartGenerateAction {
 
     #region Public properties
 
@@ -17,6 +17,7 @@ namespace AgentJohnson.SmartGenerate {
       get {
         return TextRange.InvalidRange;
       }
+      
       set {
       }
     }
@@ -29,6 +30,7 @@ namespace AgentJohnson.SmartGenerate {
       get {
         return string.Empty;
       }
+      
       set {
       }
     }
@@ -41,6 +43,7 @@ namespace AgentJohnson.SmartGenerate {
       get {
         return "-";
       }
+
       set {
       }
     }

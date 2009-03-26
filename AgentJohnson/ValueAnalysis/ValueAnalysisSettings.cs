@@ -26,7 +26,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// Gets or sets the allow null attribute.
     /// </summary>
     /// <value>The allow null attribute.</value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = "")]
+    [XmlExternalizable("")]
     public string AllowNullAttribute {
       get {
         return _allowNullAttribute ?? string.Empty;
@@ -40,7 +40,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// Gets or sets a value indicating whether GhostDoc should be executed.
     /// </summary>
     /// <value><c>true</c> if GhostDoc should be executed; otherwise, <c>false</c>.</value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = false)]
+    [XmlExternalizable(false)]
     public bool ExecuteGhostDoc {
       get {
         return _executeGhostDoc;
@@ -65,7 +65,7 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <remarks>This is for serialization only.</remarks>
     /// <value>The type assertions.</value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = "")]
+    [XmlExternalizable("")]
     public string SerializableTypeConfigurations {
       get {
         StringWriter stringWriter = new StringWriter();
@@ -148,8 +148,8 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="element">The element.</param>
     /// <returns></returns>
-    public bool WriteToXml(XmlElement element) {
-      return XmlExternalizationUtil.WriteToXml(element, this);
+    public void WriteToXml(XmlElement element) {
+      XmlExternalizationUtil.WriteToXml(element, this);
     }
 
     #endregion
@@ -252,15 +252,15 @@ namespace AgentJohnson.ValueAnalysis {
     /// <param name="nodes">The nodes.</param>
     void Read(XmlNodeList nodes) {
       foreach(XmlNode type in nodes) {
-        Rule rule = new Rule();
-
-        rule.TypeName = GetAttributeString(type, "type");
-        rule.NotNull = GetAttributeString(type, "notnull") == "true";
-        rule.CanBeNull = GetAttributeString(type, "canbenull") == "true";
-
-        rule.PublicParameterAssertion = GetElementString(type, "publicparameterassertion");
-        rule.NonPublicParameterAssertion = GetElementString(type, "nonpublicparameterassertion");
-        rule.ReturnAssertion = GetElementString(type, "returnassertion");
+        Rule rule = new Rule
+        {
+          TypeName = GetAttributeString(type, "type"),
+          NotNull = GetAttributeString(type, "notnull") == "true",
+          CanBeNull = GetAttributeString(type, "canbenull") == "true",
+          PublicParameterAssertion = GetElementString(type, "publicparameterassertion"),
+          NonPublicParameterAssertion = GetElementString(type, "nonpublicparameterassertion"),
+          ReturnAssertion = GetElementString(type, "returnassertion")
+        };
 
         XmlNodeList valueAssertions = type.SelectNodes("valueassertions/valueassertion");
         if(valueAssertions != null) {

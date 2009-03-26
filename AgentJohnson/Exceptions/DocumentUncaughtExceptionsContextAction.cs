@@ -4,141 +4,47 @@
 
 namespace AgentJohnson.Exceptions
 {
-  using System;
   using System.Collections.Generic;
   using System.Text;
   using System.Text.RegularExpressions;
   using System.Xml;
   using JetBrains.Application;
-  using JetBrains.DocumentModel;
-  using JetBrains.ProjectModel;
-  using JetBrains.ReSharper.Daemon;
+  using JetBrains.ReSharper.Intentions;
+  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.ExtensionsAPI;
   using JetBrains.ReSharper.Psi.Resolve;
   using JetBrains.ReSharper.Psi.Tree;
-  using JetBrains.TextControl;
-  using JetBrains.Util;
 
   /// <summary>
   /// Defines the document uncaught exceptions context action class.
   /// </summary>
   [ContextAction(Description = "Document uncaught exceptions that are thrown in called functions", Name = "Add xml-docs comments for uncaught exceptions", Priority = -1, Group = "C#")]
-  public class DocumentUncaughtExceptionsContextAction : IContextAction, IBulbItem
+  public class DocumentUncaughtExceptionsContextAction : ContextActionBase
   {
-    #region Fields
-
-    /// <summary>
-    /// The solution.
-    /// </summary>
-    private readonly ISolution solution;
-
-    /// <summary>
-    /// The text control.
-    /// </summary>
-    private readonly ITextControl textControl;
-
-    #endregion
-
     #region Constructor
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DocumentUncaughtExceptionsContextAction"/> class.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
-    public DocumentUncaughtExceptionsContextAction(ISolution solution, ITextControl textControl)
+    /// <param name="provider">The provider.</param>
+    public DocumentUncaughtExceptionsContextAction(ICSharpContextActionDataProvider provider) : base(provider)
     {
-      this.solution = solution;
-      this.textControl = textControl;
     }
 
     #endregion
 
-    #region Public methods
-
-    /// <summary>
-    /// Determines whether this instance is documented.
-    /// </summary>
-    /// <param name="invocationExpression">The invocation expression.</param>
-    /// <param name="exceptions">The exceptions.</param>
-    public static void RemoveDocumented(IInvocationExpression invocationExpression, List<string[]> exceptions)
-    {
-      ITypeMemberDeclaration typeMemberDeclaration = invocationExpression.GetContainingTypeMemberDeclaration();
-      if (typeMemberDeclaration == null)
-      {
-        return;
-      }
-
-      IDeclaredElement declaredElement = typeMemberDeclaration.DeclaredElement;
-      if (declaredElement == null)
-      {
-        return;
-      }
-
-      XmlNode xmlNode = declaredElement.GetXMLDoc(false);
-      if (xmlNode == null)
-      {
-        return;
-      }
-
-      XmlNodeList exceptionList = xmlNode.SelectNodes("exception");
-      if (exceptionList == null || exceptionList.Count == 0)
-      {
-        return;
-      }
-
-      foreach (XmlNode node in exceptionList)
-      {
-        XmlAttribute attribute = node.Attributes["cref"];
-        if (attribute == null)
-        {
-          continue;
-        }
-
-        string cref = attribute.Value;
-        if (string.IsNullOrEmpty(cref))
-        {
-          continue;
-        }
-
-        if (cref.StartsWith("T:"))
-        {
-          cref = cref.Substring(2);
-        }
-
-        foreach (string[] exception in exceptions)
-        {
-          if (exception[0] == cref)
-          {
-            exceptions.Remove(exception);
-            break;
-          }
-        }
-      }
-    }
+    #region Protected methods
 
     /// <summary>
     /// Executes the specified solution.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
-    public void Execute(ISolution solution, ITextControl textControl)
+    /// <param name="element">The element.</param>
+    protected override void Execute(IElement element)
     {
-      if (this.solution != solution || this.textControl != textControl)
-      {
-        throw new InvalidOperationException();
-      }
-
       Shell.Instance.Locks.AssertReadAccessAllowed();
-
-      IElement element = this.GetElementAtCaret();
-      if (element == null)
-      {
-        return;
-      }
 
       ITreeNode node = element.ToTreeNode();
       if (node == null)
@@ -165,41 +71,27 @@ namespace AgentJohnson.Exceptions
         return;
       }
 
-      PsiManager psiManager = PsiManager.GetInstance(solution);
-      if (psiManager == null)
-      {
-        return;
-      }
+      Execute(invocationExpression);
+    }
 
-      using (ModificationCookie cookie = textControl.Document.EnsureWritable())
-      {
-        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
-        {
-          return;
-        }
-
-        using (CommandCookie.Create(string.Format("Context Action {0}", this.Text)))
-        {
-          psiManager.DoTransaction(delegate { Execute(invocationExpression); });
-        }
-      }
+    /// <summary>
+    /// Gets the text.
+    /// </summary>
+    /// <value>The context action text.</value>
+    protected override string GetText()
+    {
+      return "Add xml-docs comments for uncaught exceptions";
     }
 
     /// <summary>
     /// Determines whether the specified cache is available.
     /// </summary>
-    /// <param name="cache">The cache.</param>
+    /// <param name="element">The element.</param>
     /// <returns>
     /// 	<c>true</c> if the specified cache is available; otherwise, <c>false</c>.
     /// </returns>
-    public bool IsAvailable(IUserDataHolder cache)
+    protected override bool IsAvailable(IElement element)
     {
-      IElement element = this.GetElementAtCaret();
-      if (element == null)
-      {
-        return false;
-      }
-
       ITreeNode node = element.ToTreeNode();
       if (node == null)
       {
@@ -235,37 +127,6 @@ namespace AgentJohnson.Exceptions
       GetExceptions(invocationExpression, exceptions);
 
       return exceptions.Count > 0;
-    }
-
-    #endregion
-
-    #region Protected methods
-
-    /// <summary>
-    /// Gets the element as the caret position.
-    /// </summary>
-    /// <returns>The element.</returns>
-    protected IElement GetElementAtCaret()
-    {
-      IProjectFile projectFile = DocumentManager.GetInstance(this.solution).GetProjectFile(this.textControl.Document);
-      if (projectFile == null)
-      {
-        return null;
-      }
-
-      PsiManager psiManager = PsiManager.GetInstance(this.solution);
-      if (psiManager == null)
-      {
-        return null;
-      }
-
-      ICSharpFile file = psiManager.GetPsiFile(projectFile) as ICSharpFile;
-      if (file == null)
-      {
-        return null;
-      }
-
-      return file.FindTokenAt(this.textControl.CaretModel.Offset);
     }
 
     #endregion
@@ -367,7 +228,7 @@ namespace AgentJohnson.Exceptions
 
       text.Append("\nvoid foo(){}");
 
-      ICSharpTypeMemberDeclaration declaration = CSharpElementFactory.GetInstance(typeMemberDeclaration.GetProject()).CreateTypeMemberDeclaration(text.ToString());
+      ICSharpTypeMemberDeclaration declaration = CSharpElementFactory.GetInstance(typeMemberDeclaration.GetPsiModule()).CreateTypeMemberDeclaration(text.ToString());
       if (declaration == null)
       {
         return;
@@ -497,7 +358,7 @@ namespace AgentJohnson.Exceptions
         return;
       }
 
-      ResolveResult resolveResult = reference.Reference.Resolve();
+      IResolveResult resolveResult = reference.Reference.Resolve();
 
       IDeclaredElement declaredElement = resolveResult.DeclaredElement;
       if (declaredElement == null)
@@ -572,38 +433,64 @@ namespace AgentJohnson.Exceptions
       }
     }
 
-    #endregion
-
-    #region IBulbItem Members
-
     /// <summary>
-    /// Gets the text.
+    /// Determines whether this instance is documented.
     /// </summary>
-    /// <value>The context action text.</value>
-    public string Text
+    /// <param name="invocationExpression">The invocation expression.</param>
+    /// <param name="exceptions">The exceptions.</param>
+    private static void RemoveDocumented(IInvocationExpression invocationExpression, List<string[]> exceptions)
     {
-      get
+      ITypeMemberDeclaration typeMemberDeclaration = invocationExpression.GetContainingTypeMemberDeclaration();
+      if (typeMemberDeclaration == null)
       {
-        return "Add xml-docs comments for uncaught exceptions";
+        return;
       }
-    }
 
-    #endregion
-
-    #region IContextAction Members
-
-    /// <summary>
-    /// Gets the items.
-    /// </summary>
-    /// <value>The items.</value>
-    public IBulbItem[] Items
-    {
-      get
+      IDeclaredElement declaredElement = typeMemberDeclaration.DeclaredElement;
+      if (declaredElement == null)
       {
-        return new IBulbItem[]
+        return;
+      }
+
+      XmlNode xmlNode = declaredElement.GetXMLDoc(false);
+      if (xmlNode == null)
+      {
+        return;
+      }
+
+      XmlNodeList exceptionList = xmlNode.SelectNodes("exception");
+      if (exceptionList == null || exceptionList.Count == 0)
+      {
+        return;
+      }
+
+      foreach (XmlNode node in exceptionList)
+      {
+        XmlAttribute attribute = node.Attributes["cref"];
+        if (attribute == null)
         {
-          this
-        };
+          continue;
+        }
+
+        string cref = attribute.Value;
+        if (string.IsNullOrEmpty(cref))
+        {
+          continue;
+        }
+
+        if (cref.StartsWith("T:"))
+        {
+          cref = cref.Substring(2);
+        }
+
+        foreach (string[] exception in exceptions)
+        {
+          if (exception[0] == cref)
+          {
+            exceptions.Remove(exception);
+            break;
+          }
+        }
       }
     }
 

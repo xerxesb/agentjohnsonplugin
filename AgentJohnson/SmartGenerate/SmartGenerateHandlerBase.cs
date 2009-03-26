@@ -1,23 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Security;
-using JetBrains.ActionManagement;
-using JetBrains.Annotations;
-using JetBrains.DocumentModel;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.CSharp;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.Util;
+﻿namespace AgentJohnson.SmartGenerate
+{
+  using System.Collections.Generic;
+  using System.Security;
+  using JetBrains.Annotations;
+  using JetBrains.Util;
 
-namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// Defines the smart generate base class.
   /// </summary>
-  public abstract class SmartGenerateBase : ISmartGenerate {
+  public abstract class SmartGenerateHandlerBase : ISmartGenerateHandler
+  {
     #region Fields
 
-    List<ISmartGenerateMenuItem> _items;
+    private List<ISmartGenerateAction> _items;
 
     #endregion
 
@@ -28,12 +23,13 @@ namespace AgentJohnson.SmartGenerate {
     /// </summary>
     /// <param name="smartGenerateParameters">The get menu items parameters.</param>
     /// <returns>The items.</returns>
-    public virtual IEnumerable<ISmartGenerateMenuItem> GetMenuItems(SmartGenerateParameters smartGenerateParameters) {
-      _items = new List<ISmartGenerateMenuItem>();
+    public virtual IEnumerable<ISmartGenerateAction> GetMenuItems(SmartGenerateParameters smartGenerateParameters)
+    {
+      this._items = new List<ISmartGenerateAction>();
 
-      GetItems(smartGenerateParameters);
+      this.GetItems(smartGenerateParameters);
 
-      return _items;
+      return this._items;
     }
 
     #endregion
@@ -48,8 +44,9 @@ namespace AgentJohnson.SmartGenerate {
     /// <param name="parameters">The parameters.</param>
     /// <returns>The menu item.</returns>
     [CanBeNull]
-    protected ISmartGenerateMenuItem AddMenuItem([NotNull] string text, [NotNull] string template, params string[] parameters) {
-      return AddMenuItem(text, template, TextRange.InvalidRange, parameters);
+    protected ISmartGenerateAction AddAction([NotNull] string text, [NotNull] string template, params string[] parameters)
+    {
+      return this.AddAction(text, template, TextRange.InvalidRange, parameters);
     }
 
     /// <summary>
@@ -61,47 +58,53 @@ namespace AgentJohnson.SmartGenerate {
     /// <param name="parameters">The parameters.</param>
     /// <returns>The menu item.</returns>
     [CanBeNull]
-    protected ISmartGenerateMenuItem AddMenuItem([NotNull] string text, [NotNull] string template, TextRange selectionRange, params string[] parameters) {
+    protected ISmartGenerateAction AddAction([NotNull] string text, [NotNull] string template, TextRange selectionRange, params string[] parameters)
+    {
       string expandedTemplate = SmartGenerateManager.Instance.GetTemplate(template);
 
-      if(string.IsNullOrEmpty(expandedTemplate)) {
+      if (string.IsNullOrEmpty(expandedTemplate))
+      {
         return null;
       }
 
-      SmartGenerateMenuItem menuItem = new SmartGenerateMenuItem();
+      SmartGenerateAction action = new SmartGenerateAction();
 
-      if(parameters.Length > 0) {
+      if (parameters.Length > 0)
+      {
         text = string.Format(text, parameters);
 
-        for(int n = 0; n < parameters.Length; n++) {
+        for (int n = 0; n < parameters.Length; n++)
+        {
           parameters[n] = SecurityElement.Escape(parameters[n]);
         }
 
         expandedTemplate = string.Format(expandedTemplate, parameters);
       }
 
-      menuItem.Text = text;
-      menuItem.Template = expandedTemplate;
-      menuItem.SelectionRange = selectionRange;
+      action.Text = text;
+      action.Template = expandedTemplate;
+      action.SelectionRange = selectionRange;
 
-      AddMenuItem(menuItem);
+      this.AddAction(action);
 
-      return menuItem;
+      return action;
     }
 
     /// <summary>
     /// Adds the menu item.
     /// </summary>
-    /// <param name="menuItem">The menu item.</param>
-    protected void AddMenuItem([NotNull] ISmartGenerateMenuItem menuItem) {
-      _items.Add(menuItem);
+    /// <param name="action">The menu item.</param>
+    protected void AddAction([NotNull] ISmartGenerateAction action)
+    {
+      this._items.Add(action);
     }
 
     /// <summary>
     /// Adds the menu separator.
     /// </summary>
-    protected void AddMenuSeparator() {
-      AddMenuItem(new SmartGenerateMenuSeparator());
+    protected void AddMenuSeparator()
+    {
+      this.AddAction(new SmartGenerateMenuSeparator());
     }
 
     /// <summary>

@@ -1,16 +1,19 @@
-using System.Collections.Generic;
-using JetBrains.ReSharper.Daemon;
-using JetBrains.Util;
+namespace AgentJohnson.ValueAnalysis
+{
+  using System.Collections.Generic;
+  using JetBrains.ReSharper.Feature.Services.Bulbs;
+  using JetBrains.ReSharper.Intentions;
+  using JetBrains.Util;
 
-namespace AgentJohnson.ValueAnalysis {
   /// <summary>
-  /// 
+  /// Defines the return quick fix class.
   /// </summary>
   [QuickFix]
-  public class ReturnQuickFix : IQuickFix {
+  public class ReturnQuickFix : IQuickFix
+  {
     #region Fields
 
-    readonly ReturnWarning _warning;
+    private readonly ReturnWarning warning;
 
     #endregion
 
@@ -20,8 +23,9 @@ namespace AgentJohnson.ValueAnalysis {
     /// Initializes a new instance of the <see cref="ReturnQuickFix"/> class.
     /// </summary>
     /// <param name="warning">The suggestion.</param>
-    public ReturnQuickFix(ReturnWarning warning) {
-      _warning = warning;
+    public ReturnQuickFix(ReturnWarning warning)
+    {
+      this.warning = warning;
     }
 
     #endregion
@@ -34,7 +38,8 @@ namespace AgentJohnson.ValueAnalysis {
     /// </summary>
     /// <param name="cache"></param>
     /// <returns></returns>
-    public bool IsAvailable(IUserDataHolder cache) {
+    public bool IsAvailable(IUserDataHolder cache)
+    {
       return true;
     }
 
@@ -46,11 +51,14 @@ namespace AgentJohnson.ValueAnalysis {
     /// Gets the items.
     /// </summary>
     /// <value>The items.</value>
-    public IBulbItem[] Items {
-      get {
-        List<IBulbItem> items = new List<IBulbItem>();
-
-        items.Add(new ReturnBulbItem(_warning));
+    public IBulbItem[] Items
+    {
+      get
+      {
+        List<IBulbItem> items = new List<IBulbItem>
+        {
+          new ReturnBulbItem(this.warning)
+        };
 
         return items.ToArray();
       }

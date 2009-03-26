@@ -6,12 +6,6 @@
     </action>
   </insert>
 
-  <insert group-id="Code" position="after" anchor-id="Generate">
-    <action id="SmartGenerate" text="Smart Generate" shortcut="Shift+Enter">
-      <vs-shortcut>Shift+Enter</vs-shortcut>
-    </action>
-  </insert>   
-
   <action id="AgentJohnson.IntroduceStringConstant" text="Introduce String Constant"/>
   <action id="AgentJohnson.InvertReturnValue" text="Invert Return Value"/>
   <action id="AgentJohnson.ImplementICloneable" text="Implement ICloneable"/>

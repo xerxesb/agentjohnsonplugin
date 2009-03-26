@@ -1,44 +1,51 @@
-using System.Xml;
-using JetBrains.Application;
-using JetBrains.ComponentModel;
-using JetBrains.Util;
+namespace AgentJohnson.SmartGenerate
+{
+  using System.Xml;
+  using JetBrains.Application;
+  using JetBrains.ComponentModel;
+  using JetBrains.Util;
 
-namespace AgentJohnson.SmartGenerate {
   /// <summary>
-  /// 
+  /// Defines the smart generate settings class.
   /// </summary>
   [ShellComponentInterface(ProgramConfigurations.VS_ADDIN)]
   [ShellComponentImplementation]
-  public class SmartGenerateSettings : IXmlExternalizableShellComponent {
+  public class SmartGenerateSettings : IXmlExternalizableShellComponent
+  {
     #region Fields
 
-    string _disabledActions;
+    private string _disabledActions;
 
     #endregion
 
     #region Public properties
 
     /// <summary>
-    /// Gets or sets the allow null attribute.
+    /// Gets the instance.
     /// </summary>
-    /// <value>The allow null attribute.</value>
-    [XmlExternalizationUtil.ExternalizableAttribute(DefaultValue = "")]
-    public string DisabledActions {
-      get {
-        return _disabledActions ?? string.Empty;
-      }
-      set {
-        _disabledActions = value;
+    /// <value>The instance.</value>
+    public static SmartGenerateSettings Instance
+    {
+      get
+      {
+        return Shell.Instance.GetComponent<SmartGenerateSettings>();
       }
     }
 
     /// <summary>
-    /// Gets the instance.
+    /// Gets or sets the allow null attribute.
     /// </summary>
-    /// <value>The instance.</value>
-    public static SmartGenerateSettings Instance {
-      get {
-        return Shell.Instance.GetComponent<SmartGenerateSettings>();
+    /// <value>The allow null attribute.</value>
+    [XmlExternalizable("")]
+    public string DisabledActions
+    {
+      get
+      {
+        return this._disabledActions ?? string.Empty;
+      }
+      set
+      {
+        this._disabledActions = value;
       }
     }
 
@@ -49,13 +56,15 @@ namespace AgentJohnson.SmartGenerate {
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
-    public void Dispose() {
+    public void Dispose()
+    {
     }
 
     /// <summary>
     /// Initializes this instance.
     /// </summary>
-    public void Init() {
+    public void Init()
+    {
     }
 
     #endregion
@@ -68,8 +77,10 @@ namespace AgentJohnson.SmartGenerate {
     /// This method must not fail with null or unexpected Xml!!!
     /// </summary>
     /// <param name="element"></param>
-    public void ReadFromXml(XmlElement element) {
-      if(element == null) {
+    public void ReadFromXml(XmlElement element)
+    {
+      if (element == null)
+      {
         return;
       }
 
@@ -81,8 +92,9 @@ namespace AgentJohnson.SmartGenerate {
     /// </summary>
     /// <param name="element">The element.</param>
     /// <returns></returns>
-    public bool WriteToXml(XmlElement element) {
-      return XmlExternalizationUtil.WriteToXml(element, this);
+    public void WriteToXml(XmlElement element)
+    {
+      XmlExternalizationUtil.WriteToXml(element, this);
     }
 
     #endregion
@@ -91,8 +103,10 @@ namespace AgentJohnson.SmartGenerate {
     /// Gets the name of the tag.
     /// </summary>
     /// <value>The name of the tag.</value>
-    public string TagName {
-      get {
+    public string TagName
+    {
+      get
+      {
         return "AgentJohnson.SmartGenerate";
       }
     }
@@ -103,13 +117,14 @@ namespace AgentJohnson.SmartGenerate {
     /// <c>0</c>.
     /// </summary>
     /// <value></value>
-    public XmlExternalizationScope Scope {
-      get {
+    public XmlExternalizationScope Scope
+    {
+      get
+      {
         return XmlExternalizationScope.UserSettings;
       }
     }
 
     #endregion
-
   }
 }

@@ -3,7 +3,8 @@ namespace AgentJohnson.Strings
   using System.Collections.Generic;
   using JetBrains.Application;
   using JetBrains.ProjectModel;
-  using JetBrains.ReSharper.Daemon;
+  using JetBrains.ReSharper.Feature.Services.Bulbs;
+  using JetBrains.ReSharper.Intentions;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -39,8 +40,6 @@ namespace AgentJohnson.Strings
 
     #region Public methods
 
-    #region IBulbItem Members
-
     /// <summary>
     /// Executes the specified solution.
     /// </summary>
@@ -68,10 +67,6 @@ namespace AgentJohnson.Strings
       }
     }
 
-    #endregion
-
-    #region IQuickFix Members
-
     /// <summary>
     /// Check if this action is available at the constructed context.
     /// Actions could store precalculated info in <paramref name="cache"/> to share it between different actions
@@ -82,8 +77,6 @@ namespace AgentJohnson.Strings
     {
       return true;
     }
-
-    #endregion
 
     #endregion
 
@@ -106,7 +99,7 @@ namespace AgentJohnson.Strings
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(this._suggestion.Node.GetProject());
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(this._suggestion.Node.GetPsiModule());
       if (factory == null)
       {
         return;

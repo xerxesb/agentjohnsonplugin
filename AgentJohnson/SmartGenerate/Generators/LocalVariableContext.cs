@@ -5,7 +5,6 @@
 namespace AgentJohnson.SmartGenerate.Generators
 {
   using System.Collections.Generic;
-  using JetBrains.ProjectModel;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.ControlFlow2.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -19,7 +18,7 @@ namespace AgentJohnson.SmartGenerate.Generators
   /// Defines the local variable context class.
   /// </summary>
   [SmartGenerate("Local Variable Context", "Generates code based on the current local variable context.", Priority = 500)]
-  public class LocalVariableContext : SmartGenerateBase
+  public class LocalVariableContext : SmartGenerateHandlerBase
   {
     #region Protected methods
 
@@ -44,11 +43,11 @@ namespace AgentJohnson.SmartGenerate.Generators
 
       if (!isAssigned)
       {
-        AddMenuItem("Assign value to '{0}'", "9BD23D35-AC2A-46E2-AADA-C81D9B53795A", range, name);
+        this.AddAction("Assign value to '{0}'", "9BD23D35-AC2A-46E2-AADA-C81D9B53795A", range, name);
 
         if (HasAccessableConstructor(type))
         {
-          AddMenuItem("Assign new instance to '{0}'", "208A11F8-DEE1-4B8B-838F-17DA883DA7A5", range, name, type.GetPresentableName(element.Language));
+          this.AddAction("Assign new instance to '{0}'", "208A11F8-DEE1-4B8B-838F-17DA883DA7A5", range, name, type.GetPresentableName(element.Language));
         }
 
         return;
@@ -61,19 +60,19 @@ namespace AgentJohnson.SmartGenerate.Generators
 
         if (enumerate != null)
         {
-          AddMenuItem("Generate 'switch' from '{0}'", "EBAF3559-41C5-471D-8457-A20C9566D397", range, name);
+          this.AddAction("Generate 'switch' from '{0}'", "EBAF3559-41C5-471D-8457-A20C9566D397", range, name);
         }
 
         string typeName = type.GetPresentableName(element.Language);
 
-        IModule module = declaredType.Module;
+        IPsiModule module = declaredType.Module;
         if (module != null && typeName != "string")
         {
           IDeclaredType enumerable = TypeFactory.CreateTypeByCLRName("System.Collections.IEnumerable", module);
 
           if (declaredType.IsSubtypeOf(enumerable))
           {
-            AddMenuItem("Iterate '{0}' via 'foreach'", "9CA009C7-468A-4D3E-ACEC-A12F2FAF4B67", range, name);
+            this.AddAction("Iterate '{0}' via 'foreach'", "9CA009C7-468A-4D3E-ACEC-A12F2FAF4B67", range, name);
           }
         }
       }
@@ -81,7 +80,7 @@ namespace AgentJohnson.SmartGenerate.Generators
       {
         if (type is IArrayType)
         {
-          AddMenuItem("Iterate '{0}' via 'foreach'", "9CA009C7-468A-4D3E-ACEC-A12F2FAF4B67", range, name);
+          this.AddAction("Iterate '{0}' via 'foreach'", "9CA009C7-468A-4D3E-ACEC-A12F2FAF4B67", range, name);
         }
       }
 
@@ -114,7 +113,7 @@ namespace AgentJohnson.SmartGenerate.Generators
         return false;
       }
 
-      ResolveResult resolve = declaredType.Resolve();
+      IResolveResult resolve = declaredType.Resolve();
 
       IClass classDeclaration = resolve.DeclaredElement as IClass;
       if (classDeclaration == null)
@@ -195,7 +194,7 @@ namespace AgentJohnson.SmartGenerate.Generators
         return;
       }
 
-      IFunctionDeclaration functionDeclaration = element.GetContainingElement(typeof(IFunctionDeclaration), true) as IFunctionDeclaration;
+      ICSharpFunctionDeclaration functionDeclaration = element.GetContainingElement(typeof(IFunctionDeclaration), true) as ICSharpFunctionDeclaration;
       if (functionDeclaration == null)
       {
         return;
@@ -216,12 +215,12 @@ namespace AgentJohnson.SmartGenerate.Generators
       switch (state)
       {
         case CSharpControlFlowNullReferenceState.UNKNOWN:
-          AddMenuItem("Check if '{0}' is null", "F802DB32-A0B1-4227-BE5C-E7D20670284B", range, name);
+          this.AddAction("Check if '{0}' is null", "F802DB32-A0B1-4227-BE5C-E7D20670284B", range, name);
           break;
         case CSharpControlFlowNullReferenceState.NOT_NULL:
           break;
         case CSharpControlFlowNullReferenceState.NULL:
-          AddMenuItem("Check if '{0}' is null", "F802DB32-A0B1-4227-BE5C-E7D20670284B", range, name);
+          this.AddAction("Check if '{0}' is null", "F802DB32-A0B1-4227-BE5C-E7D20670284B", range, name);
           break;
         case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
           break;

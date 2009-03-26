@@ -5,14 +5,10 @@
 namespace AgentJohnson.Statements
 {
   using System.Collections.Generic;
-  using JetBrains.Application;
-  using JetBrains.ProjectModel;
-  using JetBrains.ReSharper.Daemon;
-  using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Intentions;
+  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
-  using JetBrains.TextControl;
-  using JetBrains.Util;
 
   /// <summary>
   /// Defines the make abstract class.
@@ -25,9 +21,8 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Initializes a new instance of the <see cref="MakeAbstract"/> class.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
-    public MakeAbstract(ISolution solution, ITextControl textControl) : base(solution, textControl)
+    /// <param name="provider">The provider.</param>
+    public MakeAbstract(ICSharpContextActionDataProvider provider) : base(provider)
     {
     }
 
@@ -41,18 +36,36 @@ namespace AgentJohnson.Statements
     /// <param name="element">The element.</param>
     protected override void Execute(IElement element)
     {
-      using (ModificationCookie cookie = this.TextControl.Document.EnsureWritable())
-      {
-        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
-        {
-          return;
-        }
+      IClassDeclaration classDeclaration = element.GetContainingElement<IClassDeclaration>(true);
 
-        using (CommandCookie.Create("Context Action Make abstract"))
+      IMethodDeclaration functionDeclaration = element.GetContainingElement<IMethodDeclaration>(true);
+      if (functionDeclaration != null)
+      {
+        functionDeclaration.SetAbstract(true);
+        functionDeclaration.SetVirtual(false);
+        functionDeclaration.SetBody(null);
+      }
+
+      IPropertyDeclaration propertyDeclaration = element.GetContainingElement<IPropertyDeclaration>(true);
+      if (propertyDeclaration != null)
+      {
+        propertyDeclaration.SetAbstract(true);
+        propertyDeclaration.SetVirtual(false);
+
+        IList<IAccessorDeclaration> accessorDeclarations = propertyDeclaration.AccessorDeclarations;
+
+        foreach (IAccessorDeclaration accessorDeclaration in accessorDeclarations)
         {
-          PsiManager.GetInstance(this.Solution).DoTransaction(delegate { ConvertToAbstract(element); });
+          accessorDeclaration.SetBody(null);
         }
       }
+
+      if (classDeclaration == null)
+      {
+        return;
+      }
+
+      classDeclaration.SetAbstract(true);
     }
 
     /// <summary>
@@ -93,48 +106,6 @@ namespace AgentJohnson.Statements
       }
 
       return false;
-    }
-
-    #endregion
-
-    #region Private methods
-
-    /// <summary>
-    /// Converts to abstract.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    private static void ConvertToAbstract(IElement element)
-    {
-      IClassDeclaration classDeclaration = element.GetContainingElement<IClassDeclaration>(true);
-
-      IFunctionDeclaration functionDeclaration = element.GetContainingElement<IFunctionDeclaration>(true);
-      if (functionDeclaration != null)
-      {
-        functionDeclaration.SetAbstract(true);
-        functionDeclaration.SetVirtual(false);
-        functionDeclaration.SetBody(null);
-      }
-
-      IPropertyDeclaration propertyDeclaration = element.GetContainingElement<IPropertyDeclaration>(true);
-      if (propertyDeclaration != null)
-      {
-        propertyDeclaration.SetAbstract(true);
-        propertyDeclaration.SetVirtual(false);
-
-        IList<IAccessorDeclaration> accessorDeclarations = propertyDeclaration.AccessorDeclarations;
-
-        foreach (IAccessorDeclaration accessorDeclaration in accessorDeclarations)
-        {
-          accessorDeclaration.SetBody(null);
-        }
-      }
-
-      if (classDeclaration == null)
-      {
-        return;
-      }
-
-      classDeclaration.SetAbstract(true);
     }
 
     #endregion

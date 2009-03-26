@@ -13,10 +13,10 @@ namespace AgentJohnson.SmartGenerate {
   /// </summary>
   [ShellComponentImplementation(ProgramConfigurations.VS_ADDIN)]
   [ShellComponentInterface(ProgramConfigurations.ALL)]
-  public class SmartGenerateManager : ITypeLoadingHandler, IShellComponent, IComparer<SmartGenerateInfo> {
+  public class SmartGenerateManager : ITypeLoadingHandler, IShellComponent, IComparer<SmartGenerateHandlerData> {
     #region Fields
 
-    List<SmartGenerateInfo> _handlers = new List<SmartGenerateInfo>();
+    List<SmartGenerateHandlerData> _handlers = new List<SmartGenerateHandlerData>();
     XmlDocument _templates;
 
     #endregion
@@ -41,7 +41,7 @@ namespace AgentJohnson.SmartGenerate {
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
     public void Dispose() {
-      _handlers = new List<SmartGenerateInfo>();
+      _handlers = new List<SmartGenerateHandlerData>();
     }
 
     /// <summary>
@@ -49,12 +49,12 @@ namespace AgentJohnson.SmartGenerate {
     /// </summary>
     /// <returns>The handlers.</returns>
     [NotNull]
-    public IEnumerable<ISmartGenerate> GetHandlers() {
-      List<ISmartGenerate> result = new List<ISmartGenerate>();
+    public IEnumerable<ISmartGenerateHandler> GetHandlers() {
+      List<ISmartGenerateHandler> result = new List<ISmartGenerateHandler>();
 
       List<string> disabledHandlers = new List<string>(SmartGenerateSettings.Instance.DisabledActions.Split('|'));
 
-      foreach(SmartGenerateInfo handler in _handlers) {
+      foreach(SmartGenerateHandlerData handler in _handlers) {
         if(disabledHandlers.Contains(handler.Name)) {
           continue;
         }
@@ -116,12 +116,12 @@ namespace AgentJohnson.SmartGenerate {
 
           ConstructorInfo constructor = type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, new Type[0], null);
 
-          ISmartGenerate handler = constructor != null ? (ISmartGenerate)constructor.Invoke(new object[] {}) : (ISmartGenerate)Activator.CreateInstance(type);
+          ISmartGenerateHandler handler = constructor != null ? (ISmartGenerateHandler)constructor.Invoke(new object[] {}) : (ISmartGenerateHandler)Activator.CreateInstance(type);
           if(handler == null) {
             continue;
           }
 
-          SmartGenerateInfo entry = new SmartGenerateInfo {Priority = smartGenerateAttribute.Priority, Name = smartGenerateAttribute.Name, Description = smartGenerateAttribute.Description, Handler = handler};
+          SmartGenerateHandlerData entry = new SmartGenerateHandlerData {Priority = smartGenerateAttribute.Priority, Name = smartGenerateAttribute.Name, Description = smartGenerateAttribute.Description, Handler = handler};
 
           _handlers.Add(entry);
         }
@@ -150,7 +150,7 @@ namespace AgentJohnson.SmartGenerate {
     /// <returns>
     /// Value Condition Less than zero<paramref name="x"/> is less than <paramref name="y"/>.Zero<paramref name="x"/> equals <paramref name="y"/>.Greater than zero<paramref name="x"/> is greater than <paramref name="y"/>.
     /// </returns>
-    int IComparer<SmartGenerateInfo>.Compare(SmartGenerateInfo x, SmartGenerateInfo y) {
+    int IComparer<SmartGenerateHandlerData>.Compare(SmartGenerateHandlerData x, SmartGenerateHandlerData y) {
       return x.Priority - y.Priority;
     }
 
@@ -174,7 +174,7 @@ namespace AgentJohnson.SmartGenerate {
     /// Gets the handlers.
     /// </summary>
     /// <value>The handlers.</value>
-    internal List<SmartGenerateInfo> Handlers {
+    internal List<SmartGenerateHandlerData> Handlers {
       get {
         return _handlers;
       }

@@ -96,7 +96,7 @@ namespace AgentJohnson.Refactorings
         return false;
       }
 
-      IDeclaredType[] types = MiscUtil.GetAllSuperTypes(classDeclaration.DeclaredElement);
+      IList<IDeclaredType> types = classDeclaration.DeclaredElement.GetSuperTypes();
 
       foreach (IDeclaredType type in types)
       {
@@ -134,7 +134,7 @@ namespace AgentJohnson.Refactorings
 
       foreach (IDeclaredType declaredType in cls.GetSuperTypes())
       {
-        ResolveResult resolve = declaredType.Resolve();
+        IResolveResult resolve = declaredType.Resolve();
 
         IClass superClass = resolve.DeclaredElement as IClass;
         if (superClass == null)
@@ -214,7 +214,8 @@ namespace AgentJohnson.Refactorings
     /// <param name="classDeclaration">The class declaration.</param>
     private static void AddInterface(ISolution solution, IClassDeclaration classDeclaration)
     {
-      IDeclarationsCache cache = PsiManager.GetInstance(solution).GetDeclarationsCache(DeclarationsCacheScope.SolutionScope(solution, true), true);
+      IDeclarationsScope scope = DeclarationsScopeFactory.SolutionScope(solution, true);
+      IDeclarationsCache cache = PsiManager.GetInstance(solution).GetDeclarationsCache(scope, true);
 
       ITypeElement typeElement = cache.GetTypeElementByCLRName("System.ICloneable");
       if (typeElement == null)
@@ -247,7 +248,7 @@ namespace AgentJohnson.Refactorings
     /// <param name="classDeclaration">The class declaration.</param>
     private static void Execute(ISolution solution, IClassDeclaration classDeclaration)
     {
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(classDeclaration.GetProject());
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(classDeclaration.GetPsiModule());
       if (factory == null)
       {
         return;

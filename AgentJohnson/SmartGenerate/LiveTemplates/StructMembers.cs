@@ -1,12 +1,14 @@
-using System.Collections.Generic;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Tree;
+namespace AgentJohnson.SmartGenerate.LiveTemplates
+{
+  using System.Collections.Generic;
+  using JetBrains.ReSharper.Psi.CSharp.Tree;
+  using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.SmartGenerate.LiveTemplates {
   /// <summary>
   /// </summary>
   [LiveTemplate("Struct member", "Generate struct member")]
-  public class StructMembers : ILiveTemplate {
+  public class StructMembers : ILiveTemplate
+  {
     #region Public methods
 
     /// <summary>
@@ -14,22 +16,26 @@ namespace AgentJohnson.SmartGenerate.LiveTemplates {
     /// </summary>
     /// <param name="parameters">The parameters.</param>
     /// <returns>The items.</returns>
-    public IEnumerable<LiveTemplateItem> GetItems(SmartGenerateParameters parameters) {
+    public IEnumerable<LiveTemplateItem> GetItems(SmartGenerateParameters parameters)
+    {
       IElement element = parameters.Element;
 
       IStructDeclaration structDeclaration = element.GetContainingElement(typeof(IStructDeclaration), true) as IStructDeclaration;
-      if(structDeclaration == null) {
+      if (structDeclaration == null)
+      {
         return null;
       }
 
       IElement memberDeclaration = element.GetContainingElement(typeof(IClassMemberDeclaration), true);
-      if(memberDeclaration != null && !(memberDeclaration is IStructDeclaration)) {
+      if (memberDeclaration != null && !(memberDeclaration is IStructDeclaration))
+      {
         return null;
       }
 
       string modifier = ModifierUtil.GetModifier(element, structDeclaration);
 
-      LiveTemplateItem liveTemplateItem = new LiveTemplateItem {
+      LiveTemplateItem liveTemplateItem = new LiveTemplateItem
+      {
         MenuText = "Struct member",
         Description = "Struct member",
         Shortcut = "Struct member"
@@ -37,7 +43,8 @@ namespace AgentJohnson.SmartGenerate.LiveTemplates {
 
       liveTemplateItem.Variables["Modifier"] = modifier;
 
-      return new List<LiveTemplateItem> {
+      return new List<LiveTemplateItem>
+      {
         liveTemplateItem
       };
     }

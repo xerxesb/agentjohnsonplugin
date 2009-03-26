@@ -9,7 +9,7 @@ namespace AgentJohnson.Options {
   /// 
   /// </summary>
   [OptionsPage(NAME, "Smart Generate", "AgentJohnson.Resources.SmartGenerate.gif", ParentId = ImportExportPage.NAME, Sequence = 2)]
-  public partial class SmartGenerateOptionsPage : UserControl, IOptionsPage, IComparer<SmartGenerateInfo> {
+  public partial class SmartGenerateOptionsPage : UserControl, IOptionsPage, IComparer<SmartGenerateHandlerData> {
     #region Constants
 
     public const string NAME = "AgentJohnson.SmartGenerateOptionsPage";
@@ -24,9 +24,9 @@ namespace AgentJohnson.Options {
     public SmartGenerateOptionsPage() {
       InitializeComponent();
 
-      List<SmartGenerateInfo> list = new List<SmartGenerateInfo>();
+      List<SmartGenerateHandlerData> list = new List<SmartGenerateHandlerData>();
 
-      foreach(SmartGenerateInfo handler in SmartGenerateManager.Instance.Handlers) {
+      foreach(SmartGenerateHandlerData handler in SmartGenerateManager.Instance.Handlers) {
         list.Add(handler);
       }
 
@@ -34,7 +34,7 @@ namespace AgentJohnson.Options {
 
       List<string> disabledHandlers = new List<string>(SmartGenerateSettings.Instance.DisabledActions.Split('|'));
 
-      foreach(SmartGenerateInfo handler in list) {
+      foreach(SmartGenerateHandlerData handler in list) {
         bool isDisabled = disabledHandlers.Contains(handler.Name);
 
         Handlers.Items.Add(handler, !isDisabled);
@@ -53,7 +53,7 @@ namespace AgentJohnson.Options {
         return;
       }
 
-      SmartGenerateInfo selected = (SmartGenerateInfo)Handlers.SelectedItem;
+      SmartGenerateHandlerData selected = (SmartGenerateHandlerData)Handlers.SelectedItem;
 
       ActionName.Text = selected.Name;
       ActionDescription.Text = selected.Description;
@@ -78,7 +78,7 @@ namespace AgentJohnson.Options {
           continue;
         }
 
-        SmartGenerateInfo handler = Handlers.Items[n] as SmartGenerateInfo;
+        SmartGenerateHandlerData handler = Handlers.Items[n] as SmartGenerateHandlerData;
         if (handler == null) {
           continue;
         }
@@ -115,7 +115,7 @@ namespace AgentJohnson.Options {
     /// <returns>
     /// Value Condition Less than zero<paramref name="x"/> is less than <paramref name="y"/>.Zero<paramref name="x"/> equals <paramref name="y"/>.Greater than zero<paramref name="x"/> is greater than <paramref name="y"/>.
     /// </returns>
-    int IComparer<SmartGenerateInfo>.Compare(SmartGenerateInfo x, SmartGenerateInfo y) {
+    int IComparer<SmartGenerateHandlerData>.Compare(SmartGenerateHandlerData x, SmartGenerateHandlerData y) {
       return string.Compare(x.Name, y.Name);
     }
 

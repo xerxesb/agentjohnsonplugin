@@ -1,27 +1,26 @@
-using System.Text;
-using JetBrains.Application;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Daemon;
-using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.TextControl;
-using JetBrains.Util;
+namespace AgentJohnson.Statements
+{
+  using System.Text;
+  using JetBrains.ReSharper.Intentions;
+  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Psi.CSharp.Tree;
+  using JetBrains.ReSharper.Psi.Tree;
 
-namespace AgentJohnson.Statements {
   /// <summary>
-  /// 
+  /// Defines the pull parameters class.
   /// </summary>
   [ContextAction(Description = "Pulls the containing methods parameters to this method call.", Name = "Pull parameters", Priority = 1, Group = "C#")]
-  public class PullParameters : ContextActionBase {
+  public class PullParameters : ContextActionBase
+  {
     #region Constructor
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PullParameters"/> class.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
-    public PullParameters(ISolution solution, ITextControl textControl) : base(solution, textControl) {
+    /// <param name="provider">The provider.</param>
+    public PullParameters(ICSharpContextActionDataProvider provider) : base(provider)
+    {
     }
 
     #endregion
@@ -32,25 +31,29 @@ namespace AgentJohnson.Statements {
     /// Executes this instance.
     /// </summary>
     /// <param name="element">The element.</param>
-    protected override void Execute(IElement element) {
-      using(ModificationCookie cookie = TextControl.Document.EnsureWritable()) {
-        if(cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS) {
-          return;
-        }
-
-        using(CommandCookie.Create("Context Action Pull Parameters")) {
-          using(WriteLockCookie.Create()) {
-            Pull(element);
-          }
-        }
+    protected override void Execute(IElement element)
+    {
+      if (IsExpressionStatement(element))
+      {
+        this.HandleExpressionStatement(element);
+        return;
       }
+
+      if (IsReferenceExpression(element))
+      {
+        this.HandleReferenceExpression(element);
+        return;
+      }
+
+      // HandleEmptyParentheses(element);
     }
 
     /// <summary>
     /// Gets the text.
     /// </summary>
     /// <returns>The text.</returns>
-    protected override string GetText() {
+    protected override string GetText()
+    {
       return "Pull parameters";
     }
 
@@ -61,12 +64,15 @@ namespace AgentJohnson.Statements {
     /// <returns>
     /// 	<c>true</c> if this instance is available; otherwise, <c>false</c>.
     /// </returns>
-    protected override bool IsAvailable(IElement element) {
-      if(IsExpressionStatement(element)) {
+    protected override bool IsAvailable(IElement element)
+    {
+      if (IsExpressionStatement(element))
+      {
         return true;
       }
 
-      if(IsReferenceExpression(element)) {
+      if (IsReferenceExpression(element))
+      {
         return true;
       }
 
@@ -84,26 +90,32 @@ namespace AgentJohnson.Statements {
     /// </summary>
     /// <param name="element">The element.</param>
     /// <returns></returns>
-    static string GetText(IElement element) {
+    private static string GetText(IElement element)
+    {
       ITypeMemberDeclaration typeMemberDeclaration = element.GetContainingElement<ITypeMemberDeclaration>(true);
-      if(typeMemberDeclaration == null) {
+      if (typeMemberDeclaration == null)
+      {
         return null;
       }
 
-      IParametersOwner parametersOwner = typeMemberDeclaration as IParametersOwner;
-      if(parametersOwner == null) {
+      IParametersOwner parametersOwner = typeMemberDeclaration.DeclaredElement as IParametersOwner;
+      if (parametersOwner == null)
+      {
         return null;
       }
 
-      if(parametersOwner.Parameters.Count == 0) {
+      if (parametersOwner.Parameters.Count == 0)
+      {
         return null;
       }
 
       bool first = true;
       StringBuilder parametersBuilder = new StringBuilder();
 
-      foreach(IParameter parameter in parametersOwner.Parameters) {
-        if(!first) {
+      foreach (IParameter parameter in parametersOwner.Parameters)
+      {
+        if (!first)
+        {
           parametersBuilder.Append(", ");
         }
         first = false;
@@ -124,24 +136,6 @@ namespace AgentJohnson.Statements {
       TextControl.Document.InsertText(TextControl.CaretModel.Offset, text);
     }
     */
-
-    /// <summary>
-    /// Handles the end of line.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    void HandleExpressionStatement(IElement element) {
-      string text = GetText(element);
-      TextControl.Document.InsertText(TextControl.CaretModel.Offset, "(" + text + ");");
-    }
-
-    /// <summary>
-    /// Handles the reference expression.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    void HandleReferenceExpression(IElement element) {
-      string text = GetText(element);
-      TextControl.Document.InsertText(TextControl.CaretModel.Offset, "(" + text + ")");
-    }
 
     /*
     /// <summary>
@@ -178,27 +172,31 @@ namespace AgentJohnson.Statements {
       return true;
     }
     */
-      
+
     /// <summary>
     /// Handles the end of line.
     /// </summary>
     /// <param name="element">The element.</param>
     /// <returns></returns>
-    static bool IsExpressionStatement(IElement element) {
+    private static bool IsExpressionStatement(IElement element)
+    {
       ITreeNode treeNode = element.ToTreeNode();
 
-      if(!(treeNode.Parent is IChameleonNode)) {
+      if (!(treeNode.Parent is IChameleonNode))
+      {
         return false;
       }
 
       IExpressionStatement expressionStatement = treeNode.PrevSibling as IExpressionStatement;
-      if (expressionStatement == null) {
+      if (expressionStatement == null)
+      {
         return false;
       }
 
       string text = expressionStatement.GetText();
 
-      if (text.EndsWith(";")) {
+      if (text.EndsWith(";"))
+      {
         return false;
       }
 
@@ -212,10 +210,12 @@ namespace AgentJohnson.Statements {
     /// <returns>
     /// 	<c>true</c> if [is reference expression] [the specified element]; otherwise, <c>false</c>.
     /// </returns>
-    static bool IsReferenceExpression(IElement element) {
+    private static bool IsReferenceExpression(IElement element)
+    {
       ITreeNode treeNode = element.ToTreeNode();
 
-      if(treeNode.Parent is IExpressionStatement && treeNode.PrevSibling is IReferenceExpression) {
+      if (treeNode.Parent is IExpressionStatement && treeNode.PrevSibling is IReferenceExpression)
+      {
         return true;
       }
 
@@ -223,21 +223,23 @@ namespace AgentJohnson.Statements {
     }
 
     /// <summary>
-    /// Reverses the specified element.
+    /// Handles the end of line.
     /// </summary>
     /// <param name="element">The element.</param>
-    void Pull(IElement element) {
-      if(IsExpressionStatement(element)) {
-        HandleExpressionStatement(element);
-        return;
-      }
+    private void HandleExpressionStatement(IElement element)
+    {
+      string text = GetText(element);
+      this.TextControl.Document.InsertText(this.TextControl.CaretModel.Offset, "(" + text + ");");
+    }
 
-      if(IsReferenceExpression(element)) {
-        HandleReferenceExpression(element);
-        return;
-      }
-
-      // HandleEmptyParentheses(element);
+    /// <summary>
+    /// Handles the reference expression.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    private void HandleReferenceExpression(IElement element)
+    {
+      string text = GetText(element);
+      this.TextControl.Document.InsertText(this.TextControl.CaretModel.Offset, "(" + text + ")");
     }
 
     #endregion

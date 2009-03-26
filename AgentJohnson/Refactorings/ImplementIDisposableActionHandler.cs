@@ -4,6 +4,7 @@
 
 namespace AgentJohnson.Refactorings
 {
+  using System.Collections.Generic;
   using JetBrains.ActionManagement;
   using JetBrains.Application;
   using JetBrains.ProjectModel;
@@ -12,6 +13,7 @@ namespace AgentJohnson.Refactorings
   using JetBrains.ReSharper.Psi.Caches;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
+  using JetBrains.ReSharper.Psi.Services;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.ReSharper.Psi.Util;
   using JetBrains.TextControl;
@@ -93,7 +95,7 @@ namespace AgentJohnson.Refactorings
         return false;
       }
 
-      IDeclaredType[] types = MiscUtil.GetAllSuperTypes(classDeclaration.DeclaredElement);
+      IList<IDeclaredType> types = classDeclaration.DeclaredElement.GetSuperTypes();
 
       foreach (IDeclaredType type in types)
       {
@@ -193,7 +195,8 @@ namespace AgentJohnson.Refactorings
     /// <param name="classDeclaration">The class declaration.</param>
     private static void AddInterface(ISolution solution, IClassDeclaration classDeclaration)
     {
-      IDeclarationsCache cache = PsiManager.GetInstance(solution).GetDeclarationsCache(DeclarationsCacheScope.SolutionScope(solution, true), true);
+      IDeclarationsScope scope = DeclarationsScopeFactory.SolutionScope(solution, true);
+      IDeclarationsCache cache = PsiManager.GetInstance(solution).GetDeclarationsCache(scope, true);
 
       ITypeElement typeElement = cache.GetTypeElementByCLRName("System.IDisposable");
       if (typeElement == null)
@@ -213,7 +216,7 @@ namespace AgentJohnson.Refactorings
     /// <param name="classDeclaration">The class declaration.</param>
     private static void Execute(ISolution solution, IClassDeclaration classDeclaration)
     {
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(classDeclaration.GetProject());
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(classDeclaration.GetPsiModule());
       if (factory == null)
       {
         return;

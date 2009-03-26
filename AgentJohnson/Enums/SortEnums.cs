@@ -9,34 +9,22 @@ namespace AgentJohnson.Enums
   using System.Globalization;
   using System.Text;
   using System.Text.RegularExpressions;
-  using System.Windows.Forms;
   using JetBrains.Application;
   using JetBrains.DocumentModel;
-  using JetBrains.ProjectModel;
-  using JetBrains.ReSharper.Daemon;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
+  using JetBrains.ReSharper.Intentions;
+  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
-  using JetBrains.TextControl;
+  using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.Util;
 
   /// <summary>
   /// Represents the Context Action.
   /// </summary>
   [ContextAction(Description = "Formats the current 'enum', sorts it by value.", Name = "Format 'enum'", Priority = -1, Group = "C#")]
-  public class SortEnumContextAction : OneItemContextActionBase
+  public class SortEnumContextAction : ContextActionBase
   {
     #region Fields
-
-    /// <summary>
-    /// The solution.
-    /// </summary>
-    private readonly ISolution solution;
-
-    /// <summary>
-    /// The text control.
-    /// </summary>
-    private readonly ITextControl textControl;
 
     /// <summary>
     /// Regular expression.
@@ -50,28 +38,9 @@ namespace AgentJohnson.Enums
     /// <summary>
     /// Initializes a new instance of the <see cref="SortEnumContextAction"/> class.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
-    public SortEnumContextAction(ISolution solution, ITextControl textControl) : base(solution, textControl)
+    /// <param name="provider">The provider.</param>
+    public SortEnumContextAction(ICSharpContextActionDataProvider provider) : base(provider)
     {
-      this.solution = solution;
-      this.textControl = textControl;
-    }
-
-    #endregion
-
-    #region Public properties
-
-    /// <summary>
-    /// Gets the text.
-    /// </summary>
-    /// <value>The context action text.</value>
-    public override string Text
-    {
-      get
-      {
-        return string.Format("Format 'enum'");
-      }
     }
 
     #endregion
@@ -81,7 +50,7 @@ namespace AgentJohnson.Enums
     /// <summary>
     /// Executes the internal.
     /// </summary>
-    protected override void ExecuteInternal()
+    protected override void Execute(IElement element)
     {
       IEnumDeclaration enumerate = this.GetSelectedElement<IEnumDeclaration>(true);
       if (enumerate == null || enumerate.DeclaredElement == null)
@@ -89,7 +58,7 @@ namespace AgentJohnson.Enums
         return;
       }
 
-      using (ModificationCookie cookie = this.textControl.Document.EnsureWritable())
+      using (ModificationCookie cookie = this.Provider.TextControl.Document.EnsureWritable())
       {
         if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
         {
@@ -103,9 +72,18 @@ namespace AgentJohnson.Enums
       }
 
       // This is really hacky
-      PsiManager.GetInstance(this.solution).CommitTransaction();
-      PsiManager.GetInstance(this.solution).CommitAllDocuments();
-      PsiManager.GetInstance(this.solution).StartTransaction();
+      PsiManager.GetInstance(this.Provider.Solution).CommitTransaction();
+      PsiManager.GetInstance(this.Provider.Solution).CommitAllDocuments();
+      PsiManager.GetInstance(this.Provider.Solution).StartTransaction();
+    }
+
+    /// <summary>
+    /// Gets the text.
+    /// </summary>
+    /// <value>The context action text.</value>
+    protected override string GetText()
+    {
+      return string.Format("Format 'enum'");
     }
 
     /// <summary>
@@ -114,15 +92,10 @@ namespace AgentJohnson.Enums
     /// Will not be called if <c>PsiManager</c>, ProjectFile of Solution == null
     /// </summary>
     /// <returns><c>true</c>, if the context action is available.</returns>
-    protected override bool IsAvailableInternal()
+    protected override bool IsAvailable(IElement element)
     {
       IEnumDeclaration enumerate = this.GetSelectedElement<IEnumDeclaration>(true);
-      if (enumerate == null)
-      {
-        return false;
-      }
-
-      return true;
+      return enumerate != null;
     }
 
     #endregion
@@ -191,7 +164,7 @@ namespace AgentJohnson.Enums
         }
         else
         {
-          MessageBox.Show("Unidentifed number style (" + match.Groups[4].Value + ").");
+          System.Windows.Forms.MessageBox.Show("Unidentifed number style (" + match.Groups[4].Value + ").");
           continue;
         }
 
@@ -219,7 +192,7 @@ namespace AgentJohnson.Enums
       }
 
       TextRange textrange = enumerate.GetDocumentRange().TextRange;
-      IDocument document = this.textControl.Document;
+      IDocument document = this.Provider.TextControl.Document;
 
       document.ReplaceText(textrange, code.ToString());
     }

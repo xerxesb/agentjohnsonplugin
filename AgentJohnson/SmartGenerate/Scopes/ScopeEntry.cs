@@ -3,6 +3,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 
 namespace AgentJohnson.SmartGenerate.Scopes {
+
   /// <summary>
   /// Defines the scope entry class.
   /// </summary>

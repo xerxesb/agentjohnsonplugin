@@ -4,10 +4,11 @@ using System.Windows.Forms;
 using AgentJohnson.ValueAnalysis;
 using EnvDTE;
 using JetBrains.UI.Options;
-using JetBrains.VSIntegration.Shell;
 
 namespace AgentJohnson.Options
 {
+  using JetBrains.VSIntegration.Application;
+
   /// <summary>
   /// 
   /// </summary>
@@ -19,7 +20,7 @@ namespace AgentJohnson.Options
 
     /// <summary>
     /// </summary>
-    public const string NAME = "AgentJohnson.ValueAnalysisAnnotationsPage";
+    private const string NAME = "AgentJohnson.ValueAnalysisAnnotationsPage";
 
     private static ValueAnalysisOptionsPage _instance;
 
@@ -132,14 +133,6 @@ namespace AgentJohnson.Options
 
       AllowNullAttribute.Text = ValueAnalysisSettings.Instance.AllowNullAttribute;
       ExecuteGhostDoc.Checked = ValueAnalysisSettings.Instance.ExecuteGhostDoc;
-    }
-
-    /// <summary>
-    /// Invoked when this page is selected/unselected in the tree
-    /// </summary>
-    /// <param name="activated">true, when page is selected; false, when page is unselected</param>
-    public void OnActivated(bool activated)
-    {
     }
 
     #endregion

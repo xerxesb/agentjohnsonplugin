@@ -4,7 +4,7 @@ namespace AgentJohnson.SmartGenerate {
   /// <summary>
   /// 
   /// </summary>
-  public interface ISmartGenerate {
+  public interface ISmartGenerateHandler {
     #region Public methods
 
     /// <summary>
@@ -13,7 +13,7 @@ namespace AgentJohnson.SmartGenerate {
     /// <param name="parameters">The parameters.</param>
     /// <returns>The menu items.</returns>
     /// <value>The items.</value>
-    IEnumerable<ISmartGenerateMenuItem> GetMenuItems(SmartGenerateParameters parameters);
+    IEnumerable<ISmartGenerateAction> GetMenuItems(SmartGenerateParameters parameters);
 
     #endregion
   }

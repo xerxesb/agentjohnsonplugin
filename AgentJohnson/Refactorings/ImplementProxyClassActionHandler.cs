@@ -15,6 +15,7 @@ namespace AgentJohnson.Refactorings
   using JetBrains.ReSharper.Psi.CodeStyle;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
+  using JetBrains.ReSharper.Psi.Naming.Settings;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.TextControl;
   using JetBrains.Util;
@@ -288,7 +289,8 @@ namespace AgentJohnson.Refactorings
       string className = classDeclaration.DeclaredName;
       string variableName = GetVariableName(classDeclaration);
 
-      string prefix = CodeStyleSettingsManager.Instance.CodeStyleSettings.GetNamingSettings().FieldNameSettings.Prefix;
+      NamingPolicy namingPolicy = CodeStyleSettingsManager.Instance.CodeStyleSettings.GetNamingSettings2().PredefinedNamingRules[NamedElementKinds.NotPublicInstanceFields];
+      string prefix = namingPolicy.NamingRule.Prefix;
 
       string proxyProperty = prefix + variableName;
 
@@ -327,7 +329,7 @@ namespace AgentJohnson.Refactorings
     /// <param name="classDeclaration">The class declaration.</param>
     private static void Execute(IClassDeclaration classDeclaration)
     {
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(classDeclaration.GetProject());
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(classDeclaration.GetPsiModule());
       if (factory == null)
       {
         return;

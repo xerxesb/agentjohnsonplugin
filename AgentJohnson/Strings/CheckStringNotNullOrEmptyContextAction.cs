@@ -7,23 +7,21 @@ namespace AgentJohnson.Strings
   using JetBrains.Annotations;
   using JetBrains.Application.Progress;
   using JetBrains.DocumentModel;
-  using JetBrains.ProjectModel;
-  using JetBrains.ReSharper.Daemon;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
+  using JetBrains.ReSharper.Intentions;
+  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CodeStyle;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Resolve;
   using JetBrains.ReSharper.Psi.Tree;
-  using JetBrains.TextControl;
   using JetBrains.Util;
 
   /// <summary>
   /// Represents the Context Action.
   /// </summary>
   [ContextAction(Description = "Adds an 'if' statement after the current statement that checks if the string variable is null or empty.", Name = "Check if string is null or empty", Priority = -1, Group = "C#")]
-  public class CheckStringNotNullOrEmptyContextAction : OneItemContextActionBase
+  public class CheckStringNotNullOrEmptyContextAction : ContextActionBase
   {
     #region Fields
 
@@ -39,26 +37,9 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Initializes a new instance of the <see cref="CheckStringNotNullOrEmptyContextAction"/> class.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
-    public CheckStringNotNullOrEmptyContextAction(ISolution solution, ITextControl textControl) : base(solution, textControl)
+    /// <param name="provider">The provider.</param>
+    public CheckStringNotNullOrEmptyContextAction(ICSharpContextActionDataProvider provider) : base(provider)
     {
-    }
-
-    #endregion
-
-    #region Public properties
-
-    /// <summary>
-    /// Gets the text.
-    /// </summary>
-    /// <value>The text that is shown in the context menu.</value>
-    public override string Text
-    {
-      get
-      {
-        return string.Format("Check if '{0}' is null or empty", this.name ?? "[unknown]");
-      }
     }
 
     #endregion
@@ -68,9 +49,9 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Executes the internal.
     /// </summary>
-    protected override void ExecuteInternal()
+    protected override void Execute(IElement element)
     {
-      if (!this.IsAvailableInternal())
+      if (!this.IsAvailable(element))
       {
         return;
       }
@@ -91,12 +72,21 @@ namespace AgentJohnson.Strings
     }
 
     /// <summary>
+    /// Gets the text.
+    /// </summary>
+    /// <value>The text that is shown in the context menu.</value>
+    protected override string GetText()
+    {
+      return string.Format("Check if '{0}' is null or empty", this.name ?? "[unknown]");
+    }
+
+    /// <summary>
     /// Called to check if ContextAction is available.
     /// ReadLock is taken
     /// Will not be called if <c>PsiManager</c>, ProjectFile of Solution == null
     /// </summary>
     /// <returns>Determines if the context action is available.</returns>
-    protected override bool IsAvailableInternal()
+    protected override bool IsAvailable(IElement element)
     {
       this.name = null;
 
@@ -182,7 +172,7 @@ namespace AgentJohnson.Strings
         range = new TextRange(declNode.NameIdentifier.GetTreeStartOffset(), initial.GetTreeStartOffset());
       }
 
-      return range.IsValid && range.Contains(this.Provider.CaretOffset);
+      return range.IsValid() && range.Contains(this.Provider.CaretOffset);
     }
 
     #endregion
@@ -273,7 +263,7 @@ namespace AgentJohnson.Strings
         return;
       }
 
-      IFunctionDeclaration functionDeclaration = anchor.GetContainingTypeMemberDeclaration() as IFunctionDeclaration;
+      IMethodDeclaration functionDeclaration = anchor.GetContainingTypeMemberDeclaration() as IMethodDeclaration;
       if (functionDeclaration == null)
       {
         return;
@@ -285,7 +275,7 @@ namespace AgentJohnson.Strings
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetProject());
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
 
       ICSharpElement csharpElement = element as ICSharpElement;
       if (csharpElement == null)
@@ -301,7 +291,7 @@ namespace AgentJohnson.Strings
 
       DocumentRange range = result.GetDocumentRange();
       IPsiRangeMarker marker = result.GetManager().CreatePsiRangeMarker(range);
-      codeFormatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.INSTANCE);
+      codeFormatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
     }
 
     /// <summary>

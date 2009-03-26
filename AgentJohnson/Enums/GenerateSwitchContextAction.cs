@@ -1,53 +1,31 @@
-using System.Text;
-using JetBrains.Application.Progress;
-using JetBrains.DocumentModel;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Daemon;
-using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
-using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.CodeStyle;
-using JetBrains.ReSharper.Psi.CSharp;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Util;
-using JetBrains.TextControl;
+namespace AgentJohnson.Enums
+{
+  using System.Text;
+  using JetBrains.Application.Progress;
+  using JetBrains.DocumentModel;
+  using JetBrains.ReSharper.Intentions;
+  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Psi.CodeStyle;
+  using JetBrains.ReSharper.Psi.CSharp;
+  using JetBrains.ReSharper.Psi.CSharp.Tree;
+  using JetBrains.ReSharper.Psi.Tree;
+  using JetBrains.ReSharper.Psi.Util;
 
-namespace AgentJohnson.Enums {
   /// <summary>
   /// Represents the Context Action.
   /// </summary>
   [ContextAction(Description = "Generates a 'switch' statement based on the current 'enum' expression.", Name = "Generate 'switch' statement", Priority = -1, Group = "C#")]
-  public class GenerateSwitchContextAction : OneItemContextActionBase {
-    #region Fields
-
-    readonly ISolution _solution;
-    readonly ITextControl _textControl;
-
-    #endregion
-
+  public class GenerateSwitchContextAction : ContextActionBase
+  {
     #region Constructor
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GenerateSwitchContextAction"/> class.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
-    public GenerateSwitchContextAction(ISolution solution, ITextControl textControl) : base(solution, textControl) {
-      _solution = solution;
-      _textControl = textControl;
-    }
-
-    #endregion
-
-    #region Public properties
-
-    /// <summary>
-    /// Gets the text.
-    /// </summary>
-    /// <value>The text.</value>
-    public override string Text {
-      get {
-        return string.Format("Generate 'switch' statement");
-      }
+    /// <param name="provider">The provider.</param>
+    public GenerateSwitchContextAction(ICSharpContextActionDataProvider provider) : base(provider)
+    {
     }
 
     #endregion
@@ -57,34 +35,41 @@ namespace AgentJohnson.Enums {
     /// <summary>
     /// Executes the internal.
     /// </summary>
-    protected override void ExecuteInternal() {
-      IExpressionStatement statement = GetSelectedElement<IExpressionStatement>(true);
-      if(statement == null) {
+    protected override void Execute(IElement element)
+    {
+      IExpressionStatement statement = this.GetSelectedElement<IExpressionStatement>(true);
+      if (statement == null)
+      {
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(statement.GetProject());
-      if(factory == null) {
+      CSharpElementFactory factory = CSharpElementFactory.GetInstance(statement.GetPsiModule());
+      if (factory == null)
+      {
         return;
       }
 
       ICSharpExpression expression = statement.Expression;
-      if((expression == null) || !(expression.ToTreeNode() is IUnaryExpressionNode)) {
+      if ((expression == null) || !(expression.ToTreeNode() is IUnaryExpressionNode))
+      {
         return;
       }
 
       IType type = expression.Type();
-      if(!type.IsResolved) {
+      if (!type.IsResolved)
+      {
         return;
       }
 
       IDeclaredType declaredType = type as IDeclaredType;
-      if(declaredType == null) {
+      if (declaredType == null)
+      {
         return;
       }
 
       IEnum enumerate = declaredType.GetTypeElement() as IEnum;
-      if(enumerate == null) {
+      if (enumerate == null)
+      {
         return;
       }
 
@@ -96,7 +81,8 @@ namespace AgentJohnson.Enums {
 
       code.Append(") {");
 
-      foreach(IField field in enumerate.EnumMembers) {
+      foreach (IField field in enumerate.EnumMembers)
+      {
         code.Append("case ");
         code.Append(typeName);
         code.Append('.');
@@ -110,25 +96,37 @@ namespace AgentJohnson.Enums {
       code.Append("\r\n}");
 
       IStatement result = factory.CreateStatement(code.ToString());
-      if(result == null) {
+      if (result == null)
+      {
         return;
       }
 
       result = statement.ReplaceBy(result);
 
       LanguageService languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
-      if(languageService == null) {
+      if (languageService == null)
+      {
         return;
       }
 
       CodeFormatter formatter = languageService.CodeFormatter;
-      if(formatter == null) {
+      if (formatter == null)
+      {
         return;
       }
 
       DocumentRange range = result.GetDocumentRange();
       IPsiRangeMarker marker = result.GetManager().CreatePsiRangeMarker(range);
-      formatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.INSTANCE);
+      formatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
+    }
+
+    /// <summary>
+    /// Gets the text.
+    /// </summary>
+    /// <value>The text.</value>
+    protected override string GetText()
+    {
+      return string.Format("Generate 'switch' statement");
     }
 
     /// <summary>
@@ -137,26 +135,29 @@ namespace AgentJohnson.Enums {
     /// Will not be called if <c>PsiManager</c>, ProjectFile of Solution == null
     /// </summary>
     /// <returns></returns>
-    protected override bool IsAvailableInternal() {
-      IExpressionStatement statement = GetSelectedElement<IExpressionStatement>(true);
-      if(statement == null) {
+    protected override bool IsAvailable(IElement element)
+    {
+      IExpressionStatement statement = this.GetSelectedElement<IExpressionStatement>(true);
+      if (statement == null)
+      {
         return false;
       }
-      
+
       ICSharpExpression expression = statement.Expression;
-      if((expression == null) || !(expression.ToTreeNode() is IUnaryExpressionNode)) {
+      if ((expression == null) || !(expression.ToTreeNode() is IUnaryExpressionNode))
+      {
         return false;
       }
 
       IType type = expression.Type();
-      if(!type.IsResolved) {
+      if (!type.IsResolved)
+      {
         return false;
       }
 
-      return MiscUtil.IsEnumType(type);
+      return TypesUtil.IsEnumType(type);
     }
 
     #endregion
-
   }
 }
