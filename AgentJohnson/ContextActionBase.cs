@@ -60,6 +60,7 @@ namespace AgentJohnson
       {
         return this.startTransaction;
       }
+
       set
       {
         this.startTransaction = value;
@@ -114,7 +115,7 @@ namespace AgentJohnson
     /// </summary>
     /// <param name="element">The element.</param>
     /// <returns>
-    /// 	<c>true</c> if this instance is available; otherwise, <c>false</c>.
+    /// <c>true</c> if this instance is available; otherwise, <c>false</c>.
     /// </returns>
     protected abstract bool IsAvailable(IElement element);
 

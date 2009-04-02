@@ -77,7 +77,7 @@ namespace AgentJohnson.Strings
     /// <value>The text that is shown in the context menu.</value>
     protected override string GetText()
     {
-      return string.Format("Check if '{0}' is null or empty", this.name ?? "[unknown]");
+      return string.Format("Check if '{0}' is null or empty  [Agent Johnson]", this.name ?? "[unknown]");
     }
 
     /// <summary>

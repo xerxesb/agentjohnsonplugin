@@ -45,7 +45,7 @@ namespace AgentJohnson.ValueAnalysis
         attribute = attribute.Substring(n + 1);
       }
 
-      return string.Format("Annotate with '{0}'", attribute);
+      return string.Format("Annotate with '{0}' [Agent Johnson]", attribute);
     }
 
     #endregion

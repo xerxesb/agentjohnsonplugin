@@ -71,7 +71,7 @@ namespace AgentJohnson.ValueAnalysis
     /// <value>The text.</value>
     protected override string GetText()
     {
-      return string.Format("Check if '{0}' is null", this._name ?? "[unknown]");
+      return string.Format("Check if '{0}' is null [Agent Johnson]", this._name ?? "[unknown]");
     }
 
     /// <summary>

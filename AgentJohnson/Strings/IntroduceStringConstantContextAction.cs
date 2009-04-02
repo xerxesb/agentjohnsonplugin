@@ -42,7 +42,7 @@ namespace AgentJohnson.Strings
     /// <returns>The text.</returns>
     protected override string GetText()
     {
-      return "Introduce String Constant";
+      return "Introduce String Constant [Agent Johnson]";
     }
 
     /// <summary>

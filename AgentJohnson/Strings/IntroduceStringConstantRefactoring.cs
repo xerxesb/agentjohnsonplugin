@@ -1,10 +1,14 @@
+// <copyright file="IntroduceStringConstantRefactoring.cs" company="Sitecore">
+//   Copyright (c) Sitecore. All rights reserved.
+// </copyright>
+
 namespace AgentJohnson.Strings
 {
   using System;
   using System.Collections.Generic;
-  using System.Diagnostics;
   using System.Text;
   using System.Text.RegularExpressions;
+
   using JetBrains.Application;
   using JetBrains.Application.Progress;
   using JetBrains.CommonControls;
@@ -29,30 +33,35 @@ namespace AgentJohnson.Strings
   /// </summary>
   public class IntroduceStringConstantRefactoring
   {
-    #region Fields
+    /// <summary>
+    /// Remove tags regular expression.
+    /// </summary>
+    private static readonly Regex removeTagsRegex = new Regex("<[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-    private static readonly Regex _removeTagsRegex = new Regex("<[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-    private readonly ISolution _solution;
-    private readonly ITextControl _textControl;
+    /// <summary>
+    /// The current solution.
+    /// </summary>
+    private readonly ISolution solution;
 
-    #endregion
-
-    #region Constructor
+    /// <summary>
+    /// The text control.
+    /// </summary>
+    private readonly ITextControl textControl;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="IntroduceStringConstantRefactoring"/> class.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
+    /// <param name="solution">
+    /// The solution.
+    /// </param>
+    /// <param name="textControl">
+    /// The text control.
+    /// </param>
     public IntroduceStringConstantRefactoring(ISolution solution, ITextControl textControl)
     {
-      this._solution = solution;
-      this._textControl = textControl;
+      this.solution = solution;
+      this.textControl = textControl;
     }
-
-    #endregion
-
-    #region Private properties
 
     /// <summary>
     /// Gets the solution.
@@ -62,7 +71,7 @@ namespace AgentJohnson.Strings
     {
       get
       {
-        return this._solution;
+        return this.solution;
       }
     }
 
@@ -74,20 +83,18 @@ namespace AgentJohnson.Strings
     {
       get
       {
-        return this._textControl;
+        return this.textControl;
       }
     }
-
-    #endregion
-
-    #region Public methods
 
     /// <summary>
     /// Determines whether the specified solution is available.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if the specified solution is available; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified solution is available; otherwise, <c>false</c>.
     /// </returns>
     public static bool IsAvailable(IElement element)
     {
@@ -100,7 +107,6 @@ namespace AgentJohnson.Strings
       }
 
       TokenNodeType type = tokenNode.GetTokenType();
-
       if (!type.IsStringLiteral)
       {
         return false;
@@ -127,7 +133,6 @@ namespace AgentJohnson.Strings
     public void Execute()
     {
       List<string> classNames = IntroduceStringConstantSettings.Instance.ClassNames;
-
       if (classNames.Count == 0)
       {
         this.IntroduceLocalStringConstant();
@@ -137,16 +142,15 @@ namespace AgentJohnson.Strings
       JetPopupMenu menu = new JetPopupMenu();
 
       List<SimpleMenuItem> classes = new List<SimpleMenuItem>(classNames.Count + 1);
-
       foreach (string className in classNames)
       {
         SimpleMenuItem item = new SimpleMenuItem
-        {
-          Text = className,
-          Style = MenuItemStyle.Enabled
-        };
+                                {
+                                    Text = className, 
+                                    Style = MenuItemStyle.Enabled
+                                };
 
-        item.Clicked += delegate { this.menu_ItemClicked(item.Text); };
+        item.Clicked += delegate { this.MenuItemClicked(item.Text); };
 
         classes.Add(item);
       }
@@ -155,12 +159,12 @@ namespace AgentJohnson.Strings
       if (classDeclaration != null)
       {
         SimpleMenuItem item = new SimpleMenuItem
-        {
-          Text = ("<Local>" + GetQualifiedClassDeclarationName(classDeclaration)),
-          Style = MenuItemStyle.Enabled
-        };
+                                {
+                                    Text = "<Local>" + GetQualifiedClassDeclarationName(classDeclaration),
+                                    Style = MenuItemStyle.Enabled
+                                };
 
-        item.Clicked += delegate { this.menu_ItemClicked(item.Text); };
+        item.Clicked += delegate { this.MenuItemClicked(item.Text); };
 
         classes.Add(item);
       }
@@ -172,16 +176,12 @@ namespace AgentJohnson.Strings
       menu.Show();
     }
 
-    #endregion
-
-    #region Private methods
-
     /// <summary>
     /// Clips the specified text.
     /// </summary>
-    /// <param name="text">The text.</param>
+    /// <param name="text">The text to clip.</param>
     /// <param name="length">The length.</param>
-    /// <returns>The clip.</returns>
+    /// <returns>The clipped text.</returns>
     private static string Clip(string text, int length)
     {
       if (text.Length <= length)
@@ -190,7 +190,6 @@ namespace AgentJohnson.Strings
       }
 
       int n = length;
-
       while (n >= 0 && char.IsLower(text[n]))
       {
         n--;
@@ -215,37 +214,6 @@ namespace AgentJohnson.Strings
     }
 
     /// <summary>
-    /// Converts to pascal case.
-    /// </summary>
-    /// <param name="identifier">The identifier.</param>
-    /// <returns>The to pascal case.</returns>
-    private static string ConvertToPascalCase(string identifier)
-    {
-      StringBuilder s = new StringBuilder(identifier);
-
-      int first = -1;
-
-      for (int i = s.Length - 2; i >= 0; i--)
-      {
-        if (!char.IsLetterOrDigit(s[i]))
-        {
-          s[i + 1] = Char.ToUpper(s[i + 1]);
-        }
-        else
-        {
-          first = i;
-        }
-      }
-
-      if (first >= 0)
-      {
-        s[first] = Char.ToUpper(s[first]);
-      }
-
-      return s.ToString();
-    }
-
-    /// <summary>
     /// Gets the anchor.
     /// </summary>
     /// <param name="classDeclaration">The class declaration.</param>
@@ -253,9 +221,6 @@ namespace AgentJohnson.Strings
     /// <returns>The anchor.</returns>
     private static IClassMemberDeclaration GetClassMemberAnchor(IClassDeclaration classDeclaration, string identifier)
     {
-      Debug.Assert(classDeclaration != null);
-      Debug.Assert(identifier != null);
-
       IList<IConstantDeclaration> list = classDeclaration.ConstantDeclarations;
 
       if (list == null || list.Count == 0)
@@ -278,13 +243,10 @@ namespace AgentJohnson.Strings
     /// Gets the existing identifier.
     /// </summary>
     /// <param name="classDeclaration">The class declaration.</param>
-    /// <param name="text">The text.</param>
+    /// <param name="text">The identifier text.</param>
     /// <returns>The existing identifier.</returns>
     private static string GetExistingIdentifier(IClassDeclaration classDeclaration, string text)
     {
-      Debug.Assert(classDeclaration != null);
-      Debug.Assert(text != null);
-
       foreach (IConstantDeclaration declaration in classDeclaration.ConstantDeclarations)
       {
         ICSharpExpression valueExpression = declaration.ValueExpression;
@@ -306,8 +268,12 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Gets the qualified name of the class declaration.
     /// </summary>
-    /// <param name="classDeclaration">The class declaration.</param>
-    /// <returns>The <see cref="string"/>.</returns>
+    /// <param name="classDeclaration">
+    /// The class declaration.
+    /// </param>
+    /// <returns>
+    /// The <see cref="string"/>.
+    /// </returns>
     private static string GetQualifiedClassDeclarationName(ICSharpDeclaration classDeclaration)
     {
       ICSharpNamespaceDeclaration ns = classDeclaration.GetContainingNamespaceDeclaration();
@@ -323,9 +289,15 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Gets the type element.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="className">Name of the class.</param>
-    /// <returns>The type element.</returns>
+    /// <param name="solution">
+    /// The solution.
+    /// </param>
+    /// <param name="className">
+    /// Name of the class.
+    /// </param>
+    /// <returns>
+    /// The type element.
+    /// </returns>
     private static IClassDeclaration GetTypeElement(ISolution solution, string className)
     {
       IDeclarationsScope scope = DeclarationsScopeFactory.SolutionScope(solution, false);
@@ -349,16 +321,17 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Determines whether the specified class declaration has identifier.
     /// </summary>
-    /// <param name="classDeclaration">The class declaration.</param>
-    /// <param name="identifier">The identifier.</param>
+    /// <param name="classDeclaration">
+    /// The class declaration.
+    /// </param>
+    /// <param name="identifier">
+    /// The identifier.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if the specified class declaration has identifier; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified class declaration has identifier; otherwise, <c>false</c>.
     /// </returns>
     private static bool HasIdentifier(IClassDeclaration classDeclaration, string identifier)
     {
-      Debug.Assert(classDeclaration != null);
-      Debug.Assert(identifier != null);
-
       foreach (IConstantDeclaration declaration in classDeclaration.ConstantDeclarations)
       {
         if (declaration.DeclaredName == identifier)
@@ -373,8 +346,12 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Converts to pascal case.
     /// </summary>
-    /// <param name="identifier">The identifier.</param>
-    /// <returns>The to pascal case.</returns>
+    /// <param name="identifier">
+    /// The identifier.
+    /// </param>
+    /// <returns>
+    /// The to pascal case.
+    /// </returns>
     private static string RemoveControlChars(string identifier)
     {
       StringBuilder s = new StringBuilder(identifier);
@@ -393,18 +370,22 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Remove tags from a string.
     /// </summary>
-    /// <param name="text">The text.</param>
-    /// <returns></returns>
+    /// <param name="text">The text to remove tags from.</param>
+    /// <returns>The text without tags.</returns>
     private static string RemoveTags(string text)
     {
-      return _removeTagsRegex.Replace(text, string.Empty);
+      return removeTagsRegex.Replace(text, string.Empty);
     }
 
     /// <summary>
     /// Generates the function assert statements.
     /// </summary>
-    /// <param name="classDeclaration">The class declaration.</param>
-    /// <param name="isPublic">if set to <c>true</c> [is public].</param>
+    /// <param name="classDeclaration">
+    /// The class declaration.
+    /// </param>
+    /// <param name="isPublic">
+    /// if set to <c>true</c> [is public].
+    /// </param>
     private void ConvertToStringConstant(IClassDeclaration classDeclaration, bool isPublic)
     {
       IElement element = this.GetElementAtCaret();
@@ -451,7 +432,8 @@ namespace AgentJohnson.Strings
           declarationText = "/// <summary>" + text + "</summary>\r\n" + declarationText;
         }
 
-        IClassMemberDeclaration classMemberDeclaration = factory.CreateTypeMemberDeclaration(declarationText) as IClassMemberDeclaration;
+        IClassMemberDeclaration classMemberDeclaration =
+            factory.CreateTypeMemberDeclaration(declarationText) as IClassMemberDeclaration;
         if (classMemberDeclaration == null)
         {
           return;
@@ -507,29 +489,35 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Executes the transaction event.
     /// </summary>
-    /// <param name="classDeclaration">The class declaration.</param>
-    /// <param name="isPublic">if set to <c>true</c> [is public].</param>
+    /// <param name="classDeclaration">
+    /// The class declaration.
+    /// </param>
+    /// <param name="isPublic">
+    /// if set to <c>true</c> [is public].
+    /// </param>
     private void DoTransaction(IClassDeclaration classDeclaration, bool isPublic)
     {
-      Shell.Instance.Invocator.ReentrancyGuard.ExecuteOrQueue("Introduce String Constant", delegate
-      {
-        using (ReadLockCookie.Create())
-        {
-          using (ModificationCookie cookie = this.TextControl.Document.EnsureWritable())
+      Shell.Instance.Invocator.ReentrancyGuard.ExecuteOrQueue(
+          "Introduce String Constant",
+          delegate
           {
-            if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+            using (ReadLockCookie.Create())
             {
-              return;
-            }
+              using (ModificationCookie cookie = this.TextControl.Document.EnsureWritable())
+              {
+                if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+                {
+                  return;
+                }
 
-            using (CommandCookie.Create("Context Action Introduce String Constant"))
-            {
-              PsiManager.GetInstance(this.Solution).DoTransaction(delegate { this.ConvertToStringConstant(classDeclaration, isPublic); });
+                using (CommandCookie.Create("Context Action Introduce String Constant"))
+                {
+                  PsiManager.GetInstance(this.Solution).DoTransaction(
+                      delegate { this.ConvertToStringConstant(classDeclaration, isPublic); });
+                }
+              }
             }
-          }
-        }
-      }
-        );
+          });
     }
 
     /// <summary>
@@ -584,13 +572,10 @@ namespace AgentJohnson.Strings
     /// Gets the identifier.
     /// </summary>
     /// <param name="classDeclaration">The class declaration.</param>
-    /// <param name="text">The text.</param>
+    /// <param name="text">The identifier text.</param>
     /// <returns>The identifier.</returns>
     private string GetIdentifier(IClassDeclaration classDeclaration, string text)
     {
-      Debug.Assert(classDeclaration != null);
-      Debug.Assert(text != null);
-
       IntroduceStringConstantSettings settings = IntroduceStringConstantSettings.Instance;
 
       string identifier = text;
@@ -679,12 +664,14 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Introduces the local string constant.
     /// </summary>
-    /// <param name="classDeclaration">The class declaration.</param>
-    /// <param name="isPublic">if set to <c>true</c> [is public].</param>
+    /// <param name="classDeclaration">
+    /// The class declaration.
+    /// </param>
+    /// <param name="isPublic">
+    /// if set to <c>true</c> [is public].
+    /// </param>
     private void IntroduceStringConstant(IClassDeclaration classDeclaration, bool isPublic)
     {
-      Debug.Assert(classDeclaration != null);
-
       ITypeElement element = classDeclaration.DeclaredElement;
       if (element == null)
       {
@@ -717,15 +704,7 @@ namespace AgentJohnson.Strings
       }
       else
       {
-        using (ModificationCookie cookie = this.TextControl.Document.EnsureWritable())
-        {
-          if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
-          {
-            return;
-          }
-
-          this.DoTransaction(classDeclaration, isPublic);
-        }
+        this.DoTransaction(classDeclaration, isPublic);
       }
     }
 
@@ -733,24 +712,52 @@ namespace AgentJohnson.Strings
     /// Handles the Item Clicked event of the menu control.
     /// </summary>
     /// <param name="className">Name of the class.</param>
-    private void menu_ItemClicked(string className)
+    private void MenuItemClicked(string className)
     {
+      IClassDeclaration classDeclaration = null;
+      bool isPublic;
+
       if (className.StartsWith("<Local>"))
       {
-        this.IntroduceLocalStringConstant();
-        return;
-      }
+        isPublic = false;
 
-      IClassDeclaration classDeclaration = GetTypeElement(this.Solution, className);
-      if (classDeclaration == null)
+        Shell.Instance.Invocator.ReentrancyGuard.ExecuteOrQueue(
+            "Introduce String Constant",
+            delegate
+            {
+              using (ReadLockCookie.Create())
+              {
+                classDeclaration = this.GetClassDeclaration();
+              }
+            });
+
+        if (classDeclaration == null)
+        {
+          return;
+        }
+      }
+      else
       {
-        System.Windows.Forms.MessageBox.Show("Class name \"" + className + "\" not found in this solution.");
-        return;
+        isPublic = true;
+
+        Shell.Instance.Invocator.ReentrancyGuard.ExecuteOrQueue(
+            "Introduce String Constant",
+            delegate
+            {
+              using (ReadLockCookie.Create())
+              {
+                classDeclaration = GetTypeElement(this.Solution, className);
+              }
+            });
+
+        if (classDeclaration == null)
+        {
+          System.Windows.Forms.MessageBox.Show("Class name \"" + className + "\" not found in this solution.");
+          return;
+        }
       }
 
-      this.IntroduceStringConstant(classDeclaration, true);
+      this.IntroduceStringConstant(classDeclaration, isPublic);
     }
-
-    #endregion
   }
 }

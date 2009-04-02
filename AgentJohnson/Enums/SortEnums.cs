@@ -83,7 +83,7 @@ namespace AgentJohnson.Enums
     /// <value>The context action text.</value>
     protected override string GetText()
     {
-      return string.Format("Format 'enum'");
+      return string.Format("Format 'enum' [Agent Johnson]");
     }
 
     /// <summary>

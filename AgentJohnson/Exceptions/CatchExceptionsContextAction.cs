@@ -115,7 +115,7 @@ namespace AgentJohnson.Exceptions
     /// <value>The text.</value>
     protected override string GetText()
     {
-      return "Catch exceptions";
+      return "Catch exceptions [Agent Johnson]";
     }
 
     /// <summary>

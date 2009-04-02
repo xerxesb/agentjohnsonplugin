@@ -1,5 +1,6 @@
 ﻿namespace AgentJohnson.ValueAnalysis
 {
+  using System;
   using System.Collections.Generic;
   using JetBrains.Annotations;
   using JetBrains.Application.Progress;
@@ -13,6 +14,7 @@
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Parsing;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
+  using JetBrains.ReSharper.Psi.CSharp.Util;
   using JetBrains.ReSharper.Psi.ExtensionsAPI;
   using JetBrains.ReSharper.Psi.ExtensionsAPI.Tree;
   using JetBrains.ReSharper.Psi.Resolve;
@@ -33,6 +35,11 @@
     [NotNull]
     private readonly ITypeMemberDeclaration typeMemberDeclaration;
 
+    private ITypeElement notNullTypeElement;
+    private ITypeElement canBeNullTypeElement;
+    private CLRTypeName notNullableAttributeCLRName;
+    private CLRTypeName canBeNullAttributeCLRName;
+
     #endregion
 
     #region Constructor
@@ -42,10 +49,23 @@
     /// </summary>
     /// <param name="typeMemberDeclaration">The type member declaration.</param>
     /// <param name="contextActionDataProvider">The context action data provider.</param>
-    public ValueAnalysisRefactoring(ITypeMemberDeclaration typeMemberDeclaration, ICSharpContextActionDataProvider contextActionDataProvider)
+    public ValueAnalysisRefactoring([NotNull] ITypeMemberDeclaration typeMemberDeclaration, [NotNull] ICSharpContextActionDataProvider contextActionDataProvider)
     {
       this.typeMemberDeclaration = typeMemberDeclaration;
       this.contextActionDataProvider = contextActionDataProvider;
+
+      CodeAnnotationsCache codeAnnotationsCache = CodeAnnotationsCache.GetInstance(this.Solution);
+
+      this.notNullTypeElement = codeAnnotationsCache.GetAttributeTypeForElement(this.TypeMemberDeclaration, CodeAnnotationsCache.NotNullAttributeShortName);
+      this.canBeNullTypeElement = codeAnnotationsCache.GetAttributeTypeForElement(this.TypeMemberDeclaration, CodeAnnotationsCache.CanBeNullAttributeShortName);
+
+      if (this.notNullTypeElement == null || this.canBeNullTypeElement == null)
+      {
+        return;
+      }
+
+      this.notNullableAttributeCLRName = new CLRTypeName(this.notNullTypeElement.CLRName);
+      this.canBeNullAttributeCLRName = new CLRTypeName(this.canBeNullTypeElement.CLRName);
     }
 
     #endregion
@@ -56,6 +76,7 @@
     /// Gets the solution.
     /// </summary>
     /// <value>The solution.</value>
+    [NotNull]
     private ISolution Solution
     {
       get
@@ -68,6 +89,7 @@
     /// Gets the type member declaration.
     /// </summary>
     /// <value>The type member declaration.</value>
+    [NotNull]
     private ITypeMemberDeclaration TypeMemberDeclaration
     {
       get
@@ -116,7 +138,7 @@
     /// Determines whether this instance is available.
     /// </summary>
     /// <returns>
-    /// 	<c>true</c> if this instance is available; otherwise, <c>false</c>.
+    /// <c>true</c> if this instance is available; otherwise, <c>false</c>.
     /// </returns>
     public bool IsAvailable()
     {
@@ -157,7 +179,7 @@
     /// <param name="attributesOwner">The attributes owner.</param>
     /// <returns>The attribute.</returns>
     [CanBeNull]
-    private static IAttributeInstance FindAttribute(string attributeName, IAttributesOwner attributesOwner)
+    private static IAttributeInstance FindAttribute([NotNull] string attributeName, [NotNull] IAttributesOwner attributesOwner)
     {
       CLRTypeName typeName = new CLRTypeName(attributeName);
       IList<IAttributeInstance> instances = attributesOwner.GetAttributeInstances(typeName, true);
@@ -175,7 +197,7 @@
     /// </summary>
     /// <param name="functionDeclaration">The function declaration.</param>
     /// <returns>The access rights.</returns>
-    private static AccessRights GetAccessRights(ICSharpFunctionDeclaration functionDeclaration)
+    private static AccessRights GetAccessRights([NotNull] ICSharpFunctionDeclaration functionDeclaration)
     {
       AccessRights accessRights = functionDeclaration.GetAccessRights();
       if (accessRights != AccessRights.PUBLIC)
@@ -198,7 +220,7 @@
     /// <param name="body">The body.</param>
     /// <returns>The anchor.</returns>
     [CanBeNull]
-    private static IStatement GetAnchor(IBlock body)
+    private static IStatement GetAnchor([NotNull] IBlock body)
     {
       IList<IStatement> list = body.Statements;
 
@@ -206,6 +228,7 @@
       {
         return list[0];
       }
+      
       return null;
     }
 
@@ -215,7 +238,7 @@
     /// <param name="assertion">The assertion.</param>
     /// <param name="accessRights">The access rights.</param>
     /// <returns>The code.</returns>
-    private static string GetCode(ParameterStatement assertion, AccessRights accessRights)
+    private static string GetCode([NotNull] ParameterStatement assertion, AccessRights accessRights)
     {
       Rule rule = Rule.GetRule(assertion.Parameter.Type, assertion.Parameter.Language);
 
@@ -265,7 +288,7 @@
     /// </summary>
     /// <param name="anchor">The anchor.</param>
     /// <param name="formatter">The formatter.</param>
-    private static void InsertBlankLine(IStatement anchor, CodeFormatter formatter)
+    private static void InsertBlankLine([NotNull] IStatement anchor, [NotNull] CodeFormatter formatter)
     {
       IStatementNode anchorTreeNode = anchor.ToTreeNode();
       if (anchorTreeNode == null)
@@ -297,23 +320,15 @@
     /// <summary>
     /// Executes the attribute.
     /// </summary>
-    private void ExecuteReturnValueAttribute(ICSharpFunctionDeclaration functionDeclaration)
+    /// <param name="functionDeclaration">The function declaration.</param>
+    private void ExecuteReturnValueAttribute([NotNull] ICSharpFunctionDeclaration functionDeclaration)
     {
-      if (HasAnnotation())
+      if (this.HasAnnotation())
       {
         return;
       }
 
-      CodeAnnotationsCache codeAnnotationsCache = CodeAnnotationsCache.GetInstance(this.Solution);
-
-      ITypeElement notNullTypeElement = codeAnnotationsCache.GetAttributeTypeForElement(this.TypeMemberDeclaration, CodeAnnotationsCache.NotNullAttributeShortName);
-      if (notNullTypeElement == null)
-      {
-        return;
-      }
-
-      ITypeElement canBeNullTypeElement = codeAnnotationsCache.GetAttributeTypeForElement(this.TypeMemberDeclaration, CodeAnnotationsCache.CanBeNullAttributeShortName);
-      if (canBeNullTypeElement == null)
+      if (this.notNullTypeElement == null || this.canBeNullTypeElement == null)
       {
         return;
       }
@@ -329,13 +344,13 @@
         case CSharpControlFlowNullReferenceState.UNKNOWN:
           break;
         case CSharpControlFlowNullReferenceState.NOT_NULL:
-          this.MarkWithAttribute(notNullTypeElement.CLRName);
+          this.MarkWithAttribute(this.notNullTypeElement.CLRName);
           break;
         case CSharpControlFlowNullReferenceState.NULL:
-          this.MarkWithAttribute(canBeNullTypeElement.CLRName);
+          this.MarkWithAttribute(this.canBeNullTypeElement.CLRName);
           break;
         case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
-          this.MarkWithAttribute(canBeNullTypeElement.CLRName);
+          this.MarkWithAttribute(this.canBeNullTypeElement.CLRName);
           break;
       }
     }
@@ -344,7 +359,7 @@
     /// Determines whether this instance has annotation.
     /// </summary>
     /// <returns>
-    /// 	<c>true</c> if this instance has annotation; otherwise, <c>false</c>.
+    /// <c>true</c> if this instance has annotation; otherwise, <c>false</c>.
     /// </returns>
     private bool HasAnnotation()
     {
@@ -366,7 +381,8 @@
     /// <summary>
     /// Executes the parameters.
     /// </summary>
-    private void ExecuteFunction(ICSharpFunctionDeclaration functionDeclaration)
+    /// <param name="functionDeclaration">The function declaration.</param>
+    private void ExecuteFunction([NotNull] ICSharpFunctionDeclaration functionDeclaration)
     {
       if (this.IsAvailableGetterFunction(functionDeclaration))
       {
@@ -386,7 +402,6 @@
       }
 
       CSharpElementFactory factory = CSharpElementFactory.GetInstance(functionDeclaration.GetPsiModule());
-
       IBlock body = functionDeclaration.Body;
 
       AccessRights accessRights = GetAccessRights(functionDeclaration);
@@ -428,8 +443,8 @@
       {
         anchor = GetAnchor(body);
       }
-      bool hasAsserts = false;
 
+      bool hasAsserts = false;
       foreach (ParameterStatement assertion in assertions)
       {
         if (assertion.Nullable)
@@ -463,7 +478,7 @@
     /// Executes the indexer.
     /// </summary>
     /// <param name="indexerDeclaration">The property declaration.</param>
-    private void ExecuteIndexer(IIndexerDeclaration indexerDeclaration)
+    private void ExecuteIndexer([NotNull] IIndexerDeclaration indexerDeclaration)
     {
       foreach (IAccessorDeclaration accessorDeclaration in indexerDeclaration.AccessorDeclarations)
       {
@@ -499,7 +514,7 @@
     /// Executes the property.
     /// </summary>
     /// <param name="propertyDeclaration">The declaration.</param>
-    private void ExecuteProperty(IPropertyDeclaration propertyDeclaration)
+    private void ExecuteProperty([NotNull] IPropertyDeclaration propertyDeclaration)
     {
       foreach (IAccessorDeclaration accessorDeclaration in propertyDeclaration.AccessorDeclarations)
       {
@@ -528,22 +543,14 @@
     /// Finds the attributes.
     /// </summary>
     /// <param name="parameterStatement">The parameter statement.</param>
-    private void FindAttributes(ParameterStatement parameterStatement)
+    private void FindAttributes([NotNull] ParameterStatement parameterStatement)
     {
-      CodeAnnotationsCache codeAnnotationsCache = CodeAnnotationsCache.GetInstance(this.Solution);
-
-      ITypeElement notNullTypeElement = codeAnnotationsCache.GetAttributeTypeForElement(this.TypeMemberDeclaration, CodeAnnotationsCache.NotNullAttributeShortName);
-      ITypeElement canBeNullTypeElement = codeAnnotationsCache.GetAttributeTypeForElement(this.TypeMemberDeclaration, CodeAnnotationsCache.CanBeNullAttributeShortName);
-
-      if (notNullTypeElement == null || canBeNullTypeElement == null)
+      if (this.notNullTypeElement == null || this.canBeNullTypeElement == null)
       {
         return;
       }
 
-      CLRTypeName notNullableAttributeName = new CLRTypeName(notNullTypeElement.CLRName);
-      CLRTypeName canBeNullAttributeName = new CLRTypeName(canBeNullTypeElement.CLRName);
-
-      IList<IAttributeInstance> instances = parameterStatement.Parameter.GetAttributeInstances(notNullableAttributeName, false);
+      IList<IAttributeInstance> instances = parameterStatement.Parameter.GetAttributeInstances(this.notNullableAttributeCLRName, false);
       if (instances != null && instances.Count > 0)
       {
         parameterStatement.Nullable = false;
@@ -551,7 +558,7 @@
         return;
       }
 
-      instances = parameterStatement.Parameter.GetAttributeInstances(canBeNullAttributeName, false);
+      instances = parameterStatement.Parameter.GetAttributeInstances(this.canBeNullAttributeCLRName, false);
       if (instances != null && instances.Count > 0)
       {
         parameterStatement.Nullable = true;
@@ -559,7 +566,7 @@
         return;
       }
 
-      instances = parameterStatement.Parameter.GetAttributeInstances(notNullableAttributeName, true);
+      instances = parameterStatement.Parameter.GetAttributeInstances(this.notNullableAttributeCLRName, true);
       if (instances != null && instances.Count > 0)
       {
         parameterStatement.Nullable = false;
@@ -567,7 +574,7 @@
         return;
       }
 
-      instances = parameterStatement.Parameter.GetAttributeInstances(canBeNullAttributeName, true);
+      instances = parameterStatement.Parameter.GetAttributeInstances(this.canBeNullAttributeCLRName, true);
       if (instances != null && instances.Count > 0)
       {
         parameterStatement.Nullable = true;
@@ -580,7 +587,7 @@
     /// </summary>
     /// <param name="functionDeclaration">The function declaration.</param>
     /// <param name="result">The result.</param>
-    private void GetAssertionParameters(ICSharpFunctionDeclaration functionDeclaration, List<ParameterStatement> result)
+    private void GetAssertionParameters([NotNull] ICSharpFunctionDeclaration functionDeclaration, [NotNull] List<ParameterStatement> result)
     {
       IParametersOwner parametersOwner = functionDeclaration.DeclaredElement;
       if (parametersOwner == null || parametersOwner.Parameters.Count <= 0)
@@ -685,12 +692,17 @@
     /// <summary>
     /// Gets the assertions.
     /// </summary>
-    /// <returns></returns>
-    private List<ParameterStatement> GetAssertions(ICSharpFunctionDeclaration functionDeclaration, bool findStatements)
+    /// <param name="functionDeclaration">The function declaration.</param>
+    /// <param name="findStatements">if set to <c>true</c> [find statements].</param>
+    /// <returns>The assertions.</returns>
+    /// <exception cref="ArgumentNullException"><c>functionDeclaration</c> is null.</exception>
+    [NotNull]
+    private List<ParameterStatement> GetAssertions([NotNull] ICSharpFunctionDeclaration functionDeclaration, bool findStatements)
     {
       List<ParameterStatement> result = new List<ParameterStatement>();
 
       this.GetAssertionParameters(functionDeclaration, result);
+
       if (findStatements)
       {
         this.GetAssertionStatements(functionDeclaration, result);
@@ -704,7 +716,7 @@
     /// </summary>
     /// <param name="functionDeclaration">The function declaration.</param>
     /// <param name="result">The result.</param>
-    private void GetAssertionStatements(ICSharpFunctionDeclaration functionDeclaration, List<ParameterStatement> result)
+    private void GetAssertionStatements([NotNull] ICSharpFunctionDeclaration functionDeclaration, [NotNull] List<ParameterStatement> result)
     {
       IFunction function = functionDeclaration.DeclaredElement;
       if (function == null)
@@ -726,6 +738,7 @@
         {
           statement.NeedsStatement = false;
         }
+
         return;
       }
 
@@ -818,8 +831,9 @@
     /// Gets the attribute.
     /// </summary>
     /// <param name="attributeName">Name of the attribute.</param>
-    /// <returns></returns>
-    private ITypeElement GetAttribute(string attributeName)
+    /// <returns>The attribute.</returns>
+    [CanBeNull]
+    private ITypeElement GetAttribute([NotNull] string attributeName)
     {
       IDeclarationsScope scope = DeclarationsScopeFactory.SolutionScope(this.Solution, true);
       IDeclarationsCache cache = PsiManager.GetInstance(this.Solution).GetDeclarationsCache(scope, true);
@@ -838,16 +852,11 @@
     /// Determines whether the value analysis attributes are defined.
     /// </summary>
     /// <returns>
-    /// 	<c>true</c> if the value analysis attributes are defined; otherwise, <c>false</c>.
+    /// <c>true</c> if the value analysis attributes are defined; otherwise, <c>false</c>.
     /// </returns>
     private bool IsAttributesDefined()
     {
-      CodeAnnotationsCache codeAnnotationsCache = CodeAnnotationsCache.GetInstance(this.Solution);
-
-      ITypeElement notNullTypeElement = codeAnnotationsCache.GetAttributeTypeForElement(this.TypeMemberDeclaration, CodeAnnotationsCache.NotNullAttributeShortName);
-      ITypeElement canBeNullTypeElement = codeAnnotationsCache.GetAttributeTypeForElement(this.TypeMemberDeclaration, CodeAnnotationsCache.CanBeNullAttributeShortName);
-
-      return notNullTypeElement != null && canBeNullTypeElement != null;
+      return this.notNullTypeElement != null && this.canBeNullTypeElement != null;
     }
 
     /// <summary>
@@ -856,9 +865,9 @@
     /// <param name="getterFunctionDeclaration">The function declaration.</param>
     /// <param name="setterFunctionDeclaration">The setter function declaration.</param>
     /// <returns>
-    /// 	<c>true</c> if [is available function] [the specified declaration]; otherwise, <c>false</c>.
+    /// <c>true</c> if [is available function] [the specified declaration]; otherwise, <c>false</c>.
     /// </returns>
-    private bool IsAvailableFunction(ICSharpFunctionDeclaration getterFunctionDeclaration, ICSharpFunctionDeclaration setterFunctionDeclaration)
+    private bool IsAvailableFunction([CanBeNull] ICSharpFunctionDeclaration getterFunctionDeclaration, [CanBeNull] ICSharpFunctionDeclaration setterFunctionDeclaration)
     {
       if (getterFunctionDeclaration != null)
       {
@@ -886,9 +895,9 @@
     /// </summary>
     /// <param name="getterFunctionDeclaration">The getter function declaration.</param>
     /// <returns>
-    /// 	<c>true</c> if [is available getter function] [the specified getter function declaration]; otherwise, <c>false</c>.
+    /// <c>true</c> if [is available getter function] [the specified getter function declaration]; otherwise, <c>false</c>.
     /// </returns>
-    private bool IsAvailableGetterFunction(IFunctionDeclaration getterFunctionDeclaration)
+    private bool IsAvailableGetterFunction([NotNull] IFunctionDeclaration getterFunctionDeclaration)
     {
       IMethod method = getterFunctionDeclaration.DeclaredElement as IMethod;
       if (method == null)
@@ -897,13 +906,7 @@
       }
 
       IType returnType = method.ReturnType;
-
       if (!returnType.IsReferenceType())
-      {
-        return false;
-      }
-
-      if (!this.IsAttributesDefined())
       {
         return false;
       }
@@ -916,9 +919,9 @@
     /// </summary>
     /// <param name="indexerDeclaration">The indexer declaration.</param>
     /// <returns>
-    /// 	<c>true</c> if [is available indexer] [the specified indexer declaration]; otherwise, <c>false</c>.
+    /// <c>true</c> if [is available indexer] [the specified indexer declaration]; otherwise, <c>false</c>.
     /// </returns>
-    private bool IsAvailableIndexer(IIndexerDeclaration indexerDeclaration)
+    private bool IsAvailableIndexer([NotNull] IIndexerDeclaration indexerDeclaration)
     {
       ICSharpFunctionDeclaration getterFunctionDeclaration = null;
       ICSharpFunctionDeclaration setterFunctionDeclaration = null;
@@ -950,9 +953,9 @@
     /// </summary>
     /// <param name="propertyDeclaration">The property declaration.</param>
     /// <returns>
-    /// 	<c>true</c> if [is available property] [the specified property declaration]; otherwise, <c>false</c>.
+    /// <c>true</c> if [is available property] [the specified property declaration]; otherwise, <c>false</c>.
     /// </returns>
-    private bool IsAvailableProperty(IPropertyDeclaration propertyDeclaration)
+    private bool IsAvailableProperty([NotNull] IPropertyDeclaration propertyDeclaration)
     {
       ICSharpFunctionDeclaration getterFunctionDeclaration = null;
       ICSharpFunctionDeclaration setterFunctionDeclaration = null;
@@ -990,9 +993,9 @@
     /// </summary>
     /// <param name="functionDeclaration">The function declaration.</param>
     /// <returns>
-    /// 	<c>true</c> if [is available parameters] [the specified function declaration]; otherwise, <c>false</c>.
+    /// <c>true</c> if [is available parameters] [the specified function declaration]; otherwise, <c>false</c>.
     /// </returns>
-    private bool IsAvailableSetterFunction(ICSharpFunctionDeclaration functionDeclaration)
+    private bool IsAvailableSetterFunction([NotNull] ICSharpFunctionDeclaration functionDeclaration)
     {
       if (functionDeclaration.IsAbstract || functionDeclaration.IsExtern)
       {
@@ -1031,7 +1034,7 @@
     /// Marks the parameter with attribute.
     /// </summary>
     /// <param name="assertion">The assertion.</param>
-    private void MarkParameterWithAttribute(ParameterStatement assertion)
+    private void MarkParameterWithAttribute([NotNull] ParameterStatement assertion)
     {
       Rule rule = Rule.GetRule(assertion.Parameter.Type, assertion.Parameter.Language);
       if (rule != null && !rule.NotNull && !rule.CanBeNull)
@@ -1050,14 +1053,17 @@
       }
 
       string name = null;
+      ITypeElement typeElement = null;
 
       if (rule.NotNull)
       {
         name = CodeAnnotationsCache.NotNullAttributeShortName;
+        typeElement = this.notNullTypeElement;
       }
       else if (rule.CanBeNull)
       {
         name = CodeAnnotationsCache.CanBeNullAttributeShortName;
+        typeElement = this.canBeNullTypeElement;
       }
 
       if (string.IsNullOrEmpty(name))
@@ -1065,8 +1071,6 @@
         return;
       }
 
-      CodeAnnotationsCache codeAnnotationsCache = CodeAnnotationsCache.GetInstance(this.Solution);
-      ITypeElement typeElement = codeAnnotationsCache.GetAttributeTypeForElement(this.typeMemberDeclaration, name);
       if (typeElement == null)
       {
         return;
@@ -1096,10 +1100,11 @@
     /// <summary>
     /// Marks the with attribute.
     /// </summary>
-    private void MarkWithAttribute(string attributeName)
+    /// <param name="attributeName">Name of the attribute.</param>
+    private void MarkWithAttribute([NotNull] string attributeName)
     {
       IAttributesOwnerDeclaration attributesOwner = this.TypeMemberDeclaration as IAttributesOwnerDeclaration;
-      if (attributeName == null)
+      if (attributesOwner == null)
       {
         return;
       }
@@ -1110,9 +1115,9 @@
     /// <summary>
     /// Marks the with attribute.
     /// </summary>
-    /// <param name="attributesOwnerDeclaration">The meta info target declaration.</param>
     /// <param name="attributeName">Name of the attribute.</param>
-    private void MarkWithAttribute(string attributeName, IAttributesOwnerDeclaration attributesOwnerDeclaration)
+    /// <param name="attributesOwnerDeclaration">The meta info target declaration.</param>
+    private void MarkWithAttribute([NotNull] string attributeName, [NotNull] IAttributesOwnerDeclaration attributesOwnerDeclaration)
     {
       ITypeElement typeElement = this.GetAttribute(attributeName);
       if (typeElement == null)
@@ -1122,10 +1127,8 @@
 
       CSharpElementFactory factory = CSharpElementFactory.GetInstance(attributesOwnerDeclaration.GetPsiModule());
 
-      IAttribute attribute = factory.CreateTypeMemberDeclaration("[$0]void Foo(){}", new object[]
-      {
-        typeElement
-      }).Attributes[0];
+      object[] objects = new object[] { typeElement };
+      IAttribute attribute = factory.CreateTypeMemberDeclaration("[$0]void Foo(){}", objects).Attributes[0];
 
       attribute = attributesOwnerDeclaration.AddAttributeAfter(attribute, null);
 

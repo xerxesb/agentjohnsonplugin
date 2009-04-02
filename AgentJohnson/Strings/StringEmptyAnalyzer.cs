@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using AgentJohnson;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Parsing;
@@ -12,7 +11,10 @@ namespace AgentJohnson.Strings {
   public class StringEmptyAnalyzer : ITokenTypeAnalyzer {
     #region Fields
 
-    readonly ISolution _solution;
+    /// <summary>
+    /// The current solution.
+    /// </summary>
+    readonly ISolution solution;
 
     #endregion
 
@@ -23,21 +25,7 @@ namespace AgentJohnson.Strings {
     /// </summary>
     /// <param name="solution">The solution.</param>
     public StringEmptyAnalyzer(ISolution solution) {
-      _solution = solution;
-    }
-
-    #endregion
-
-    #region Public properties
-
-    /// <summary>
-    /// Gets the solution.
-    /// </summary>
-    /// <value>The solution.</value>
-    public ISolution Solution {
-      get {
-        return _solution;
-      }
+      this.solution = solution;
     }
 
     #endregion
@@ -63,14 +51,22 @@ namespace AgentJohnson.Strings {
         return null;
       }
 
+      ITreeNode parent = node.Parent;
+
+      if (parent.Parent is ISwitchLabelStatement)
+      {
+        return null;
+      }
+
       IAttribute attribute = node.GetContainingElement(typeof(IAttribute), true) as IAttribute;
       if(attribute != null) {
         return null;
       }
 
-      List<SuggestionBase> suggestions = new List<SuggestionBase>();
-
-      suggestions.Add(new StringEmptySuggestion(_solution, node));
+      List<SuggestionBase> suggestions = new List<SuggestionBase>
+      {
+        new StringEmptySuggestion(this.solution, node)
+      };
 
       return suggestions.ToArray();
     }

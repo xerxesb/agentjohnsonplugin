@@ -45,7 +45,7 @@ namespace AgentJohnson.Statements
     /// <returns>The text in the context menu.</returns>
     protected override string GetText()
     {
-      return "Negate 'if' condition";
+      return "Negate 'if' condition [Agent Johnson]";
     }
 
     /// <summary>

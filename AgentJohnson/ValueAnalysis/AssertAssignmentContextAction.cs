@@ -75,7 +75,7 @@ namespace AgentJohnson.ValueAnalysis
     /// <value>The text.</value>
     protected override string GetText()
     {
-      return string.Format("Assert assignment to '{0}'", this._name);
+      return string.Format("Assert assignment to '{0}' [Agent Johnson]", this._name);
     }
 
     /// <summary>

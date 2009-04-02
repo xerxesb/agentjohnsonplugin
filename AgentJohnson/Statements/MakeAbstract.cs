@@ -74,7 +74,7 @@ namespace AgentJohnson.Statements
     /// <returns>The text in the context menu.</returns>
     protected override string GetText()
     {
-      return "Make abstract";
+      return "Make abstract [Agent Johnson]";
     }
 
     /// <summary>

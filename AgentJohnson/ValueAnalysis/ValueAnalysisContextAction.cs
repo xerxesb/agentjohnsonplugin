@@ -1,6 +1,9 @@
 namespace AgentJohnson.ValueAnalysis
 {
+  using System;
+
   using EnvDTE;
+
   using JetBrains.Annotations;
   using JetBrains.ReSharper.Intentions;
   using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
@@ -10,26 +13,25 @@ namespace AgentJohnson.ValueAnalysis
   /// <summary>
   /// Represents the Context Action.
   /// </summary>
-  [ContextAction(Description = "Annotates a function with Value Analysis attributes and assert statements.", Name = "Value Analysis Annotations", Priority = 0, Group = "C#")]
+  [ContextAction(Description = "Annotates a function with Value Analysis attributes and assert statements.", Name = "Annotate with Value Analysis attributes", Priority = 0, Group = "C#")]
   public class ValueAnalysisContextAction : ContextActionBase
   {
-    #region Constructor
-
     /// <summary>
     /// Initializes a new instance of the <see cref="ValueAnalysisContextAction"/> class.
     /// </summary>
-    /// <param name="provider">The provider.</param>
+    /// <param name="provider">
+    /// The provider.
+    /// </param>
     public ValueAnalysisContextAction(ICSharpContextActionDataProvider provider) : base(provider)
     {
     }
 
-    #endregion
-
-    #region Protected methods
-
     /// <summary>
     /// Executes the internal.
     /// </summary>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     protected override void Execute(IElement element)
     {
       ITypeMemberDeclaration typeMemberDeclaration = this.GetTypeMemberDeclaration();
@@ -44,11 +46,11 @@ namespace AgentJohnson.ValueAnalysis
     }
 
     /// <summary>
-    /// Executes the internal post PSI transaction.
+    /// Executes the internal finally.
     /// </summary>
     /// <param name="data">The data.</param>
-    /// <returns>The internal post PSI transaction.</returns>
-    protected override object[] ExecuteInternalPostPSITransaction(params object[] data)
+    /// <returns>The internal finally.</returns>
+    protected override object[] ExecuteInternalFinally(params object[] data)
     {
       if (!ValueAnalysisSettings.Instance.ExecuteGhostDoc)
       {
@@ -61,8 +63,7 @@ namespace AgentJohnson.ValueAnalysis
       try
       {
         command = dte.Commands.Item("Weigelt.GhostDoc.AddIn.DocumentThis", -1);
-      }
-      catch
+      } catch
       {
         command = null;
       }
@@ -78,18 +79,23 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <value>The text.</value>
+    /// <returns>The text.</returns>
+    /// <value>
+    /// The text.
+    /// </value>
     protected override string GetText()
     {
-      return "Annotate with Value Analysis attributes";
+      return "Annotate with Value Analysis attributes [Agent Johnson]";
     }
 
     /// <summary>
     /// Determines whether this instance is available.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if this instance is available; otherwise, <c>false</c>.
+    /// <c>true</c> if this instance is available; otherwise, <c>false</c>.
     /// </returns>
     protected override bool IsAvailable(IElement element)
     {
@@ -103,10 +109,6 @@ namespace AgentJohnson.ValueAnalysis
 
       return valueAnalysisRefactoring.IsAvailable();
     }
-
-    #endregion
-
-    #region Private methods
 
     /// <summary>
     /// Gets the type member declaration.
@@ -141,7 +143,5 @@ namespace AgentJohnson.ValueAnalysis
 
       return typeMemberDeclaration;
     }
-
-    #endregion
   }
 }

@@ -133,7 +133,7 @@ namespace AgentJohnson.Statements
     /// <returns>The text.</returns>
     protected override string GetText()
     {
-      return "Reverse for-loop direction";
+      return "Reverse for-loop direction [Agent Johnson]";
     }
 
     /// <summary>

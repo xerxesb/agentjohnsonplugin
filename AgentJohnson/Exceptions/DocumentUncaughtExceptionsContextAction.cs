@@ -80,7 +80,7 @@ namespace AgentJohnson.Exceptions
     /// <value>The context action text.</value>
     protected override string GetText()
     {
-      return "Add xml-docs comments for uncaught exceptions";
+      return "Add xml-docs comments for uncaught exceptions [Agent Johnson]";
     }
 
     /// <summary>

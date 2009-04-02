@@ -126,7 +126,7 @@ namespace AgentJohnson.Enums
     /// <value>The text.</value>
     protected override string GetText()
     {
-      return string.Format("Generate 'switch' statement");
+      return string.Format("Generate 'switch' statement [Agent Johnson]");
     }
 
     /// <summary>

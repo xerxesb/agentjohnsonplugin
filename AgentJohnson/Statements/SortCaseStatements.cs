@@ -132,7 +132,7 @@ namespace AgentJohnson.Statements
     /// <returns>The text in the context menu.</returns>
     protected override string GetText()
     {
-      return "Sort cases";
+      return "Sort cases [Agent Johnson]";
     }
 
     /// <summary>

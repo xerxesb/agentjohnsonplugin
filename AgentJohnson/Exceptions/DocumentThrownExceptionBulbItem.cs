@@ -214,6 +214,7 @@ namespace AgentJohnson.Exceptions
     {
       if (statement.Exception != null)
       {
+        // TODO: may throw exception
         return statement.Exception.Type();
       }
 
