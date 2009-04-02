@@ -20,7 +20,7 @@
 
 	<PropertyGroup>
 		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-		<ProductVersion>1.5.0</ProductVersion>
+		<ProductVersion>1.5.2 Beta</ProductVersion>
 		<ProjectGuid>{9C50FFF3-98C9-4A49-BBE6-E7598D4AA37B}</ProjectGuid>
 		<SchemaVersion>2.0</SchemaVersion>
 		<OutputName>$(ProductName) $(ProductVersion) Setup (R# $(ReSharperVersion2))</OutputName>
