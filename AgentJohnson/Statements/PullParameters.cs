@@ -1,51 +1,69 @@
+// <copyright file="PullParameters.cs" company="Sitecore">
+// Copyright (c) Sitecore. All rights reserved.
+// </copyright>
+
 namespace AgentJohnson.Statements
 {
+  using System.Collections.Generic;
   using System.Text;
+  using JetBrains.Application;
   using JetBrains.ReSharper.Intentions;
   using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
+  using JetBrains.Util;
 
   /// <summary>
   /// Defines the pull parameters class.
   /// </summary>
-  [ContextAction(Description = "Pulls the containing methods parameters to this method call.", Name = "Pull parameters", Priority = 1, Group = "C#")]
+  [ContextAction(Description = "Pulls the containing methods parameters to this method call.", Name = "Pull parameters", Priority = -1, Group = "C#")]
   public class PullParameters : ContextActionBase
   {
-    #region Constructor
-
     /// <summary>
     /// Initializes a new instance of the <see cref="PullParameters"/> class.
     /// </summary>
-    /// <param name="provider">The provider.</param>
+    /// <param name="provider">
+    /// The provider.
+    /// </param>
     public PullParameters(ICSharpContextActionDataProvider provider) : base(provider)
     {
+      this.StartTransaction = false;
     }
-
-    #endregion
-
-    #region Protected methods
 
     /// <summary>
     /// Executes this instance.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     protected override void Execute(IElement element)
     {
-      if (IsExpressionStatement(element))
+      using (ModificationCookie cookie = this.TextControl.Document.EnsureWritable())
       {
-        this.HandleExpressionStatement(element);
-        return;
-      }
+        try
+        {
+          CommandProcessor.Instance.BeginCommand("PullParameters");
 
-      if (IsReferenceExpression(element))
-      {
-        this.HandleReferenceExpression(element);
-        return;
-      }
+          if (IsExpressionStatement(element))
+          {
+            this.HandleExpressionStatement(element);
+            return;
+          }
 
-      // HandleEmptyParentheses(element);
+          if (IsReferenceExpression(element))
+          {
+            this.HandleReferenceExpression(element);
+            return;
+          }
+
+          this.HandleEmptyParentheses(element);
+        } 
+        finally
+        {
+          CommandProcessor.Instance.EndCommand();
+        }
+      }
     }
 
     /// <summary>
@@ -60,9 +78,11 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Determines whether this instance is available.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if this instance is available; otherwise, <c>false</c>.
+    /// <c>true</c> if this instance is available; otherwise, <c>false</c>.
     /// </returns>
     protected override bool IsAvailable(IElement element)
     {
@@ -76,20 +96,18 @@ namespace AgentJohnson.Statements
         return true;
       }
 
-      return false;
-
-      // return IsEmptyParentheses(element);
+      return IsEmptyParentheses(element);
     }
-
-    #endregion
-
-    #region Private methods
 
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <param name="element">The element.</param>
-    /// <returns></returns>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    /// <returns>
+    /// The text.
+    /// </returns>
     private static string GetText(IElement element)
     {
       ITypeMemberDeclaration typeMemberDeclaration = element.GetContainingElement<ITypeMemberDeclaration>(true);
@@ -118,6 +136,7 @@ namespace AgentJohnson.Statements
         {
           parametersBuilder.Append(", ");
         }
+
         first = false;
 
         parametersBuilder.Append(parameter.ShortName);
@@ -126,58 +145,60 @@ namespace AgentJohnson.Statements
       return parametersBuilder.ToString();
     }
 
-    /*
     /// <summary>
     /// Handles the empty parentheses.
     /// </summary>
     /// <param name="element">The element.</param>
-    void HandleEmptyParentheses(IElement element) {
-      string text = GetText(element);
-      TextControl.Document.InsertText(TextControl.CaretModel.Offset, text);
-    }
-    */
-
-    /*
-    /// <summary>
-    /// Handles the empty parentheses.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    /// <returns></returns>
-   
-    static bool IsEmptyParentheses(IElement element) {
+    /// <returns>
+    /// <c>true</c> if [is empty parentheses] [the specified element]; otherwise, <c>false</c>.
+    /// </returns>
+    private static bool IsEmptyParentheses(IElement element)
+    {
       string text = element.GetText();
-      if(text != ")") {
+      if (text != ")")
+      {
         return false;
       }
 
       IInvocationExpression invocationExpression = element.ToTreeNode().Parent as IInvocationExpression;
-      if(invocationExpression == null) {
+      if (invocationExpression == null)
+      {
         return false;
       }
 
       IList<ICSharpArgument> arguments = invocationExpression.Arguments;
-      if(arguments.Count != 0) {
+      if (arguments.Count != 0)
+      {
         return false;
       }
 
-      IParametersOwner parametersOwner = invocationExpression.GetContainingTypeMemberDeclaration() as IParametersOwner;
-      if(parametersOwner == null) {
+      ICSharpTypeMemberDeclaration containingTypeMemberDeclaration = invocationExpression.GetContainingTypeMemberDeclaration();
+      if (containingTypeMemberDeclaration == null)
+      {
         return false;
       }
 
-      if(parametersOwner.Parameters.Count == 0) {
+      IParametersOwner parametersOwner = containingTypeMemberDeclaration.DeclaredElement as IParametersOwner;
+      if (parametersOwner == null)
+      {
+        return false;
+      }
+
+      if (parametersOwner.Parameters.Count == 0)
+      {
         return false;
       }
 
       return true;
     }
-    */
 
     /// <summary>
     /// Handles the end of line.
     /// </summary>
     /// <param name="element">The element.</param>
-    /// <returns></returns>
+    /// <returns>
+    /// <c>true</c> if [is expression statement] [the specified element]; otherwise, <c>false</c>.
+    /// </returns>
     private static bool IsExpressionStatement(IElement element)
     {
       ITreeNode treeNode = element.ToTreeNode();
@@ -206,9 +227,11 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Determines whether [is reference expression] [the specified element].
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if [is reference expression] [the specified element]; otherwise, <c>false</c>.
+    /// <c>true</c> if [is reference expression] [the specified element]; otherwise, <c>false</c>.
     /// </returns>
     private static bool IsReferenceExpression(IElement element)
     {
@@ -223,9 +246,24 @@ namespace AgentJohnson.Statements
     }
 
     /// <summary>
+    /// Handles the empty parentheses.
+    /// </summary>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    private void HandleEmptyParentheses(IElement element)
+    {
+      string text = GetText(element);
+      this.TextControl.Document.InsertText(this.TextControl.CaretModel.Offset, text);
+
+    }
+
+    /// <summary>
     /// Handles the end of line.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     private void HandleExpressionStatement(IElement element)
     {
       string text = GetText(element);
@@ -235,13 +273,13 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Handles the reference expression.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     private void HandleReferenceExpression(IElement element)
     {
       string text = GetText(element);
-      this.TextControl.Document.InsertText(this.TextControl.CaretModel.Offset, "(" + text + ")");
+      // this.TextControl.Document.InsertText(this.TextControl.CaretModel.Offset, "(" + text + ")");
     }
-
-    #endregion
   }
 }

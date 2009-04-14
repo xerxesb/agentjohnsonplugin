@@ -1,3 +1,7 @@
+// <copyright file="ContextActionBase.cs" company="Sitecore">
+// Copyright (c) Sitecore. All rights reserved.
+// </copyright>
+
 namespace AgentJohnson
 {
   using System;
@@ -16,27 +20,38 @@ namespace AgentJohnson
   /// </summary>
   public abstract class ContextActionBase : CSharpContextActionBase, IBulbItem, IBulbAction
   {
-    #region Fields
-
+    /// <summary>
+    /// The current provider.
+    /// </summary>
     private readonly ICSharpContextActionDataProvider provider;
+
+    /// <summary>
+    /// Indicates if transactions should be started.
+    /// </summary>
     private bool startTransaction = true;
-
-    #endregion
-
-    #region Constructor
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ContextActionBase"/> class.
     /// </summary>
-    /// <param name="provider">The provider.</param>
+    /// <param name="provider">
+    /// The provider.
+    /// </param>
     protected ContextActionBase(ICSharpContextActionDataProvider provider) : base(provider)
     {
       this.provider = provider;
     }
 
-    #endregion
-
-    #region Protected properties
+    /// <summary>
+    /// Gets the items.
+    /// </summary>
+    /// <value>The items.</value>
+    public override IBulbItem[] Items
+    {
+      get
+      {
+        return new[] { this };
+      }
+    }
 
     /// <summary>
     /// Gets the solution.
@@ -79,25 +94,37 @@ namespace AgentJohnson
       }
     }
 
-    #endregion
-
-    #region Protected methods
+    /// <summary>
+    /// Gets the text.
+    /// </summary>
+    /// <value>The text.</value>
+    string IBulbItem.Text
+    {
+      get
+      {
+        return this.GetText();
+      }
+    }
 
     /// <summary>
     /// Executes this instance.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     protected abstract void Execute(IElement element);
 
     /// <summary>
     /// Called to apply context action. No locks is taken before call
     /// </summary>
-    /// <param name="param"></param>
+    /// <param name="param">
+    /// The parameters.
+    /// </param>
     protected override void ExecuteInternal(params object[] param)
     {
       if (this.startTransaction)
       {
-        this.Modify(delegate { this.Execute(param[0] as IElement); } );
+        this.Modify(delegate { this.Execute(param[0] as IElement); });
         return;
       }
 
@@ -113,7 +140,9 @@ namespace AgentJohnson
     /// <summary>
     /// Determines whether this instance is available.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
     /// <c>true</c> if this instance is available; otherwise, <c>false</c>.
     /// </returns>
@@ -137,36 +166,6 @@ namespace AgentJohnson
 
       return this.IsAvailable(element);
     }
-
-    /// <summary>
-    /// Modifies the specified handler.
-    /// </summary>
-    /// <param name="handler">The handler.</param>
-    private void Modify(TransactionHandler handler)
-    {
-      PsiManager psiManager = PsiManager.GetInstance(this.Solution);
-      if (psiManager == null)
-      {
-        return;
-      }
-
-      using (ModificationCookie cookie = this.TextControl.Document.EnsureWritable())
-      {
-        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
-        {
-          return;
-        }
-
-        using (CommandCookie.Create(string.Format("Context Action {0}", this.GetText())))
-        {
-          psiManager.DoTransaction(handler);
-        }
-      }
-    }
-
-    #endregion
-
-    #region Private methods
 
     /// <summary>
     /// Executes the specified solution.
@@ -197,41 +196,32 @@ namespace AgentJohnson
       this.Execute(element);
     }
 
-    #endregion
-
-    #region IBulbAction Members
-
     /// <summary>
-    /// Gets the items.
+    /// Modifies the specified handler.
     /// </summary>
-    /// <value>The items.</value>
-    public override IBulbItem[] Items
+    /// <param name="handler">
+    /// The handler.
+    /// </param>
+    private void Modify(TransactionHandler handler)
     {
-      get
+      PsiManager psiManager = PsiManager.GetInstance(this.Solution);
+      if (psiManager == null)
       {
-        return new[]
+        return;
+      }
+
+      using (ModificationCookie cookie = this.TextControl.Document.EnsureWritable())
+      {
+        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
         {
-          this
-        };
+          return;
+        }
+
+        using (CommandCookie.Create(string.Format("Context Action {0}", this.GetText())))
+        {
+          psiManager.DoTransaction(handler);
+        }
       }
     }
-
-    #endregion
-
-    #region IBulbItem Members
-
-    /// <summary>
-    /// Gets the text.
-    /// </summary>
-    /// <value>The text.</value>
-    string IBulbItem.Text
-    {
-      get
-      {
-        return this.GetText();
-      }
-    }
-
-    #endregion
   }
 }
