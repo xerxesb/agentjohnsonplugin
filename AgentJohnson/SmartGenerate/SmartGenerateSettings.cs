@@ -1,3 +1,12 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="SmartGenerateSettings.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Defines the smart generate settings class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson.SmartGenerate
 {
   using System.Xml;
@@ -12,13 +21,16 @@ namespace AgentJohnson.SmartGenerate
   [ShellComponentImplementation]
   public class SmartGenerateSettings : IXmlExternalizableShellComponent
   {
-    #region Fields
+    #region Constants and Fields
 
+    /// <summary>
+    /// The _disabled actions.
+    /// </summary>
     private string _disabledActions;
 
     #endregion
 
-    #region Public properties
+    #region Properties
 
     /// <summary>
     /// Gets the instance.
@@ -43,71 +55,10 @@ namespace AgentJohnson.SmartGenerate
       {
         return this._disabledActions ?? string.Empty;
       }
+
       set
       {
         this._disabledActions = value;
-      }
-    }
-
-    #endregion
-
-    #region IShellComponent implementation
-
-    /// <summary>
-    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-    /// </summary>
-    public void Dispose()
-    {
-    }
-
-    /// <summary>
-    /// Initializes this instance.
-    /// </summary>
-    public void Init()
-    {
-    }
-
-    #endregion
-
-    #region IXmlExternalizableShellComponent implementation
-
-    #region Public methods
-
-    /// <summary>
-    /// This method must not fail with null or unexpected Xml!!!
-    /// </summary>
-    /// <param name="element"></param>
-    public void ReadFromXml(XmlElement element)
-    {
-      if (element == null)
-      {
-        return;
-      }
-
-      XmlExternalizationUtil.ReadFromXml(element, this);
-    }
-
-    /// <summary>
-    /// Writes to XML.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    /// <returns></returns>
-    public void WriteToXml(XmlElement element)
-    {
-      XmlExternalizationUtil.WriteToXml(element, this);
-    }
-
-    #endregion
-
-    /// <summary>
-    /// Gets the name of the tag.
-    /// </summary>
-    /// <value>The name of the tag.</value>
-    public string TagName
-    {
-      get
-      {
-        return "AgentJohnson.SmartGenerate";
       }
     }
 
@@ -124,6 +75,74 @@ namespace AgentJohnson.SmartGenerate
         return XmlExternalizationScope.UserSettings;
       }
     }
+
+    /// <summary>
+    /// Gets the name of the tag.
+    /// </summary>
+    /// <value>The name of the tag.</value>
+    public string TagName
+    {
+      get
+      {
+        return "AgentJohnson.SmartGenerate";
+      }
+    }
+
+    #endregion
+
+    #region Implemented Interfaces
+
+    #region IComponent
+
+    /// <summary>
+    /// Initializes this instance.
+    /// </summary>
+    public void Init()
+    {
+    }
+
+    #endregion
+
+    #region IDisposable
+
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    public void Dispose()
+    {
+    }
+
+    #endregion
+
+    #region IXmlExternalizable
+
+    /// <summary>
+    /// This method must not fail with null or unexpected Xml!!!
+    /// </summary>
+    /// <param name="element">
+    /// </param>
+    public void ReadFromXml(XmlElement element)
+    {
+      if (element == null)
+      {
+        return;
+      }
+
+      XmlExternalizationUtil.ReadFromXml(element, this);
+    }
+
+    /// <summary>
+    /// Writes to XML.
+    /// </summary>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    public void WriteToXml(XmlElement element)
+    {
+      XmlExternalizationUtil.WriteToXml(element, this);
+    }
+
+    #endregion
 
     #endregion
   }

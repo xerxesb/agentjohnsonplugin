@@ -1,63 +1,93 @@
-namespace AgentJohnson.FavoriteFiles {
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FavoriteFilePath.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Represents a FavoriteFilePath.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace AgentJohnson.FavoriteFiles
+{
   /// <summary>
   /// Represents a FavoriteFilePath.
   /// </summary>
-  public class FavoriteFilePath {
-    #region Fields
+  public class FavoriteFilePath
+  {
+    #region Constants and Fields
 
-    string _path;
-    string _projectName;
+    /// <summary>
+    /// The _path.
+    /// </summary>
+    private string _path;
+
+    /// <summary>
+    /// The _project name.
+    /// </summary>
+    private string _projectName;
 
     #endregion
 
-    #region Constructor
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FavoriteFilePath"/> class.
     /// </summary>
-    public FavoriteFilePath() {
-      _path = string.Empty;
-      _projectName = string.Empty;
+    public FavoriteFilePath()
+    {
+      this._path = string.Empty;
+      this._projectName = string.Empty;
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FavoriteFilePath"/> class.
     /// </summary>
-    /// <param name="path">The path.</param>
-    public FavoriteFilePath(string path) {
-      _path = path;
-      _projectName = string.Empty;
+    /// <param name="path">
+    /// The path.
+    /// </param>
+    public FavoriteFilePath(string path)
+    {
+      this._path = path;
+      this._projectName = string.Empty;
 
-      if(!path.StartsWith("<")){
+      if (!path.StartsWith("<"))
+      {
         return;
       }
 
-      int n = path.IndexOf('>');
-      if(n < 0){
+      var n = path.IndexOf('>');
+      if (n < 0)
+      {
         return;
       }
-      _projectName = _path.Substring(1, n - 1);
-      _path = _path.Substring(n + 1);
 
-      if (_path.StartsWith("\\")){
-        _path = _path.Substring(1);
+      this._projectName = this._path.Substring(1, n - 1);
+      this._path = this._path.Substring(n + 1);
+
+      if (this._path.StartsWith("\\"))
+      {
+        this._path = this._path.Substring(1);
       }
     }
 
     #endregion
 
-    #region Public properties
+    #region Properties
 
     /// <summary>
     /// Gets or sets the path.
     /// </summary>
     /// <value>The path.</value>
-    public string Path {
-      get {
-        return _path;
+    public string Path
+    {
+      get
+      {
+        return this._path;
       }
-      set {
-        _path = value;
+
+      set
+      {
+        this._path = value;
       }
     }
 
@@ -65,33 +95,38 @@ namespace AgentJohnson.FavoriteFiles {
     /// Gets or sets the name of the project.
     /// </summary>
     /// <value>The name of the project.</value>
-    public string ProjectName {
-      get {
-        return _projectName;
+    public string ProjectName
+    {
+      get
+      {
+        return this._projectName;
       }
-      set {
-        _projectName = value;
+
+      set
+      {
+        this._projectName = value;
       }
     }
 
     #endregion
 
-    #region Public methods
+    #region Public Methods
 
-    ///<summary>
-    ///Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:System.Object"></see>.
-    ///</summary>
-    ///
-    ///<returns>
-    ///A <see cref="T:System.String"></see> that represents the current <see cref="T:System.Object"></see>.
-    ///</returns>
-    ///<filterpriority>2</filterpriority>
-    public override string ToString() {
-      if (string.IsNullOrEmpty(ProjectName)){
-        return Path;
+    /// <summary>
+    /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:System.Object"></see>.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="T:System.String"></see> that represents the current <see cref="T:System.Object"></see>.
+    /// </returns>
+    /// <filterpriority>2</filterpriority>
+    public override string ToString()
+    {
+      if (string.IsNullOrEmpty(this.ProjectName))
+      {
+        return this.Path;
       }
 
-      return "<" + ProjectName + ">\\" + Path;
+      return "<" + this.ProjectName + ">\\" + this.Path;
     }
 
     #endregion

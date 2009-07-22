@@ -1,3 +1,12 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="AssertAssignmentContextAction.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Represents the Context Action.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson.ValueAnalysis
 {
   using System.Collections.Generic;
@@ -5,14 +14,12 @@ namespace AgentJohnson.ValueAnalysis
   using JetBrains.Application;
   using JetBrains.Application.Progress;
   using JetBrains.CommonControls;
-  using JetBrains.DocumentModel;
   using JetBrains.ReSharper.Intentions;
   using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CodeStyle;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
-  using JetBrains.ReSharper.Psi.Resolve;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.ReSharper.Psi.Util;
   using JetBrains.UI.PopupMenu;
@@ -24,29 +31,37 @@ namespace AgentJohnson.ValueAnalysis
   [ContextAction(Description = "Adds an assertion statement after the current statement.", Name = "Assert assignment", Priority = 0, Group = "C#")]
   public class AssertAssignmentContextAction : ContextActionBase
   {
-    #region Fields
+    #region Constants and Fields
 
-    private string _name;
+    /// <summary>
+    /// The name.
+    /// </summary>
+    private string name;
 
     #endregion
 
-    #region Constructor
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AssertAssignmentContextAction"/> class.
     /// </summary>
-    /// <param name="provider">The provider.</param>
+    /// <param name="provider">
+    /// The provider.
+    /// </param>
     public AssertAssignmentContextAction(ICSharpContextActionDataProvider provider) : base(provider)
     {
     }
 
     #endregion
 
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Executes the internal.
     /// </summary>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     protected override void Execute(IElement element)
     {
       if (!this.IsAvailable(element))
@@ -54,14 +69,14 @@ namespace AgentJohnson.ValueAnalysis
         return;
       }
 
-      IAssignmentExpression assignmentExpression = this.Provider.GetSelectedElement<IAssignmentExpression>(true, true);
+      var assignmentExpression = this.Provider.GetSelectedElement<IAssignmentExpression>(true, true);
       if (assignmentExpression != null)
       {
         InsertAssertionCode(assignmentExpression);
         return;
       }
 
-      ILocalVariableDeclaration localVariableDeclaration = this.Provider.GetSelectedElement<ILocalVariableDeclaration>(true, true);
+      var localVariableDeclaration = this.Provider.GetSelectedElement<ILocalVariableDeclaration>(true, true);
       if (localVariableDeclaration != null)
       {
         InsertAssertionCode(localVariableDeclaration);
@@ -72,10 +87,15 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <value>The text.</value>
+    /// <returns>
+    /// The context action text.
+    /// </returns>
+    /// <value>
+    /// The context action text.
+    /// </value>
     protected override string GetText()
     {
-      return string.Format("Assert assignment to '{0}' [Agent Johnson]", this._name);
+      return string.Format("Assert assignment to '{0}' [Agent Johnson]", this.name);
     }
 
     /// <summary>
@@ -83,11 +103,16 @@ namespace AgentJohnson.ValueAnalysis
     /// ReadLock is taken
     /// Will not be called if <c>PsiManager</c>, ProjectFile of Solution == null
     /// </summary>
-    /// <returns></returns>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    /// <returns>
+    /// <c>true</c> if this instance is available; otherwise, <c>false</c>.
+    /// </returns>
     protected override bool IsAvailable(IElement element)
     {
-      ILocalVariableDeclaration localVariableDeclaration = this.Provider.GetSelectedElement<ILocalVariableDeclaration>(true, true);
-      IAssignmentExpression assignmentExpression = this.Provider.GetSelectedElement<IAssignmentExpression>(true, true);
+      var localVariableDeclaration = this.Provider.GetSelectedElement<ILocalVariableDeclaration>(true, true);
+      var assignmentExpression = this.Provider.GetSelectedElement<IAssignmentExpression>(true, true);
 
       if (assignmentExpression == null && localVariableDeclaration == null)
       {
@@ -100,7 +125,7 @@ namespace AgentJohnson.ValueAnalysis
 
       if (assignmentExpression != null)
       {
-        ICSharpExpression destination = assignmentExpression.Dest;
+        var destination = assignmentExpression.Dest;
         if (destination == null)
         {
           return false;
@@ -114,13 +139,13 @@ namespace AgentJohnson.ValueAnalysis
         declaredType = destination.GetExpressionType() as IDeclaredType;
         language = destination.Language;
 
-        IReferenceExpression referenceExpression = destination as IReferenceExpression;
+        var referenceExpression = destination as IReferenceExpression;
         if (referenceExpression == null)
         {
           return false;
         }
 
-        IReference reference = referenceExpression.Reference;
+        var reference = referenceExpression.Reference;
         if (reference == null)
         {
           return false;
@@ -132,13 +157,13 @@ namespace AgentJohnson.ValueAnalysis
           return false;
         }
 
-        this._name = reference.GetName();
+        this.name = reference.GetName();
 
         range = new TextRange(destination.GetTreeStartOffset(), source.GetTreeStartOffset());
       }
       else
       {
-        ILocalVariable localVariable = localVariableDeclaration as ILocalVariable;
+        var localVariable = localVariableDeclaration.DeclaredElement as ILocalVariable;
         if (localVariable == null)
         {
           return false;
@@ -147,13 +172,13 @@ namespace AgentJohnson.ValueAnalysis
         declaredType = localVariable.Type;
         language = localVariable.Language;
 
-        ILocalVariableDeclarationNode declNode = localVariableDeclaration.ToTreeNode();
+        var declNode = localVariableDeclaration.ToTreeNode();
         if (declNode.AssignmentSign == null)
         {
           return false;
         }
 
-        IVariableInitializer initial = localVariableDeclaration.Initial;
+        var initial = localVariableDeclaration.Initial;
         if (initial == null)
         {
           return false;
@@ -165,7 +190,7 @@ namespace AgentJohnson.ValueAnalysis
           return false;
         }
 
-        this._name = localVariable.ShortName;
+        this.name = localVariable.ShortName;
 
         range = new TextRange(identifier.GetTreeStartOffset(), initial.GetTreeStartOffset());
       }
@@ -185,7 +210,7 @@ namespace AgentJohnson.ValueAnalysis
         return false;
       }
 
-      Rule rule = Rule.GetRule(declaredType, language) ?? Rule.GetDefaultRule();
+      var rule = Rule.GetRule(declaredType, language) ?? Rule.GetDefaultRule();
       if (rule == null)
       {
         return false;
@@ -194,18 +219,16 @@ namespace AgentJohnson.ValueAnalysis
       return rule.ValueAssertions.Count > 0;
     }
 
-    #endregion
-
-    #region Private methods
-
     /// <summary>
     /// Gets the code formatter.
     /// </summary>
-    /// <returns>The code formatter.</returns>
+    /// <returns>
+    /// The code formatter.
+    /// </returns>
     [CanBeNull]
     private static CodeFormatter GetCodeFormatter()
     {
-      LanguageService languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
+      var languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
       if (languageService == null)
       {
         return null;
@@ -217,11 +240,15 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// Inserts the assert.
     /// </summary>
-    /// <param name="assertion">The assertion.</param>
-    /// <param name="element">The element.</param>
+    /// <param name="assertion">
+    /// The assertion.
+    /// </param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     private static void InsertAssertionCode(string assertion, IElement element)
     {
-      CodeFormatter codeFormatter = GetCodeFormatter();
+      var codeFormatter = GetCodeFormatter();
       if (codeFormatter == null)
       {
         return;
@@ -230,12 +257,12 @@ namespace AgentJohnson.ValueAnalysis
       IStatement anchor = null;
       string name;
 
-      IAssignmentExpression assignmentExpression = element as IAssignmentExpression;
+      var assignmentExpression = element as IAssignmentExpression;
       if (assignmentExpression != null)
       {
         anchor = assignmentExpression.GetContainingStatement();
 
-        IReferenceExpression referenceExpression = assignmentExpression.Dest as IReferenceExpression;
+        var referenceExpression = assignmentExpression.Dest as IReferenceExpression;
         if (referenceExpression == null)
         {
           return;
@@ -245,7 +272,7 @@ namespace AgentJohnson.ValueAnalysis
       }
       else
       {
-        ITreeNode treeNode = element.ToTreeNode();
+        var treeNode = element.ToTreeNode();
 
         while (treeNode != null)
         {
@@ -259,7 +286,7 @@ namespace AgentJohnson.ValueAnalysis
           treeNode = treeNode.Parent;
         }
 
-        ILocalVariable localVariable = element as ILocalVariable;
+        var localVariable = element as ILocalVariable;
         if (localVariable == null)
         {
           return;
@@ -273,44 +300,49 @@ namespace AgentJohnson.ValueAnalysis
         return;
       }
 
-      IMethodDeclaration functionDeclaration = anchor.GetContainingTypeMemberDeclaration() as IMethodDeclaration;
+      var functionDeclaration = anchor.GetContainingTypeMemberDeclaration() as IMethodDeclaration;
       if (functionDeclaration == null)
       {
         return;
       }
 
-      IBlock body = functionDeclaration.Body;
+      var body = functionDeclaration.Body;
       if (body == null)
       {
         return;
       }
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
 
-      ICSharpElement csharpElement = element as ICSharpElement;
+      var factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
+
+      var csharpElement = element as ICSharpElement;
       if (csharpElement == null)
       {
         return;
       }
 
-      string code = string.Format(assertion, name);
+      var code = string.Format(assertion, name);
 
-      IStatement statement = factory.CreateStatement(code);
+      var statement = factory.CreateStatement(code);
 
-      IStatement result = body.AddStatementAfter(statement, anchor);
+      var result = body.AddStatementAfter(statement, anchor);
 
-      DocumentRange range = result.GetDocumentRange();
-      IPsiRangeMarker marker = result.GetManager().CreatePsiRangeMarker(range);
+      var range = result.GetDocumentRange();
+      var marker = result.GetManager().CreatePsiRangeMarker(range);
       codeFormatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
     }
 
     /// <summary>
     /// Menu_s the item clicked.
     /// </summary>
-    /// <param name="assertion">The assertion.</param>
-    /// <param name="element">The element.</param>
+    /// <param name="assertion">
+    /// The assertion.
+    /// </param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     private void InsertAssertion(string assertion, IElement element)
     {
-      PsiManager psiManager = PsiManager.GetInstance(this.Provider.Solution);
+      var psiManager = PsiManager.GetInstance(this.Provider.Solution);
       if (psiManager == null)
       {
         return;
@@ -318,7 +350,7 @@ namespace AgentJohnson.ValueAnalysis
 
       using (ReadLockCookie.Create())
       {
-        using (ModificationCookie cookie = this.Provider.TextControl.Document.EnsureWritable())
+        using (var cookie = this.Provider.TextControl.Document.EnsureWritable())
         {
           if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
           {
@@ -336,9 +368,12 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// Inserts the assertion code.
     /// </summary>
+    /// <param name="localVariableDeclaration">
+    /// The local variable declaration.
+    /// </param>
     private void InsertAssertionCode(ILocalVariableDeclaration localVariableDeclaration)
     {
-      ILocalVariable localVariable = localVariableDeclaration as ILocalVariable;
+      var localVariable = localVariableDeclaration.DeclaredElement as ILocalVariable;
       if (localVariable == null)
       {
         return;
@@ -350,10 +385,12 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// Inserts the assertion code.
     /// </summary>
-    /// <param name="assignmentExpression">The assignment expression.</param>
+    /// <param name="assignmentExpression">
+    /// The assignment expression.
+    /// </param>
     private void InsertAssertionCode(IAssignmentExpression assignmentExpression)
     {
-      ICSharpExpression destination = assignmentExpression.Dest;
+      var destination = assignmentExpression.Dest;
       if (destination == null)
       {
         return;
@@ -364,13 +401,13 @@ namespace AgentJohnson.ValueAnalysis
         return;
       }
 
-      IType type = destination.GetExpressionType() as IType;
+      var type = destination.GetExpressionType() as IType;
       if (type == null)
       {
         return;
       }
 
-      IReferenceExpression referenceExpression = assignmentExpression.Dest as IReferenceExpression;
+      var referenceExpression = assignmentExpression.Dest as IReferenceExpression;
       if (referenceExpression == null)
       {
         return;
@@ -382,12 +419,18 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// Inserts the assertion code.
     /// </summary>
-    /// <param name="type">The type.</param>
-    /// <param name="element">The element.</param>
-    /// <param name="name">The name.</param>
+    /// <param name="type">
+    /// The type.
+    /// </param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    /// <param name="name">
+    /// The name.
+    /// </param>
     private void InsertAssertionCode(IType type, IElement element, string name)
     {
-      Rule rule = Rule.GetRule(type, element.Language) ?? Rule.GetDefaultRule();
+      var rule = Rule.GetRule(type, element.Language) ?? Rule.GetDefaultRule();
       if (rule == null)
       {
         return;
@@ -395,7 +438,7 @@ namespace AgentJohnson.ValueAnalysis
 
       if (rule.ValueAssertions.Count == 1)
       {
-        string valueAssertion = rule.ValueAssertions[0];
+        var valueAssertion = rule.ValueAssertions[0];
 
         InsertAssertionCode(valueAssertion, element);
 
@@ -408,18 +451,24 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// Shows the popup menu.
     /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="rule">The rule.</param>
-    /// <param name="name">The name.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    /// <param name="rule">
+    /// The rule.
+    /// </param>
+    /// <param name="name">
+    /// The name.
+    /// </param>
     private void ShowPopupMenu(IElement element, Rule rule, string name)
     {
-      JetPopupMenu menu = new JetPopupMenu();
+      var menu = new JetPopupMenu();
 
-      List<SimpleMenuItem> assertions = new List<SimpleMenuItem>(rule.ValueAssertions.Count);
+      var assertions = new List<SimpleMenuItem>(rule.ValueAssertions.Count);
 
-      foreach (string valueAssertion in rule.ValueAssertions)
+      foreach (var valueAssertion in rule.ValueAssertions)
       {
-        SimpleMenuItem item = new SimpleMenuItem
+        var item = new SimpleMenuItem
         {
           Text = string.Format(valueAssertion, name),
           Style = MenuItemStyle.Enabled

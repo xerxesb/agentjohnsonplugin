@@ -1,37 +1,51 @@
-﻿namespace AgentJohnson.SmartGenerate.LiveTemplates
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="LocalVariableContext.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The local variable context.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace AgentJohnson.SmartGenerate.LiveTemplates
 {
   using System.Collections.Generic;
-  using JetBrains.ReSharper.Psi;
-  using JetBrains.ReSharper.Psi.Tree;
-  using Scopes;
 
   /// <summary>
+  /// The local variable context.
   /// </summary>
   [LiveTemplate("Local Variable Context", "Generate local Variable Context")]
   public class LocalVariableContext : ILiveTemplate
   {
-    #region Private methods
+    #region Implemented Interfaces
+
+    #region ILiveTemplate
 
     /// <summary>
     /// Gets the name of the template.
     /// </summary>
-    /// <param name="parameters">The parameters.</param>
-    /// <returns>The items.</returns>
+    /// <param name="parameters">
+    /// The parameters.
+    /// </param>
+    /// <returns>
+    /// The items.
+    /// </returns>
     IEnumerable<LiveTemplateItem> ILiveTemplate.GetItems(SmartGenerateParameters parameters)
     {
-      IElement element = parameters.Element;
+      var element = parameters.Element;
 
-      List<ScopeEntry> scope = parameters.Scope;
+      var scope = parameters.Scope;
       if (scope.Count == 0)
       {
         return null;
       }
-      string name = scope[parameters.ScopeIndex].Name;
-      IType type = scope[parameters.ScopeIndex].Type;
 
-      List<LiveTemplateItem> result = new List<LiveTemplateItem>();
+      var name = scope[parameters.ScopeIndex].Name;
+      var type = scope[parameters.ScopeIndex].Type;
 
-      LiveTemplateItem liveTemplateItem = new LiveTemplateItem
+      var result = new List<LiveTemplateItem>();
+
+      var liveTemplateItem = new LiveTemplateItem
       {
         MenuText = string.Format("After declaration of variable of type '{0}'", type.GetPresentableName(element.Language)),
         Description = string.Format("After declaration of variable of type '{0}'", type.GetPresentableName(element.Language)),
@@ -45,6 +59,8 @@
 
       return result;
     }
+
+    #endregion
 
     #endregion
   }

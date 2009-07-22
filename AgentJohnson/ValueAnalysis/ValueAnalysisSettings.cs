@@ -1,30 +1,48 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ValueAnalysisSettings.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The value analysis settings.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson.ValueAnalysis
 {
   using System.Collections.Generic;
   using System.IO;
   using System.Xml;
-
   using JetBrains.Application;
   using JetBrains.ComponentModel;
   using JetBrains.Util;
 
   /// <summary>
+  /// The value analysis settings.
   /// </summary>
   [ShellComponentInterface(ProgramConfigurations.VS_ADDIN)]
   [ShellComponentImplementation]
   public class ValueAnalysisSettings : IXmlExternalizableShellComponent
   {
+    #region Constants and Fields
+
     /// <summary>
+    /// The _allow null attribute.
     /// </summary>
     private string _allowNullAttribute;
 
     /// <summary>
+    /// The _rules.
     /// </summary>
     private List<Rule> _rules = new List<Rule>();
 
     /// <summary>
+    /// The execute ghost doc.
     /// </summary>
     private bool executeGhostDoc;
+
+    #endregion
+
+    #region Properties
 
     /// <summary>
     /// Gets the instance.
@@ -115,9 +133,9 @@ namespace AgentJohnson.ValueAnalysis
     {
       get
       {
-        StringWriter stringWriter = new StringWriter();
+        var stringWriter = new StringWriter();
 
-        XmlTextWriter writer = new XmlTextWriter(stringWriter);
+        var writer = new XmlTextWriter(stringWriter);
 
         this.Write(writer);
 
@@ -133,11 +151,11 @@ namespace AgentJohnson.ValueAnalysis
           return;
         }
 
-        XmlDocument doc = new XmlDocument();
+        var doc = new XmlDocument();
 
         doc.LoadXml(value);
 
-        XmlNodeList nodes = doc.SelectNodes("/types/type");
+        var nodes = doc.SelectNodes("/types/type");
         if (nodes == null)
         {
           return;
@@ -159,34 +177,9 @@ namespace AgentJohnson.ValueAnalysis
       }
     }
 
-    /// <summary>
-    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-    /// </summary>
-    public void Dispose()
-    {
-    }
+    #endregion
 
-    /// <summary>
-    /// Initializes this instance.
-    /// </summary>
-    public void Init()
-    {
-    }
-
-    /// <summary>
-    /// This method must not fail with null or unexpected Xml!!!
-    /// </summary>
-    /// <param name="element">
-    /// </param>
-    public void ReadFromXml(XmlElement element)
-    {
-      if (element == null)
-      {
-        return;
-      }
-
-      XmlExternalizationUtil.ReadFromXml(element, this);
-    }
+    #region Public Methods
 
     /// <summary>
     /// Reads the settings.
@@ -199,17 +192,17 @@ namespace AgentJohnson.ValueAnalysis
       this._rules.Clear();
       this.AllowNullAttribute = string.Empty;
 
-      XmlNodeList nodes = doc.SelectNodes("/settings/valueanalysis/types/type");
+      var nodes = doc.SelectNodes("/settings/valueanalysis/types/type");
 
       this.Read(nodes);
 
-      XmlNode allowNullNode = doc.SelectSingleNode("/settings/valueanalysis/allownull");
+      var allowNullNode = doc.SelectSingleNode("/settings/valueanalysis/allownull");
       if (allowNullNode != null)
       {
         this.AllowNullAttribute = allowNullNode.InnerText;
       }
 
-      XmlNode executeGhostDocNode = doc.SelectSingleNode("/settings/valueanalysis/executeghostdoc");
+      var executeGhostDocNode = doc.SelectSingleNode("/settings/valueanalysis/executeghostdoc");
       if (executeGhostDocNode != null)
       {
         this.ExecuteGhostDoc = executeGhostDocNode.InnerText == "true";
@@ -234,6 +227,49 @@ namespace AgentJohnson.ValueAnalysis
       writer.WriteEndElement();
     }
 
+    #endregion
+
+    #region Implemented Interfaces
+
+    #region IComponent
+
+    /// <summary>
+    /// Initializes this instance.
+    /// </summary>
+    public void Init()
+    {
+    }
+
+    #endregion
+
+    #region IDisposable
+
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    public void Dispose()
+    {
+    }
+
+    #endregion
+
+    #region IXmlExternalizable
+
+    /// <summary>
+    /// This method must not fail with null or unexpected Xml!!!
+    /// </summary>
+    /// <param name="element">
+    /// </param>
+    public void ReadFromXml(XmlElement element)
+    {
+      if (element == null)
+      {
+        return;
+      }
+
+      XmlExternalizationUtil.ReadFromXml(element, this);
+    }
+
     /// <summary>
     /// Writes to XML.
     /// </summary>
@@ -244,6 +280,12 @@ namespace AgentJohnson.ValueAnalysis
     {
       XmlExternalizationUtil.WriteToXml(element, this);
     }
+
+    #endregion
+
+    #endregion
+
+    #region Methods
 
     /// <summary>
     /// Gets the attribute.
@@ -259,7 +301,7 @@ namespace AgentJohnson.ValueAnalysis
     /// </returns>
     private static string GetAttributeString(XmlNode node, string name)
     {
-      XmlAttribute attribute = node.Attributes[name];
+      var attribute = node.Attributes[name];
 
       return attribute == null ? string.Empty : (attribute.Value ?? string.Empty);
     }
@@ -278,7 +320,7 @@ namespace AgentJohnson.ValueAnalysis
     /// </returns>
     private static string GetElementString(XmlNode node, string name)
     {
-      XmlNode element = node.SelectSingleNode(name);
+      var element = node.SelectSingleNode(name);
 
       return element == null ? string.Empty : element.InnerText;
     }
@@ -293,9 +335,12 @@ namespace AgentJohnson.ValueAnalysis
     {
       foreach (XmlNode type in nodes)
       {
-        Rule rule = new Rule {TypeName = GetAttributeString(type, "type"), NotNull = GetAttributeString(type, "notnull") == "true", CanBeNull = GetAttributeString(type, "canbenull") == "true", PublicParameterAssertion = GetElementString(type, "publicparameterassertion"), NonPublicParameterAssertion = GetElementString(type, "nonpublicparameterassertion"), ReturnAssertion = GetElementString(type, "returnassertion")};
+        var rule = new Rule
+        {
+          TypeName = GetAttributeString(type, "type"), NotNull = GetAttributeString(type, "notnull") == "true", CanBeNull = GetAttributeString(type, "canbenull") == "true", PublicParameterAssertion = GetElementString(type, "publicparameterassertion"), NonPublicParameterAssertion = GetElementString(type, "nonpublicparameterassertion"), ReturnAssertion = GetElementString(type, "returnassertion")
+        };
 
-        XmlNodeList valueAssertions = type.SelectNodes("valueassertions/valueassertion");
+        var valueAssertions = type.SelectNodes("valueassertions/valueassertion");
         if (valueAssertions != null)
         {
           foreach (XmlNode valueAssertion in valueAssertions)
@@ -318,7 +363,7 @@ namespace AgentJohnson.ValueAnalysis
     {
       writer.WriteStartElement("types");
 
-      foreach (Rule configuration in this.Rules)
+      foreach (var configuration in this.Rules)
       {
         writer.WriteStartElement("type");
 
@@ -331,7 +376,7 @@ namespace AgentJohnson.ValueAnalysis
 
         writer.WriteStartElement("valueassertions");
 
-        foreach (string assertion in configuration.ValueAssertions)
+        foreach (var assertion in configuration.ValueAssertions)
         {
           writer.WriteElementString("valueassertion", assertion);
         }
@@ -343,5 +388,7 @@ namespace AgentJohnson.ValueAnalysis
 
       writer.WriteEndElement();
     }
+
+    #endregion
   }
 }

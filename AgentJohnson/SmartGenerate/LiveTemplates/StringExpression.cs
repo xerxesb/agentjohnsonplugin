@@ -1,37 +1,52 @@
-﻿namespace AgentJohnson.SmartGenerate.LiveTemplates
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="StringExpression.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The string expression.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace AgentJohnson.SmartGenerate.LiveTemplates
 {
   using System.Collections.Generic;
-  using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
+  /// The string expression.
   /// </summary>
   [LiveTemplate("Surround expression", "Surrounds the expression.", Priority = -20)]
   public class StringExpression : ILiveTemplate
   {
-    #region Private methods
+    #region Implemented Interfaces
+
+    #region ILiveTemplate
 
     /// <summary>
     /// Gets the name of the template.
     /// </summary>
-    /// <param name="parameters">The parameters.</param>
-    /// <returns>The items.</returns>
+    /// <param name="parameters">
+    /// The parameters.
+    /// </param>
+    /// <returns>
+    /// The items.
+    /// </returns>
     IEnumerable<LiveTemplateItem> ILiveTemplate.GetItems(SmartGenerateParameters parameters)
     {
-      IElement element = parameters.Element;
+      var element = parameters.Element;
 
-      List<LiveTemplateItem> result = new List<LiveTemplateItem>();
+      var result = new List<LiveTemplateItem>();
 
-      bool hasString = false;
-      bool hasInt = false;
-      bool hasBool = false;
+      var hasString = false;
+      var hasInt = false;
+      var hasBool = false;
 
-      IExpression expression = element.GetContainingElement(typeof(IExpression), false) as IExpression;
+      var expression = element.GetContainingElement(typeof(IExpression), false) as IExpression;
       while (expression != null)
       {
-        IType type = expression.Type();
+        var type = expression.Type();
 
-        string typeName = type.GetPresentableName(element.Language);
+        var typeName = type.GetPresentableName(element.Language);
 
         if (typeName == "string" && !hasString)
         {
@@ -77,6 +92,8 @@
 
       return result;
     }
+
+    #endregion
 
     #endregion
   }

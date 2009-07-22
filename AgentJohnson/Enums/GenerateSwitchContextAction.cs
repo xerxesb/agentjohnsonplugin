@@ -1,12 +1,19 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="GenerateSwitchContextAction.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Represents the Context Action.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson.Enums
 {
   using System.Text;
   using JetBrains.Application.Progress;
-  using JetBrains.DocumentModel;
   using JetBrains.ReSharper.Intentions;
   using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
   using JetBrains.ReSharper.Psi;
-  using JetBrains.ReSharper.Psi.CodeStyle;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
@@ -18,70 +25,75 @@ namespace AgentJohnson.Enums
   [ContextAction(Description = "Generates a 'switch' statement based on the current 'enum' expression.", Name = "Generate 'switch' statement", Priority = -1, Group = "C#")]
   public class GenerateSwitchContextAction : ContextActionBase
   {
-    #region Constructor
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GenerateSwitchContextAction"/> class.
     /// </summary>
-    /// <param name="provider">The provider.</param>
+    /// <param name="provider">
+    /// The provider.
+    /// </param>
     public GenerateSwitchContextAction(ICSharpContextActionDataProvider provider) : base(provider)
     {
     }
 
     #endregion
 
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Executes the internal.
     /// </summary>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     protected override void Execute(IElement element)
     {
-      IExpressionStatement statement = this.GetSelectedElement<IExpressionStatement>(true);
+      var statement = this.GetSelectedElement<IExpressionStatement>(true);
       if (statement == null)
       {
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(statement.GetPsiModule());
+      var factory = CSharpElementFactory.GetInstance(statement.GetPsiModule());
       if (factory == null)
       {
         return;
       }
 
-      ICSharpExpression expression = statement.Expression;
+      var expression = statement.Expression;
       if ((expression == null) || !(expression.ToTreeNode() is IUnaryExpressionNode))
       {
         return;
       }
 
-      IType type = expression.Type();
+      var type = expression.Type();
       if (!type.IsResolved)
       {
         return;
       }
 
-      IDeclaredType declaredType = type as IDeclaredType;
+      var declaredType = type as IDeclaredType;
       if (declaredType == null)
       {
         return;
       }
 
-      IEnum enumerate = declaredType.GetTypeElement() as IEnum;
+      var enumerate = declaredType.GetTypeElement() as IEnum;
       if (enumerate == null)
       {
         return;
       }
 
-      string typeName = enumerate.ShortName;
+      var typeName = enumerate.ShortName;
 
-      StringBuilder code = new StringBuilder("switch(");
+      var code = new StringBuilder("switch(");
 
       code.Append(statement.GetText());
 
       code.Append(") {");
 
-      foreach (IField field in enumerate.EnumMembers)
+      foreach (var field in enumerate.EnumMembers)
       {
         code.Append("case ");
         code.Append(typeName);
@@ -95,7 +107,7 @@ namespace AgentJohnson.Enums
 
       code.Append("\r\n}");
 
-      IStatement result = factory.CreateStatement(code.ToString());
+      var result = factory.CreateStatement(code.ToString());
       if (result == null)
       {
         return;
@@ -103,27 +115,32 @@ namespace AgentJohnson.Enums
 
       result = statement.ReplaceBy(result);
 
-      LanguageService languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
+      var languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
       if (languageService == null)
       {
         return;
       }
 
-      CodeFormatter formatter = languageService.CodeFormatter;
+      var formatter = languageService.CodeFormatter;
       if (formatter == null)
       {
         return;
       }
 
-      DocumentRange range = result.GetDocumentRange();
-      IPsiRangeMarker marker = result.GetManager().CreatePsiRangeMarker(range);
+      var range = result.GetDocumentRange();
+      var marker = result.GetManager().CreatePsiRangeMarker(range);
       formatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
     }
 
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <value>The text.</value>
+    /// <value>
+    /// The text.
+    /// </value>
+    /// <returns>
+    /// The get text.
+    /// </returns>
     protected override string GetText()
     {
       return string.Format("Generate 'switch' statement [Agent Johnson]");
@@ -134,22 +151,27 @@ namespace AgentJohnson.Enums
     /// ReadLock is taken
     /// Will not be called if <c>PsiManager</c>, ProjectFile of Solution == null
     /// </summary>
-    /// <returns></returns>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    /// <returns>
+    /// The is available.
+    /// </returns>
     protected override bool IsAvailable(IElement element)
     {
-      IExpressionStatement statement = this.GetSelectedElement<IExpressionStatement>(true);
+      var statement = this.GetSelectedElement<IExpressionStatement>(true);
       if (statement == null)
       {
         return false;
       }
 
-      ICSharpExpression expression = statement.Expression;
+      var expression = statement.Expression;
       if ((expression == null) || !(expression.ToTreeNode() is IUnaryExpressionNode))
       {
         return false;
       }
 
-      IType type = expression.Type();
+      var type = expression.Type();
       if (!type.IsResolved)
       {
         return false;

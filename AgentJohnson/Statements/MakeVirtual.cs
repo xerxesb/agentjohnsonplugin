@@ -1,10 +1,14 @@
-// <copyright file="MakeVirtual.cs" company="Sitecore A/S">
-//   Copyright (c) Sitecore A/S. All rights reserved.
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="MakeVirtual.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
 // </copyright>
+// <summary>
+//   Defines the make abstract class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace AgentJohnson.Statements
 {
-  using System.Collections.Generic;
   using JetBrains.ReSharper.Feature.Services.CSharp.Generate.MemberBody;
   using JetBrains.ReSharper.Intentions;
   using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
@@ -18,35 +22,43 @@ namespace AgentJohnson.Statements
   [ContextAction(Description = "Converts an abstract class to a normal class with virtual members.", Name = "Make abstract class virtual", Priority = -1, Group = "C#")]
   public class MakeVirtual : ContextActionBase
   {
-    #region Constructor
+    #region Constructors and Destructors
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MakeVirtual"/> class.
+    /// </summary>
+    /// <param name="provider">
+    /// The provider.
+    /// </param>
     public MakeVirtual(ICSharpContextActionDataProvider provider) : base(provider)
     {
     }
 
     #endregion
 
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Executes this instance.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     protected override void Execute(IElement element)
     {
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
+      var factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
       if (factory == null)
       {
         return;
       }
 
-      ITreeNode parent = element.ToTreeNode().Parent;
+      var parent = element.ToTreeNode().Parent;
       if (parent == null)
       {
         return;
       }
 
-      IClassDeclaration classDeclaration = parent.Parent as IClassDeclaration;
+      var classDeclaration = parent.Parent as IClassDeclaration;
       if (classDeclaration == null)
       {
         return;
@@ -54,9 +66,9 @@ namespace AgentJohnson.Statements
 
       classDeclaration.SetAbstract(false);
 
-      IList<IMethodDeclaration> methodDeclarations = classDeclaration.MethodDeclarations;
+      var methodDeclarations = classDeclaration.MethodDeclarations;
 
-      foreach (IMethodDeclaration methodDeclaration in methodDeclarations)
+      foreach (var methodDeclaration in methodDeclarations)
       {
         if (!methodDeclaration.IsAbstract)
         {
@@ -71,16 +83,16 @@ namespace AgentJohnson.Statements
           continue;
         }
 
-        IBlock block = factory.CreateEmptyBlock();
+        var block = factory.CreateEmptyBlock();
 
         methodDeclaration.SetBody(block);
 
         CSharpMemberBodyUtil.Instance.SetBodyToDefault(methodDeclaration);
       }
 
-      IList<IPropertyDeclaration> propertyDeclarations = classDeclaration.PropertyDeclarations;
+      var propertyDeclarations = classDeclaration.PropertyDeclarations;
 
-      foreach (IPropertyDeclaration propertyDeclaration in propertyDeclarations)
+      foreach (var propertyDeclaration in propertyDeclarations)
       {
         if (!propertyDeclaration.IsAbstract)
         {
@@ -90,14 +102,14 @@ namespace AgentJohnson.Statements
         propertyDeclaration.SetAbstract(false);
         propertyDeclaration.SetVirtual(true);
 
-        foreach (IAccessorDeclaration accessorDeclaration in propertyDeclaration.AccessorDeclarations)
+        foreach (var accessorDeclaration in propertyDeclaration.AccessorDeclarations)
         {
           if (accessorDeclaration.Body != null)
           {
             continue;
           }
 
-          IBlock block = factory.CreateEmptyBlock();
+          var block = factory.CreateEmptyBlock();
 
           accessorDeclaration.SetBody(block);
 
@@ -109,7 +121,9 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <returns>The text in the context menu.</returns>
+    /// <returns>
+    /// The text in the context menu.
+    /// </returns>
     protected override string GetText()
     {
       return "Make virtual [Agent Johnson]";
@@ -118,26 +132,28 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Determines whether this instance is available.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if this instance is available; otherwise, <c>false</c>.
+    /// <c>true</c> if this instance is available; otherwise, <c>false</c>.
     /// </returns>
     protected override bool IsAvailable(IElement element)
     {
-      string text = element.GetText();
+      var text = element.GetText();
 
       if (text != "abstract")
       {
         return false;
       }
 
-      ITreeNode parent = element.ToTreeNode().Parent;
+      var parent = element.ToTreeNode().Parent;
       if (parent == null)
       {
         return false;
       }
 
-      ITreeNode classNode = parent.Parent;
+      var classNode = parent.Parent;
 
       return classNode is IClassDeclaration;
     }

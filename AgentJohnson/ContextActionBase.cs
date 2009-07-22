@@ -1,6 +1,11 @@
-// <copyright file="ContextActionBase.cs" company="Sitecore">
-// Copyright (c) Sitecore. All rights reserved.
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ContextActionBase.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
 // </copyright>
+// <summary>
+//   Represents the base of a context action.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace AgentJohnson
 {
@@ -20,6 +25,8 @@ namespace AgentJohnson
   /// </summary>
   public abstract class ContextActionBase : CSharpContextActionBase, IBulbItem, IBulbAction
   {
+    #region Constants and Fields
+
     /// <summary>
     /// The current provider.
     /// </summary>
@@ -29,6 +36,10 @@ namespace AgentJohnson
     /// Indicates if transactions should be started.
     /// </summary>
     private bool startTransaction = true;
+
+    #endregion
+
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ContextActionBase"/> class.
@@ -41,6 +52,10 @@ namespace AgentJohnson
       this.provider = provider;
     }
 
+    #endregion
+
+    #region Properties
+
     /// <summary>
     /// Gets the items.
     /// </summary>
@@ -49,7 +64,10 @@ namespace AgentJohnson
     {
       get
       {
-        return new[] { this };
+        return new[]
+        {
+          this
+        };
       }
     }
 
@@ -97,7 +115,7 @@ namespace AgentJohnson
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <value>The text.</value>
+    /// <value>The bulb text.</value>
     string IBulbItem.Text
     {
       get
@@ -105,6 +123,54 @@ namespace AgentJohnson
         return this.GetText();
       }
     }
+
+    #endregion
+
+    #region Implemented Interfaces
+
+    #region IBulbItem
+
+    /// <summary>
+    /// Executes the specified solution.
+    /// </summary>
+    /// <param name="solution">
+    /// The solution.
+    /// </param>
+    /// <param name="textControl">
+    /// The text control.
+    /// </param>
+    void IBulbItem.Execute(ISolution solution, ITextControl textControl)
+    {
+      if (this.Solution != solution || this.TextControl != textControl)
+      {
+        throw new InvalidOperationException();
+      }
+
+      Shell.Instance.Locks.AssertReadAccessAllowed();
+
+      var element = this.provider.SelectedElement;
+      if (element == null)
+      {
+        return;
+      }
+
+      if (this.startTransaction)
+      {
+        this.Modify(delegate { this.Execute(element); });
+      }
+      else
+      {
+        this.Execute(element);
+      }
+
+      this.PostExecute(element);
+    }
+
+    #endregion
+
+    #endregion
+
+    #region Methods
 
     /// <summary>
     /// Executes this instance.
@@ -122,19 +188,26 @@ namespace AgentJohnson
     /// </param>
     protected override void ExecuteInternal(params object[] param)
     {
+      var element = param[0] as IElement;
+
       if (this.startTransaction)
       {
-        this.Modify(delegate { this.Execute(param[0] as IElement); });
-        return;
+        this.Modify(delegate { this.Execute(element); });
+      }
+      else
+      {
+        this.Execute(element);
       }
 
-      this.Execute(param[0] as IElement);
+      this.PostExecute(element);
     }
 
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <returns>The text.</returns>
+    /// <returns>
+    /// The context action text.
+    /// </returns>
     protected abstract string GetText();
 
     /// <summary>
@@ -151,14 +224,16 @@ namespace AgentJohnson
     /// <summary>
     /// Called to check if ContextAction is available.
     /// ReadLock is taken
-    /// Will not be called if PsiManager, ProjectFile of Solution == null
+    /// Will not be called if <c>PsiManager</c>, ProjectFile of Solution == <c>null</c>
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// The is available internal.
+    /// </returns>
     protected override bool IsAvailableInternal()
     {
       Shell.Instance.Locks.AssertReadAccessAllowed();
 
-      IElement element = this.provider.SelectedElement;
+      var element = this.provider.SelectedElement;
       if (element == null)
       {
         return false;
@@ -168,32 +243,13 @@ namespace AgentJohnson
     }
 
     /// <summary>
-    /// Executes the specified solution.
+    /// Posts the execute.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
-    void IBulbItem.Execute(ISolution solution, ITextControl textControl)
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    protected virtual void PostExecute(IElement element)
     {
-      if (this.Solution != solution || this.TextControl != textControl)
-      {
-        throw new InvalidOperationException();
-      }
-
-      Shell.Instance.Locks.AssertReadAccessAllowed();
-
-      IElement element = this.provider.SelectedElement;
-      if (element == null)
-      {
-        return;
-      }
-
-      if (this.startTransaction)
-      {
-        this.Modify(delegate { this.Execute(element); });
-        return;
-      }
-
-      this.Execute(element);
     }
 
     /// <summary>
@@ -204,13 +260,13 @@ namespace AgentJohnson
     /// </param>
     private void Modify(TransactionHandler handler)
     {
-      PsiManager psiManager = PsiManager.GetInstance(this.Solution);
+      var psiManager = PsiManager.GetInstance(this.Solution);
       if (psiManager == null)
       {
         return;
       }
 
-      using (ModificationCookie cookie = this.TextControl.Document.EnsureWritable())
+      using (var cookie = this.TextControl.Document.EnsureWritable())
       {
         if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
         {
@@ -223,5 +279,7 @@ namespace AgentJohnson
         }
       }
     }
+
+    #endregion
   }
 }

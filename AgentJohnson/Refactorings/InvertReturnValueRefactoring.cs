@@ -1,5 +1,15 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="InvertReturnValueRefactoring.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Represents a Refactoring.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson.Refactorings
 {
+  using Strings;
   using JetBrains.Application;
   using JetBrains.DocumentModel;
   using JetBrains.ProjectModel;
@@ -9,27 +19,38 @@ namespace AgentJohnson.Refactorings
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.TextControl;
   using JetBrains.Util;
-  using Strings;
 
   /// <summary>
   /// Represents a Refactoring.
   /// </summary>
   public class InvertReturnValueRefactoring
   {
-    #region Fields
+    #region Constants and Fields
 
+    /// <summary>
+    /// The _solution.
+    /// </summary>
     private readonly ISolution _solution;
+
+    /// <summary>
+    /// The _text control.
+    /// </summary>
     private readonly ITextControl _textControl;
 
     #endregion
 
-    #region Constructor
+    #region Constructors and Destructors
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="InvertReturnValueRefactoring"/> class. 
     /// Initializes a new instance of the <see cref="IntroduceStringConstantRefactoring"/> class.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
+    /// <param name="solution">
+    /// The solution.
+    /// </param>
+    /// <param name="textControl">
+    /// The text control.
+    /// </param>
     public InvertReturnValueRefactoring(ISolution solution, ITextControl textControl)
     {
       this._solution = solution;
@@ -38,7 +59,7 @@ namespace AgentJohnson.Refactorings
 
     #endregion
 
-    #region Public properties
+    #region Properties
 
     /// <summary>
     /// Gets the solution.
@@ -66,34 +87,36 @@ namespace AgentJohnson.Refactorings
 
     #endregion
 
-    #region Public methods
+    #region Public Methods
 
     /// <summary>
     /// Determines whether the specified solution is available.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if the specified solution is available; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified solution is available; otherwise, <c>false</c>.
     /// </returns>
     public static bool IsAvailable(IElement element)
     {
       Shell.Instance.Locks.AssertReadAccessAllowed();
 
-      ITypeMemberDeclaration typeMemberDeclaration = element.ToTreeNode().Parent as ITypeMemberDeclaration;
+      var typeMemberDeclaration = element.ToTreeNode().Parent as ITypeMemberDeclaration;
       if (typeMemberDeclaration == null)
       {
         return false;
       }
 
-      IFunction function = typeMemberDeclaration.DeclaredElement as IFunction;
+      var function = typeMemberDeclaration.DeclaredElement as IFunction;
       if (function == null)
       {
         return false;
       }
 
-      IType type = function.ReturnType;
+      var type = function.ReturnType;
 
-      string name = type.GetPresentableName(element.Language);
+      var name = type.GetPresentableName(element.Language);
 
       return name == "bool";
     }
@@ -103,19 +126,19 @@ namespace AgentJohnson.Refactorings
     /// </summary>
     public void Execute()
     {
-      IElement element = this.GetElementAtCaret();
+      var element = this.GetElementAtCaret();
       if (element == null)
       {
         return;
       }
 
-      ITypeMemberDeclaration typeMemberDeclaration = element.ToTreeNode().Parent as ITypeMemberDeclaration;
+      var typeMemberDeclaration = element.ToTreeNode().Parent as ITypeMemberDeclaration;
       if (typeMemberDeclaration == null)
       {
         return;
       }
 
-      using (ModificationCookie cookie = this.TextControl.Document.EnsureWritable())
+      using (var cookie = this.TextControl.Document.EnsureWritable())
       {
         if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
         {
@@ -131,30 +154,32 @@ namespace AgentJohnson.Refactorings
 
     #endregion
 
-    #region Private methods
+    #region Methods
 
     /// <summary>
     /// Determines whether [is not expression] [the specified value].
     /// </summary>
-    /// <param name="value">The value.</param>
+    /// <param name="value">
+    /// The value.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if [is not expression] [the specified value]; otherwise, <c>false</c>.
+    /// <c>true</c> if [is not expression] [the specified value]; otherwise, <c>false</c>.
     /// </returns>
     private static bool IsNotExpression(ICSharpExpression value)
     {
-      IUnaryOperatorExpression unaryOperatorExpression = value as IUnaryOperatorExpression;
+      var unaryOperatorExpression = value as IUnaryOperatorExpression;
       if (unaryOperatorExpression == null)
       {
         return false;
       }
 
-      ITokenNode sign = unaryOperatorExpression.OperatorSign;
+      var sign = unaryOperatorExpression.OperatorSign;
       if (sign == null)
       {
         return false;
       }
 
-      string operatorSign = sign.GetText();
+      var operatorSign = sign.GetText();
 
       return operatorSign == "!";
     }
@@ -162,10 +187,12 @@ namespace AgentJohnson.Refactorings
     /// <summary>
     /// Executes the specified type member declaration.
     /// </summary>
-    /// <param name="typeMemberDeclaration">The type member declaration.</param>
+    /// <param name="typeMemberDeclaration">
+    /// The type member declaration.
+    /// </param>
     private void Execute(ITypeMemberDeclaration typeMemberDeclaration)
     {
-      RecursiveElementProcessor processor = new RecursiveElementProcessor(this.ReplaceReturnValue);
+      var processor = new RecursiveElementProcessor(this.ReplaceReturnValue);
 
       typeMemberDeclaration.ProcessDescendants(processor);
     }
@@ -173,16 +200,18 @@ namespace AgentJohnson.Refactorings
     /// <summary>
     /// Gets the element at caret.
     /// </summary>
-    /// <returns>The element at caret.</returns>
+    /// <returns>
+    /// The element at caret.
+    /// </returns>
     private IElement GetElementAtCaret()
     {
-      IProjectFile projectFile = DocumentManager.GetInstance(this.Solution).GetProjectFile(this.TextControl.Document);
+      var projectFile = DocumentManager.GetInstance(this.Solution).GetProjectFile(this.TextControl.Document);
       if (projectFile == null)
       {
         return null;
       }
 
-      ICSharpFile file = PsiManager.GetInstance(this.Solution).GetPsiFile(projectFile) as ICSharpFile;
+      var file = PsiManager.GetInstance(this.Solution).GetPsiFile(projectFile) as ICSharpFile;
       if (file == null)
       {
         return null;
@@ -194,22 +223,24 @@ namespace AgentJohnson.Refactorings
     /// <summary>
     /// Actions the specified t.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     private void ReplaceReturnValue(IElement element)
     {
-      IReturnStatement returnStatement = element as IReturnStatement;
+      var returnStatement = element as IReturnStatement;
       if (returnStatement == null)
       {
         return;
       }
 
-      ICSharpExpression value = returnStatement.Value;
+      var value = returnStatement.Value;
       if (value == null)
       {
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
+      var factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
       if (factory == null)
       {
         return;
@@ -217,7 +248,7 @@ namespace AgentJohnson.Refactorings
 
       ICSharpExpression expression;
 
-      string text = value.GetText();
+      var text = value.GetText();
 
       if (text == "true")
       {
@@ -229,7 +260,7 @@ namespace AgentJohnson.Refactorings
       }
       else if (IsNotExpression(value))
       {
-        IUnaryOperatorExpression unaryOperatorExpression = (IUnaryOperatorExpression)value;
+        var unaryOperatorExpression = (IUnaryOperatorExpression)value;
 
         text = unaryOperatorExpression.Operand.GetText();
         if (text.StartsWith("(") && text.EndsWith(")"))

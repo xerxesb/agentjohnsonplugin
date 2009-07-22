@@ -1,45 +1,58 @@
-﻿namespace AgentJohnson.SmartGenerate.Generators
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Else.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The else.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace AgentJohnson.SmartGenerate.Generators
 {
   using JetBrains.ReSharper.Psi.CSharp.Tree;
-  using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
+  /// The else.
   /// </summary>
   [SmartGenerate("Generate else", "Generates an 'else' or 'else if' statement.", Priority = 100)]
   public class Else : SmartGenerateHandlerBase
   {
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    /// <param name="smartGenerateParameters">
+    /// The get menu items parameters.
+    /// </param>
     protected override void GetItems(SmartGenerateParameters smartGenerateParameters)
     {
-      IElement element = smartGenerateParameters.Element;
+      var element = smartGenerateParameters.Element;
 
-      IBlock block = element.GetContainingElement(typeof(IBlock), true) as IBlock;
+      var block = element.GetContainingElement(typeof(IBlock), true) as IBlock;
       if (block == null)
       {
         return;
       }
-      IElement statement = element.GetContainingElement(typeof(IStatement), true);
+
+      var statement = element.GetContainingElement(typeof(IStatement), true);
       if (statement != null && !block.Contains(statement))
       {
         return;
       }
 
-      IIfStatement ifStatement = StatementUtil.GetPreviousStatement(block, element) as IIfStatement;
+      var ifStatement = StatementUtil.GetPreviousStatement(block, element) as IIfStatement;
       if (ifStatement == null)
       {
         return;
       }
 
-      IStatement elseStatement = ifStatement.Else;
+      var elseStatement = ifStatement.Else;
       while (elseStatement != null && elseStatement is IIfStatement)
       {
         elseStatement = (elseStatement as IIfStatement).Else;
       }
+
       if (elseStatement != null)
       {
         return;

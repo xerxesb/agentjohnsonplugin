@@ -1,6 +1,14 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="BoolExpression.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Defines the generate boolean expression class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson.SmartGenerate.Generators
 {
-  using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
@@ -9,22 +17,24 @@ namespace AgentJohnson.SmartGenerate.Generators
   [SmartGenerate("Surround with 'if'", "Surrounds the boolean expression with 'if'.", Priority = -20)]
   public class BooleanExpression : SmartGenerateHandlerBase
   {
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    /// <param name="smartGenerateParameters">
+    /// The get menu items parameters.
+    /// </param>
     protected override void GetItems(SmartGenerateParameters smartGenerateParameters)
     {
-      IElement element = smartGenerateParameters.Element;
+      var element = smartGenerateParameters.Element;
 
-      IExpression expression = element.GetContainingElement(typeof(IExpression), false) as IExpression;
+      var expression = element.GetContainingElement(typeof(IExpression), false) as IExpression;
       while (expression != null)
       {
-        IType type = expression.Type();
+        var type = expression.Type();
 
-        string typeName = type.GetPresentableName(element.Language);
+        var typeName = type.GetPresentableName(element.Language);
 
         if (typeName == "bool")
         {

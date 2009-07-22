@@ -1,6 +1,14 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="AgentJohnsonStage.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Agent Johnson stage.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson
 {
-  using System;
   using JetBrains.ProjectModel;
   using JetBrains.ReSharper.Daemon;
   using JetBrains.ReSharper.Daemon.CSharp.Stages;
@@ -9,17 +17,29 @@ namespace AgentJohnson
   /// <summary>
   /// Agent Johnson stage.
   /// </summary>
-  [DaemonStage(StagesBefore = new[] { typeof(UsageCheckingStage) }, StagesAfter = new[] { typeof(LanguageSpecificDaemonStage) })]
+  [DaemonStage(StagesBefore = new[]
+  {
+    typeof(UsageCheckingStage)
+  }, StagesAfter = new[]
+  {
+    typeof(LanguageSpecificDaemonStage)
+  })]
   public class AgentJohnsonStage : CSharpDaemonStageBase
   {
-    #region Public methods
+    #region Public Methods
 
     /// <summary>
     /// Creates the process.
     /// </summary>
-    /// <param name="process">The process.</param>
-    /// <param name="processKind">Kind of the process.</param>
-    /// <returns>Returns the IDaemon stage process.</returns>
+    /// <param name="process">
+    /// The process.
+    /// </param>
+    /// <param name="processKind">
+    /// Kind of the process.
+    /// </param>
+    /// <returns>
+    /// Returns the IDaemon stage process.
+    /// </returns>
     public override IDaemonStageProcess CreateProcess(IDaemonProcess process, DaemonProcessKind processKind)
     {
       if (!IsSupported(process.ProjectFile))
@@ -33,8 +53,12 @@ namespace AgentJohnson
     /// <summary>
     /// Needs the error stripe.
     /// </summary>
-    /// <param name="projectFile">The project file.</param>
-    /// <returns></returns>
+    /// <param name="projectFile">
+    /// The project file.
+    /// </param>
+    /// <returns>
+    /// Returns the error stripe request.
+    /// </returns>
     public override ErrorStripeRequest NeedsErrorStripe(IProjectFile projectFile)
     {
       if (!IsSupported(projectFile))

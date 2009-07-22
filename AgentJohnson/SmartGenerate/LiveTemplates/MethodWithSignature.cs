@@ -1,66 +1,81 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="MethodWithSignature.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The method with signature.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson.SmartGenerate.LiveTemplates
 {
   using System.Collections.Generic;
   using System.Text;
-  using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
-  using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
+  /// The method with signature.
   /// </summary>
   [LiveTemplate("Method with signature", "Generate body in a method with a signature")]
   public class MethodWithSignature : ILiveTemplate
   {
-    #region Public methods
+    #region Implemented Interfaces
+
+    #region ILiveTemplate
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="parameters">The parameters.</param>
-    /// <returns>The items.</returns>
+    /// <param name="parameters">
+    /// The parameters.
+    /// </param>
+    /// <returns>
+    /// The items.
+    /// </returns>
     public IEnumerable<LiveTemplateItem> GetItems(SmartGenerateParameters parameters)
     {
-      IElement element = parameters.Element;
+      var element = parameters.Element;
 
-      IMethodDeclaration methodDeclaration = element.GetContainingElement(typeof(IMethodDeclaration), true) as IMethodDeclaration;
+      var methodDeclaration = element.GetContainingElement(typeof(IMethodDeclaration), true) as IMethodDeclaration;
       if (methodDeclaration == null)
       {
         return null;
       }
 
-      IBlock body = methodDeclaration.Body;
+      var body = methodDeclaration.Body;
       if (body == null || body.Statements.Count > 0)
       {
         return null;
       }
 
-      string name = methodDeclaration.DeclaredName;
+      var name = methodDeclaration.DeclaredName;
       if (string.IsNullOrEmpty(name))
       {
         return null;
       }
 
-      IMethod method = methodDeclaration as IMethod;
+      var method = methodDeclaration.DeclaredElement;
       if (method == null)
       {
         return null;
       }
 
-      StringBuilder signatureBuilder = new StringBuilder();
-      bool first = true;
+      var signatureBuilder = new StringBuilder();
+      var first = true;
 
-      foreach (IParameter parameter in method.Parameters)
+      foreach (var parameter in method.Parameters)
       {
         if (!first)
         {
           signatureBuilder.Append(", ");
         }
+
         first = false;
 
         signatureBuilder.Append(parameter.Type.GetLongPresentableName(element.Language));
       }
 
-      string signature = signatureBuilder.ToString();
+      var signature = signatureBuilder.ToString();
 
       return new List<LiveTemplateItem>
       {
@@ -72,6 +87,8 @@ namespace AgentJohnson.SmartGenerate.LiveTemplates
         }
       };
     }
+
+    #endregion
 
     #endregion
   }

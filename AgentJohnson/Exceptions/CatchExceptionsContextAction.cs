@@ -1,6 +1,11 @@
-// <copyright file="CatchExceptionsContextAction.cs" company="Sitecore A/S">
-//   Copyright (c) Sitecore A/S. All rights reserved.
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="CatchExceptionsContextAction.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
 // </copyright>
+// <summary>
+//   Defines the catch exceptions context action class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace AgentJohnson.Exceptions
 {
@@ -10,14 +15,11 @@ namespace AgentJohnson.Exceptions
   using System.Xml;
   using JetBrains.Application;
   using JetBrains.Application.Progress;
-  using JetBrains.DocumentModel;
   using JetBrains.ReSharper.Intentions;
   using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
   using JetBrains.ReSharper.Psi;
-  using JetBrains.ReSharper.Psi.CodeStyle;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
-  using JetBrains.ReSharper.Psi.Resolve;
   using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
@@ -26,25 +28,36 @@ namespace AgentJohnson.Exceptions
   [ContextAction(Description = "Generates try/catch clauses surrounding expressions", Name = "Catch exceptions", Priority = -1, Group = "C#")]
   public partial class CatchExceptionsContextAction : ContextActionBase, IComparer<CatchExceptionsContextAction.Pair<string, Type>>
   {
-    #region Constructor
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CatchExceptionsContextAction"/> class.
     /// </summary>
-    /// <param name="provider">The provider.</param>
+    /// <param name="provider">
+    /// The provider.
+    /// </param>
     public CatchExceptionsContextAction(ICSharpContextActionDataProvider provider) : base(provider)
     {
     }
 
     #endregion
 
-    #region Public methods
+    #region Implemented Interfaces
 
-    ///<summary>
-    ///Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
-    ///</summary>
-    ///<param name="y">The second object to compare.</param>
-    ///<param name="x">The first object to compare.</param>
+    #region IComparer<Pair<string,Type>>
+
+    /// <summary>
+    /// Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
+    /// </summary>
+    /// <param name="x">
+    /// The first object to compare.
+    /// </param>
+    /// <param name="y">
+    /// The second object to compare.
+    /// </param>
+    /// <returns>
+    /// The compare.
+    /// </returns>
     public int Compare(Pair<string, Type> x, Pair<string, Type> y)
     {
       if (x.Value == null)
@@ -72,17 +85,21 @@ namespace AgentJohnson.Exceptions
 
     #endregion
 
-    #region Protected methods
+    #endregion
+
+    #region Methods
 
     /// <summary>
     /// Executes the specified solution.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     protected override void Execute(IElement element)
     {
       Shell.Instance.Locks.AssertReadAccessAllowed();
 
-      ITreeNode node = element.ToTreeNode();
+      var node = element.ToTreeNode();
       if (node == null)
       {
         return;
@@ -112,7 +129,12 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <value>The text.</value>
+    /// <value>
+    /// The text.
+    /// </value>
+    /// <returns>
+    /// The get text.
+    /// </returns>
     protected override string GetText()
     {
       return "Catch exceptions [Agent Johnson]";
@@ -121,15 +143,17 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Determines whether the specified cache is available.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if the specified cache is available; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified cache is available; otherwise, <c>false</c>.
     /// </returns>
     protected override bool IsAvailable(IElement element)
     {
       Shell.Instance.Locks.AssertReadAccessAllowed();
 
-      ITreeNode node = element.ToTreeNode();
+      var node = element.ToTreeNode();
       if (node == null)
       {
         return false;
@@ -162,31 +186,30 @@ namespace AgentJohnson.Exceptions
       return IsVisible(invocationExpression);
     }
 
-    #endregion
-
-    #region Private methods
-
     /// <summary>
     /// Examines the catches.
     /// </summary>
-    /// <param name="tryStatement">The try statement.</param>
-    /// <param name="exceptions">The exceptions.</param>
-    /// <returns>The catches.</returns>
+    /// <param name="tryStatement">
+    /// The try statement.
+    /// </param>
+    /// <param name="exceptions">
+    /// The exceptions.
+    /// </param>
     private static void ExamineCatches(ITryStatement tryStatement, IList<string> exceptions)
     {
-      IList<ICatchClause> list = tryStatement.Catches;
-      List<string> catches = new List<string>();
+      var list = tryStatement.Catches;
+      var catches = new List<string>();
 
-      foreach (ICatchClause clause in list)
+      foreach (var clause in list)
       {
-        IDeclaredType declaredType = clause.ExceptionType;
+        var declaredType = clause.ExceptionType;
 
         if (declaredType == null)
         {
           break;
         }
 
-        string clrName = declaredType.GetCLRName();
+        var clrName = declaredType.GetCLRName();
 
         if (!string.IsNullOrEmpty(clrName))
         {
@@ -194,9 +217,9 @@ namespace AgentJohnson.Exceptions
         }
       }
 
-      for (int n = exceptions.Count - 1; n >= 0; n--)
+      for (var n = exceptions.Count - 1; n >= 0; n--)
       {
-        string type = exceptions[n];
+        var type = exceptions[n];
 
         if (catches.Contains(type))
         {
@@ -208,22 +231,26 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Gets the exceptions.
     /// </summary>
-    /// <param name="exceptionList">The exception list.</param>
-    /// <returns>The exceptions.</returns>
+    /// <param name="exceptionList">
+    /// The exception list.
+    /// </param>
+    /// <returns>
+    /// The exceptions.
+    /// </returns>
     private static List<string> GetExceptions(XmlNodeList exceptionList)
     {
-      List<string> result = new List<string>();
+      var result = new List<string>();
 
       foreach (XmlNode exceptionNode in exceptionList)
       {
-        XmlAttribute attribute = exceptionNode.Attributes["cref"];
+        var attribute = exceptionNode.Attributes["cref"];
 
         if (attribute == null)
         {
           continue;
         }
 
-        string typeName = attribute.Value;
+        var typeName = attribute.Value;
 
         if (!string.IsNullOrEmpty(typeName))
         {
@@ -242,55 +269,57 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Determines whether the specified element is available.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if the specified element is available; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified element is available; otherwise, <c>false</c>.
     /// </returns>
     private static bool IsVisible(IElement element)
     {
-      IInvocationExpression invocationExpression = element as IInvocationExpression;
+      var invocationExpression = element as IInvocationExpression;
       if (invocationExpression == null)
       {
         return false;
       }
 
-      IReferenceExpression reference = invocationExpression.InvokedExpression as IReferenceExpression;
+      var reference = invocationExpression.InvokedExpression as IReferenceExpression;
       if (reference == null)
       {
         return false;
       }
 
-      IResolveResult resolveResult = reference.Reference.Resolve();
+      var resolveResult = reference.Reference.Resolve();
 
-      IDeclaredElement declaredElement = resolveResult.DeclaredElement;
+      var declaredElement = resolveResult.DeclaredElement;
       if (declaredElement == null)
       {
         return false;
       }
 
-      XmlNode xmlNode = declaredElement.GetXMLDoc(true);
+      var xmlNode = declaredElement.GetXMLDoc(true);
       if (xmlNode == null)
       {
         return false;
       }
 
-      XmlNodeList exceptionList = xmlNode.SelectNodes("exception");
+      var exceptionList = xmlNode.SelectNodes("exception");
       if (exceptionList == null || exceptionList.Count == 0)
       {
         return false;
       }
 
-      ITreeNode node = element as ITreeNode;
+      var node = element as ITreeNode;
       if (node == null)
       {
         return false;
       }
 
-      List<string> exceptions = GetExceptions(exceptionList);
+      var exceptions = GetExceptions(exceptionList);
 
       while (node != null)
       {
-        ITryStatement tryStatement = node as ITryStatement;
+        var tryStatement = node as ITryStatement;
 
         if (tryStatement != null)
         {
@@ -311,63 +340,65 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Generates the function assert statements.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     private void CatchExceptions(IElement element)
     {
-      IInvocationExpression invocationExpression = element as IInvocationExpression;
+      var invocationExpression = element as IInvocationExpression;
       if (invocationExpression == null)
       {
         return;
       }
 
-      IStatement statement = invocationExpression.GetContainingStatement();
+      var statement = invocationExpression.GetContainingStatement();
       if (statement == null)
       {
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(statement.GetPsiModule());
+      var factory = CSharpElementFactory.GetInstance(statement.GetPsiModule());
       if (factory == null)
       {
         return;
       }
 
-      IReferenceExpression reference = invocationExpression.InvokedExpression as IReferenceExpression;
+      var reference = invocationExpression.InvokedExpression as IReferenceExpression;
       if (reference == null)
       {
         return;
       }
 
-      IResolveResult resolveResult = reference.Reference.Resolve();
+      var resolveResult = reference.Reference.Resolve();
 
-      IDeclaredElement declaredElement = resolveResult.DeclaredElement;
+      var declaredElement = resolveResult.DeclaredElement;
       if (declaredElement == null)
       {
         return;
       }
 
-      XmlNode xmlNode = declaredElement.GetXMLDoc(true);
+      var xmlNode = declaredElement.GetXMLDoc(true);
       if (xmlNode == null)
       {
         return;
       }
 
-      XmlNodeList exceptionList = xmlNode.SelectNodes("exception");
+      var exceptionList = xmlNode.SelectNodes("exception");
       if (exceptionList == null || exceptionList.Count == 0)
       {
         return;
       }
 
-      List<Pair<string, Type>> exceptions = this.GetSortedExceptions(exceptionList);
+      var exceptions = this.GetSortedExceptions(exceptionList);
 
-      string code = "try { " + statement.GetText() + " } ";
+      var code = "try { " + statement.GetText() + " } ";
 
-      foreach (Pair<string, Type> exception in exceptions)
+      foreach (var exception in exceptions)
       {
         code += "catch(" + exception.Key + ") { } ";
       }
 
-      ITryStatement tryStatement = factory.CreateStatement(code) as ITryStatement;
+      var tryStatement = factory.CreateStatement(code) as ITryStatement;
 
       if (tryStatement == null)
       {
@@ -377,41 +408,45 @@ namespace AgentJohnson.Exceptions
 
       IStatement result = statement.ReplaceBy(tryStatement);
 
-      LanguageService languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
+      var languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
       if (languageService == null)
       {
         return;
       }
 
-      CodeFormatter formatter = languageService.CodeFormatter;
+      var formatter = languageService.CodeFormatter;
       if (formatter == null)
       {
         return;
       }
 
-      DocumentRange range = result.GetDocumentRange();
-      IPsiRangeMarker marker = result.GetManager().CreatePsiRangeMarker(range);
+      var range = result.GetDocumentRange();
+      var marker = result.GetManager().CreatePsiRangeMarker(range);
       formatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
     }
 
     /// <summary>
     /// Gets the exceptions.
     /// </summary>
-    /// <param name="exceptionList">The exception list.</param>
-    /// <returns>The exceptions.</returns>
+    /// <param name="exceptionList">
+    /// The exception list.
+    /// </param>
+    /// <returns>
+    /// The exceptions.
+    /// </returns>
     private List<Pair<string, Type>> GetSortedExceptions(XmlNodeList exceptionList)
     {
-      List<Pair<string, Type>> exceptions = new List<Pair<string, Type>>(exceptionList.Count);
+      var exceptions = new List<Pair<string, Type>>(exceptionList.Count);
 
       foreach (XmlNode exceptionNode in exceptionList)
       {
-        XmlAttribute attribute = exceptionNode.Attributes["cref"];
+        var attribute = exceptionNode.Attributes["cref"];
         if (attribute == null)
         {
           continue;
         }
 
-        string typeName = attribute.Value;
+        var typeName = attribute.Value;
         if (string.IsNullOrEmpty(typeName))
         {
           continue;
@@ -422,9 +457,9 @@ namespace AgentJohnson.Exceptions
           typeName = typeName.Substring(2);
         }
 
-        Type exceptionType = Type.GetType(typeName, false, false);
+        var exceptionType = Type.GetType(typeName, false, false);
 
-        Pair<string, Type> pair = new Pair<string, Type>
+        var pair = new Pair<string, Type>
         {
           Key = typeName,
           Value = exceptionType

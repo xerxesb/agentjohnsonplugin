@@ -1,52 +1,58 @@
-using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-using AgentJohnson.ValueAnalysis;
-using EnvDTE;
-using JetBrains.UI.Options;
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ValueAnalysisOptionsPage.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The value analysis options page.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace AgentJohnson.Options
 {
+  using System;
+  using System.Windows.Forms;
+  using ValueAnalysis;
+  using EnvDTE;
+  using JetBrains.UI.Options;
   using JetBrains.VSIntegration.Application;
 
   /// <summary>
-  /// 
+  /// The value analysis options page.
   /// </summary>
-  [OptionsPage(NAME, "Assertions and Value Analysis", "AgentJohnson.Resources.Assertions.gif",
+  [OptionsPage(PageName, "Assertions and Value Analysis", "AgentJohnson.Resources.Assertions.gif",
     ParentId = ImportExportPage.NAME)]
   public partial class ValueAnalysisOptionsPage : UserControl, IOptionsPage
   {
-    #region Constants
+    #region Constants and Fields
 
     /// <summary>
+    /// The page name.
     /// </summary>
-    private const string NAME = "AgentJohnson.ValueAnalysisAnnotationsPage";
+    private const string PageName = "AgentJohnson.ValueAnalysisAnnotationsPage";
 
-    private static ValueAnalysisOptionsPage _instance;
+    /// <summary>
+    /// The _instance.
+    /// </summary>
+    private static ValueAnalysisOptionsPage instance;
 
     #endregion
 
-    #region Fields
-
-    #endregion
-
-    #region Constructor
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ValueAnalysisOptionsPage"/> class.
     /// </summary>
     public ValueAnalysisOptionsPage()
     {
-      InitializeComponent();
-      _instance = this;
+      this.InitializeComponent();
+      instance = this;
 
       _DTE dte = VSShell.Instance.ApplicationObject;
-
 
       Command command;
       try
       {
-        command = dte.Commands.Item("Weigelt.GhostDoc.AddIn.DocumentThis", -1);
+        command = dte.Commands.Item("Tools.SubMain.GhostDoc.DocumentThis", -1);
       }
       catch
       {
@@ -55,11 +61,13 @@ namespace AgentJohnson.Options
 
       if (command == null)
       {
-        ExecuteGhostDoc.Enabled = false;
+        this.ExecuteGhostDoc.Enabled = false;
       }
     }
 
     #endregion
+
+    #region Properties
 
     /// <summary>
     /// Gets the instance.
@@ -67,49 +75,58 @@ namespace AgentJohnson.Options
     /// <value>The instance.</value>
     public static ValueAnalysisOptionsPage Instance
     {
-      get { return _instance; }
-    }
-
-    #region Public methods
-
-    /// <summary>
-    /// Invoked when OK button in the options dialog is pressed
-    /// If the page returns <c>false</c>, the the options dialog won't be closed, and focus
-    /// will be put into this page
-    /// </summary>
-    /// <returns></returns>
-    public bool OnOk()
-    {
-      Commit();
-
-      return true;
+      get
+      {
+        return instance;
+      }
     }
 
     /// <summary>
-    /// Check if the settings on the page are consistent, and page could be closed
+    /// Gets the control to be shown as page.
     /// </summary>
-    /// <returns><c>true</c> if page data is consistent</returns>
-    public bool ValidatePage()
+    /// <remarks>May be <c>Null</c> if the page does not have any UI.</remarks>
+    /// <value></value>
+    public Control Control
     {
-      return true;
+      get
+      {
+        return this;
+      }
     }
+
+    /// <summary>
+    /// Gets the ID of this option page.
+    /// <see cref="T:JetBrains.UI.Options.IOptionsDialog"/> or <see cref="T:JetBrains.UI.Options.OptionsPageDescriptor"/> could be used to retrieve the <see cref="T:JetBrains.UI.Options.OptionsManager"/> out of it.
+    /// </summary>
+    /// <value></value>
+    public string Id
+    {
+      get
+      {
+        return PageName;
+      }
+    }
+
+    #endregion
+
+    #region Public Methods
 
     /// <summary>
     /// Commits this instance.
     /// </summary>
     public void Commit()
     {
-      List<Rule> typeConfigurations = ValueAnalysisSettings.Instance.Rules;
+      var typeConfigurations = ValueAnalysisSettings.Instance.Rules;
 
       typeConfigurations.Clear();
 
-      foreach (Rule item in Types.Items)
+      foreach (Rule item in this.Types.Items)
       {
         typeConfigurations.Add(item);
       }
 
-      ValueAnalysisSettings.Instance.AllowNullAttribute = AllowNullAttribute.Text;
-      ValueAnalysisSettings.Instance.ExecuteGhostDoc = ExecuteGhostDoc.Checked;
+      ValueAnalysisSettings.Instance.AllowNullAttribute = this.AllowNullAttribute.Text;
+      ValueAnalysisSettings.Instance.ExecuteGhostDoc = this.ExecuteGhostDoc.Checked;
     }
 
     /// <summary>
@@ -117,48 +134,84 @@ namespace AgentJohnson.Options
     /// </summary>
     public void Display()
     {
-      List<Rule> rules = ValueAnalysisSettings.Instance.Rules;
+      var rules = ValueAnalysisSettings.Instance.Rules;
 
-      Types.Items.Clear();
+      this.Types.Items.Clear();
 
-      foreach (Rule rule in rules)
+      foreach (var rule in rules)
       {
-        Types.Items.Add(rule.Clone());
+        this.Types.Items.Add(rule.Clone());
       }
 
-      if (Types.Items.Count > 0)
+      if (this.Types.Items.Count > 0)
       {
-        Types.SetSelected(0, true);
+        this.Types.SetSelected(0, true);
       }
 
-      AllowNullAttribute.Text = ValueAnalysisSettings.Instance.AllowNullAttribute;
-      ExecuteGhostDoc.Checked = ValueAnalysisSettings.Instance.ExecuteGhostDoc;
+      this.AllowNullAttribute.Text = ValueAnalysisSettings.Instance.AllowNullAttribute;
+      this.ExecuteGhostDoc.Checked = ValueAnalysisSettings.Instance.ExecuteGhostDoc;
     }
 
     #endregion
 
-    #region Protected methods
+    #region Implemented Interfaces
 
-    ///<summary>
-    ///Raises the <see cref="E:System.Windows.Forms.UserControl.Load" /> event.
-    ///</summary>
-    ///
-    ///<param name="e">An <see cref="T:System.EventArgs" /> that contains the event data. </param>
-    protected override void OnLoad(EventArgs e) {
+    #region IOptionsPage
+
+    /// <summary>
+    /// Invoked when OK button in the options dialog is pressed
+    /// If the page returns <c>false</c>, the the options dialog won't be closed, and focus
+    /// will be put into this page
+    /// </summary>
+    /// <returns>
+    /// <c>True</c>, if OK.
+    /// </returns>
+    public bool OnOk()
+    {
+      this.Commit();
+
+      return true;
+    }
+
+    /// <summary>
+    /// Check if the settings on the page are consistent, and page could be closed
+    /// </summary>
+    /// <returns>
+    /// <c>true</c> if page data is consistent
+    /// </returns>
+    public bool ValidatePage()
+    {
+      return true;
+    }
+
+    #endregion
+
+    #endregion
+
+    #region Methods
+
+    /// <summary>
+    /// Raises the <see cref="E:System.Windows.Forms.UserControl.Load"/> event.
+    /// </summary>
+    /// <param name="e">
+    /// An <see cref="T:System.EventArgs"/> that contains the event data. 
+    /// </param>
+    protected override void OnLoad(EventArgs e)
+    {
       base.OnLoad(e);
 
-      Display();
+      this.Display();
     }
-
-    #endregion
-
-    #region Private methods
 
     /// <summary>
     /// Handles the Button1_ click event.
     /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+    /// <param name="sender">
+    /// The sender.
+    /// </param>
+    /// <param name="e">
+    /// The <see cref="System.EventArgs"/> instance containing the event data.
+    /// </param>
     private void Add_Click(object sender, EventArgs e)
     {
       var page = new ValueAnalysisDetailsPage();
@@ -172,58 +225,29 @@ namespace AgentJohnson.Options
         return;
       }
 
-      int index = Types.Items.Add(rule);
+      var index = this.Types.Items.Add(rule);
 
-      Types.SetSelected(index, true);
-    }
-
-    /// <summary>
-    /// Handles the Button2_ click event.
-    /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    private void Remove_Click(object sender, EventArgs e)
-    {
-      int selectedIndex = Types.SelectedIndex;
-      if (selectedIndex < 0)
-      {
-        return;
-      }
-
-      if (
-        MessageBox.Show("Are you sure you want to remove this rule?", "Remove", MessageBoxButtons.OKCancel,
-                        MessageBoxIcon.Asterisk) != DialogResult.OK)
-      {
-        return;
-      }
-
-      Types.Items.RemoveAt(selectedIndex);
-
-      if (selectedIndex > 0)
-      {
-        selectedIndex--;
-      }
-
-      if (selectedIndex > 0)
-      {
-        Types.SetSelected(selectedIndex, true);
-      }
+      this.Types.SetSelected(index, true);
     }
 
     /// <summary>
     /// Handles the Edit_ click event.
     /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+    /// <param name="sender">
+    /// The sender.
+    /// </param>
+    /// <param name="e">
+    /// The <see cref="System.EventArgs"/> instance containing the event data.
+    /// </param>
     private void Edit_Click(object sender, EventArgs e)
     {
-      int selectedIndex = Types.SelectedIndex;
+      var selectedIndex = this.Types.SelectedIndex;
       if (selectedIndex < 0)
       {
         return;
       }
 
-      var rule = Types.Items[selectedIndex] as Rule;
+      var rule = this.Types.Items[selectedIndex] as Rule;
 
       var page = new ValueAnalysisDetailsPage();
 
@@ -234,30 +258,43 @@ namespace AgentJohnson.Options
         return;
       }
 
-      Types.Items[selectedIndex] = rule;
-    }
-
-    #endregion
-
-    #region IOptionsPage Members
-
-    /// <summary>
-    /// Control to be shown as page
-    /// </summary>
-    /// <value></value>
-    public Control Control
-    {
-      get { return this; }
+      this.Types.Items[selectedIndex] = rule;
     }
 
     /// <summary>
-    /// Gets the ID of this option page.
-    /// <see cref="T:JetBrains.UI.Options.IOptionsDialog"/> or <see cref="T:JetBrains.UI.Options.OptionsPageDescriptor"/> could be used to retrieve the <see cref="T:JetBrains.UI.Options.OptionsManager"/> out of it.
+    /// Handles the Button2_ click event.
     /// </summary>
-    /// <value></value>
-    public string Id
+    /// <param name="sender">
+    /// The sender.
+    /// </param>
+    /// <param name="e">
+    /// The <see cref="System.EventArgs"/> instance containing the event data.
+    /// </param>
+    private void Remove_Click(object sender, EventArgs e)
     {
-      get { return NAME; }
+      var selectedIndex = this.Types.SelectedIndex;
+      if (selectedIndex < 0)
+      {
+        return;
+      }
+
+      if (
+        MessageBox.Show("Are you sure you want to remove this rule?", "Remove", MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk) != DialogResult.OK)
+      {
+        return;
+      }
+
+      this.Types.Items.RemoveAt(selectedIndex);
+
+      if (selectedIndex > 0)
+      {
+        selectedIndex--;
+      }
+
+      if (selectedIndex > 0)
+      {
+        this.Types.SetSelected(selectedIndex, true);
+      }
     }
 
     #endregion

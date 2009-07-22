@@ -1,19 +1,22 @@
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CheckStringNotNullOrEmptyContextAction.cs" company="Jakob Christensen">
-//   Copyright (c) Jakob Christensen. All rights reserved.
+//   Copyright (C) 2009 Jakob Christensen
 // </copyright>
+// <summary>
+//   Represents the Context Action.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace AgentJohnson.Strings
 {
   using JetBrains.Annotations;
   using JetBrains.Application.Progress;
-  using JetBrains.DocumentModel;
   using JetBrains.ReSharper.Intentions;
   using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CodeStyle;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
-  using JetBrains.ReSharper.Psi.Resolve;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.Util;
 
@@ -23,7 +26,7 @@ namespace AgentJohnson.Strings
   [ContextAction(Description = "Adds an 'if' statement after the current statement that checks if the string variable is null or empty.", Name = "Check if string is null or empty", Priority = -1, Group = "C#")]
   public class CheckStringNotNullOrEmptyContextAction : ContextActionBase
   {
-    #region Fields
+    #region Constants and Fields
 
     /// <summary>
     /// The Name field.
@@ -32,23 +35,28 @@ namespace AgentJohnson.Strings
 
     #endregion
 
-    #region Constructor
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CheckStringNotNullOrEmptyContextAction"/> class.
     /// </summary>
-    /// <param name="provider">The provider.</param>
+    /// <param name="provider">
+    /// The provider.
+    /// </param>
     public CheckStringNotNullOrEmptyContextAction(ICSharpContextActionDataProvider provider) : base(provider)
     {
     }
 
     #endregion
 
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Executes the internal.
     /// </summary>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     protected override void Execute(IElement element)
     {
       if (!this.IsAvailable(element))
@@ -56,14 +64,14 @@ namespace AgentJohnson.Strings
         return;
       }
 
-      IAssignmentExpression assignmentExpression = this.Provider.GetSelectedElement<IAssignmentExpression>(true, true);
+      var assignmentExpression = this.Provider.GetSelectedElement<IAssignmentExpression>(true, true);
       if (assignmentExpression != null)
       {
         CheckStringAssignment(assignmentExpression);
         return;
       }
 
-      ILocalVariableDeclaration localVariableDeclaration = this.Provider.GetSelectedElement<ILocalVariableDeclaration>(true, true);
+      var localVariableDeclaration = this.Provider.GetSelectedElement<ILocalVariableDeclaration>(true, true);
       if (localVariableDeclaration != null)
       {
         CheckStringAssignment(localVariableDeclaration);
@@ -74,7 +82,12 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <value>The text that is shown in the context menu.</value>
+    /// <returns>
+    /// The text to display.
+    /// </returns>
+    /// <value>
+    /// The text that is shown in the context menu.
+    /// </value>
     protected override string GetText()
     {
       return string.Format("Check if '{0}' is null or empty  [Agent Johnson]", this.name ?? "[unknown]");
@@ -83,15 +96,20 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Called to check if ContextAction is available.
     /// ReadLock is taken
-    /// Will not be called if <c>PsiManager</c>, ProjectFile of Solution == null
+    /// Will not be called if <c>PsiManager</c>, ProjectFile of Solution == <c>null</c>
     /// </summary>
-    /// <returns>Determines if the context action is available.</returns>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    /// <returns>
+    /// Determines if the context action is available.
+    /// </returns>
     protected override bool IsAvailable(IElement element)
     {
       this.name = null;
 
-      ILocalVariableDeclaration localVariableDeclaration = this.Provider.GetSelectedElement<ILocalVariableDeclaration>(true, true);
-      IAssignmentExpression assignmentExpression = this.Provider.GetSelectedElement<IAssignmentExpression>(true, true);
+      var localVariableDeclaration = this.Provider.GetSelectedElement<ILocalVariableDeclaration>(true, true);
+      var assignmentExpression = this.Provider.GetSelectedElement<IAssignmentExpression>(true, true);
 
       if (assignmentExpression == null && localVariableDeclaration == null)
       {
@@ -102,7 +120,7 @@ namespace AgentJohnson.Strings
 
       if (assignmentExpression != null)
       {
-        ICSharpExpression destination = assignmentExpression.Dest;
+        var destination = assignmentExpression.Dest;
         if (destination == null)
         {
           return false;
@@ -119,19 +137,19 @@ namespace AgentJohnson.Strings
           return false;
         }
 
-        IReferenceExpression referenceExpression = destination as IReferenceExpression;
+        var referenceExpression = destination as IReferenceExpression;
         if (referenceExpression == null)
         {
           return false;
         }
 
-        IReference reference = referenceExpression.Reference;
+        var reference = referenceExpression.Reference;
         if (reference == null)
         {
           return false;
         }
 
-        ICSharpExpression source = assignmentExpression.Source;
+        var source = assignmentExpression.Source;
         if (source == null)
         {
           return false;
@@ -143,19 +161,19 @@ namespace AgentJohnson.Strings
       }
       else
       {
-        ILocalVariable localVariable = localVariableDeclaration as ILocalVariable;
+        var localVariable = localVariableDeclaration.DeclaredElement as ILocalVariable;
         if (localVariable == null)
         {
           return false;
         }
 
-        IType declaredType = localVariable.Type;
+        var declaredType = localVariable.Type;
         if (declaredType.GetPresentableName(localVariable.Language) != "string")
         {
           return false;
         }
 
-        ILocalVariableDeclarationNode declNode = localVariableDeclaration.ToTreeNode();
+        var declNode = localVariableDeclaration.ToTreeNode();
         if (declNode.AssignmentSign == null)
         {
           return false;
@@ -163,7 +181,7 @@ namespace AgentJohnson.Strings
 
         this.name = localVariable.ShortName;
 
-        IVariableInitializer initial = localVariableDeclaration.Initial;
+        var initial = localVariableDeclaration.Initial;
         if (initial == null)
         {
           return false;
@@ -175,17 +193,15 @@ namespace AgentJohnson.Strings
       return range.IsValid() && range.Contains(this.Provider.CaretOffset);
     }
 
-    #endregion
-
-    #region Private methods
-
     /// <summary>
     /// Inserts the assertion code.
     /// </summary>
-    /// <param name="localVariableDeclaration">The local variable declaration.</param>
+    /// <param name="localVariableDeclaration">
+    /// The local variable declaration.
+    /// </param>
     private static void CheckStringAssignment(ILocalVariableDeclaration localVariableDeclaration)
     {
-      ILocalVariable localVariable = localVariableDeclaration as ILocalVariable;
+      var localVariable = localVariableDeclaration.DeclaredElement as ILocalVariable;
       if (localVariable == null)
       {
         return;
@@ -218,10 +234,12 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Inserts the assertion code.
     /// </summary>
-    /// <param name="assignmentExpression">The assignment expression.</param>
+    /// <param name="assignmentExpression">
+    /// The assignment expression.
+    /// </param>
     private static void CheckStringAssignment(IAssignmentExpression assignmentExpression)
     {
-      ICSharpExpression destination = assignmentExpression.Dest;
+      var destination = assignmentExpression.Dest;
       if (destination == null)
       {
         return;
@@ -232,19 +250,13 @@ namespace AgentJohnson.Strings
         return;
       }
 
-      IType type = destination.GetExpressionType() as IType;
-      if (type == null)
-      {
-        return;
-      }
-
-      IReferenceExpression referenceExpression = assignmentExpression.Dest as IReferenceExpression;
+      var referenceExpression = assignmentExpression.Dest as IReferenceExpression;
       if (referenceExpression == null)
       {
         return;
       }
 
-      IStatement anchor = assignmentExpression.GetContainingStatement();
+      var anchor = assignmentExpression.GetContainingStatement();
 
       CheckStringAssignment(assignmentExpression, anchor, referenceExpression.Reference.GetName());
     }
@@ -252,56 +264,62 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Inserts the assert.
     /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="anchor">The anchor.</param>
-    /// <param name="name">The name of the variable.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    /// <param name="anchor">
+    /// The anchor.
+    /// </param>
+    /// <param name="name">
+    /// The name of the variable.
+    /// </param>
     private static void CheckStringAssignment(IElement element, IStatement anchor, string name)
     {
-      CodeFormatter codeFormatter = GetCodeFormatter();
+      var codeFormatter = GetCodeFormatter();
       if (codeFormatter == null)
       {
         return;
       }
 
-      IMethodDeclaration functionDeclaration = anchor.GetContainingTypeMemberDeclaration() as IMethodDeclaration;
-      if (functionDeclaration == null)
+      var methodDeclaration = anchor.GetContainingTypeMemberDeclaration() as IMethodDeclaration;
+      if (methodDeclaration == null)
       {
         return;
       }
 
-      IBlock body = functionDeclaration.Body;
+      var body = methodDeclaration.Body;
       if (body == null)
       {
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
-
-      ICSharpElement csharpElement = element as ICSharpElement;
+      var csharpElement = element as ICSharpElement;
       if (csharpElement == null)
       {
         return;
       }
 
-      string code = string.Format("if(string.IsNullOrEmpty({0})) {{ }}", name);
+      var factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
 
-      IStatement statement = factory.CreateStatement(code);
+      var statement = factory.CreateStatement(string.Format("if (string.IsNullOrEmpty({0})) {{ }}", name));
 
-      IStatement result = body.AddStatementAfter(statement, anchor);
+      var result = body.AddStatementAfter(statement, anchor);
 
-      DocumentRange range = result.GetDocumentRange();
-      IPsiRangeMarker marker = result.GetManager().CreatePsiRangeMarker(range);
+      var range = result.GetDocumentRange();
+      var marker = result.GetManager().CreatePsiRangeMarker(range);
       codeFormatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
     }
 
     /// <summary>
     /// Gets the code formatter.
     /// </summary>
-    /// <returns>The code formatter.</returns>
+    /// <returns>
+    /// The code formatter.
+    /// </returns>
     [CanBeNull]
     private static CodeFormatter GetCodeFormatter()
     {
-      LanguageService languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
+      var languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
       if (languageService == null)
       {
         return null;

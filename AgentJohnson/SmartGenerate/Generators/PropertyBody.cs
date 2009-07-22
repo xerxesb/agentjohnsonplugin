@@ -1,58 +1,69 @@
-﻿namespace AgentJohnson.SmartGenerate.Generators
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="PropertyBody.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The property body.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace AgentJohnson.SmartGenerate.Generators
 {
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CodeStyle;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Naming.Settings;
-  using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
+  /// The property body.
   /// </summary>
   [SmartGenerate("Generate property accessor body", "Generates the body of either a getter or a setter property accessor.", Priority = 0)]
   public class PropertyBody : SmartGenerateHandlerBase
   {
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    /// <param name="smartGenerateParameters">
+    /// The get menu items parameters.
+    /// </param>
     protected override void GetItems(SmartGenerateParameters smartGenerateParameters)
     {
-      IElement element = smartGenerateParameters.Element;
+      var element = smartGenerateParameters.Element;
 
-      IProperty propertyDeclaration = element.GetContainingElement(typeof(IPropertyDeclaration), true) as IProperty;
+      var propertyDeclaration = element.GetContainingElement(typeof(IPropertyDeclaration), true) as IProperty;
       if (propertyDeclaration == null)
       {
         return;
       }
 
-      IAccessorDeclaration accessorDeclaration = element.GetContainingElement(typeof(IAccessorDeclaration), true) as IAccessorDeclaration;
+      var accessorDeclaration = element.GetContainingElement(typeof(IAccessorDeclaration), true) as IAccessorDeclaration;
       if (accessorDeclaration == null)
       {
         return;
       }
 
-      IBlock body = accessorDeclaration.Body;
+      var body = accessorDeclaration.Body;
       if (body == null || body.Statements.Count > 0)
       {
         return;
       }
 
-      string name = propertyDeclaration.ShortName;
+      var name = propertyDeclaration.ShortName;
       if (string.IsNullOrEmpty(name))
       {
         return;
       }
 
-      char[] charArray = name.ToCharArray();
+      var charArray = name.ToCharArray();
       charArray[0] = char.ToLower(charArray[0]);
       name = new string(charArray);
 
-      NamingPolicy namingPolicy = CodeStyleSettingsManager.Instance.CodeStyleSettings.GetNamingSettings2().PredefinedNamingRules[NamedElementKinds.NotPublicInstanceFields];
-      string prefix = namingPolicy.NamingRule.Prefix;
+      var namingPolicy = CodeStyleSettingsManager.Instance.CodeStyleSettings.GetNamingSettings2().PredefinedNamingRules[NamedElementKinds.PrivateInstanceFields];
+      var prefix = namingPolicy.NamingRule.Prefix;
 
-      string typeName = propertyDeclaration.Type.GetPresentableName(element.Language);
+      var typeName = propertyDeclaration.Type.GetPresentableName(element.Language);
 
       if (accessorDeclaration.Kind == AccessorKind.GETTER)
       {

@@ -1,24 +1,35 @@
-﻿namespace AgentJohnson.SmartGenerate.Generators
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FlowControl.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The flow control.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace AgentJohnson.SmartGenerate.Generators
 {
   using JetBrains.ReSharper.Psi.CSharp.Tree;
-  using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
+  /// The flow control.
   /// </summary>
   [SmartGenerate("Generate 'continue' or 'break'", "Generates 'continue' or 'break'.", Priority = 200)]
   public class FlowControl : SmartGenerateHandlerBase
   {
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    /// <param name="smartGenerateParameters">
+    /// The get menu items parameters.
+    /// </param>
     protected override void GetItems(SmartGenerateParameters smartGenerateParameters)
     {
-      IElement element = smartGenerateParameters.Element;
+      var element = smartGenerateParameters.Element;
 
-      bool hasLoop = element.GetContainingElement(typeof(IForeachStatement), false) as IForeachStatement != null;
+      var hasLoop = element.GetContainingElement(typeof(IForeachStatement), false) as IForeachStatement != null;
       hasLoop |= element.GetContainingElement(typeof(IForStatement), false) as IForStatement != null;
       hasLoop |= element.GetContainingElement(typeof(IWhileStatement), false) as IWhileStatement != null;
       hasLoop |= element.GetContainingElement(typeof(IDoStatement), false) as IDoStatement != null;

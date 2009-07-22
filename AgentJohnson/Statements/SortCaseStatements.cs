@@ -1,6 +1,11 @@
-// <copyright file="SortCaseStatements.cs" company="Sitecore A/S">
-//   Copyright (c) Sitecore A/S. All rights reserved.
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="SortCaseStatements.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
 // </copyright>
+// <summary>
+//   Defines the make abstract class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace AgentJohnson.Statements
 {
@@ -20,25 +25,33 @@ namespace AgentJohnson.Statements
   [ContextAction(Description = "Sort case statements.", Name = "Sort case statements", Priority = -1, Group = "C#")]
   public class SortCaseStatements : ContextActionBase, IComparer<SortCaseStatements.KeyCode>
   {
-    #region Constructor
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SortCaseStatements"/> class.
     /// </summary>
-    /// <param name="provider">The provider.</param>
+    /// <param name="provider">
+    /// The provider.
+    /// </param>
     public SortCaseStatements(ICSharpContextActionDataProvider provider) : base(provider)
     {
     }
 
     #endregion
 
-    #region Public methods
+    #region Implemented Interfaces
+
+    #region IComparer<KeyCode>
 
     /// <summary>
     /// Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
     /// </summary>
-    /// <param name="x">The first object to compare.</param>
-    /// <param name="y">The second object to compare.</param>
+    /// <param name="x">
+    /// The first object to compare.
+    /// </param>
+    /// <param name="y">
+    /// The second object to compare.
+    /// </param>
     /// <returns>
     /// Value
     /// Condition
@@ -76,33 +89,37 @@ namespace AgentJohnson.Statements
 
     #endregion
 
-    #region Protected methods
+    #endregion
+
+    #region Methods
 
     /// <summary>
     /// Executes this instance.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     protected override void Execute(IElement element)
     {
-      ISwitchStatement switchStatement = element.ToTreeNode().Parent as ISwitchStatement;
+      var switchStatement = element.ToTreeNode().Parent as ISwitchStatement;
       if (switchStatement == null)
       {
         return;
       }
 
-      IBlock block = switchStatement.Block;
+      var block = switchStatement.Block;
       if (block == null)
       {
         return;
       }
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
+      var factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
       if (factory == null)
       {
         return;
       }
 
-      IList<IStatement> statements = block.Statements;
+      var statements = block.Statements;
       if (statements == null)
       {
         return;
@@ -114,9 +131,9 @@ namespace AgentJohnson.Statements
 
       list.Sort(this);
 
-      StringBuilder code = new StringBuilder("{\r\n");
+      var code = new StringBuilder("{\r\n");
 
-      foreach (KeyCode keyCode in list)
+      foreach (var keyCode in list)
       {
         code.Append(keyCode.Code);
       }
@@ -129,7 +146,9 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <returns>The text in the context menu.</returns>
+    /// <returns>
+    /// The text in the context menu.
+    /// </returns>
     protected override string GetText()
     {
       return "Sort cases [Agent Johnson]";
@@ -138,13 +157,15 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Determines whether this instance is available.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if this instance is available; otherwise, <c>false</c>.
+    /// <c>true</c> if this instance is available; otherwise, <c>false</c>.
     /// </returns>
     protected override bool IsAvailable(IElement element)
     {
-      ISwitchStatement switchStatement = element.ToTreeNode().Parent as ISwitchStatement;
+      var switchStatement = element.ToTreeNode().Parent as ISwitchStatement;
       if (switchStatement == null)
       {
         return false;
@@ -156,23 +177,23 @@ namespace AgentJohnson.Statements
         return false;
       }
 
-      IBlock block = switchStatement.Block;
+      var block = switchStatement.Block;
       if (block == null)
       {
         return false;
       }
 
-      IList<IStatement> statements = block.Statements;
+      var statements = block.Statements;
       if (statements == null)
       {
         return false;
       }
 
-      bool found = false;
+      var found = false;
 
-      foreach (IStatement statement in statements)
+      foreach (var statement in statements)
       {
-        ISwitchLabelStatement switchLabelStatement = statement as ISwitchLabelStatement;
+        var switchLabelStatement = statement as ISwitchLabelStatement;
         if (switchLabelStatement != null && !switchLabelStatement.IsDefault)
         {
           found = true;
@@ -185,21 +206,21 @@ namespace AgentJohnson.Statements
         return false;
       }
 
-      IType type = condition.Type();
-      string typeName = type.GetPresentableName(element.Language);
+      var type = condition.Type();
+      var typeName = type.GetPresentableName(element.Language);
 
       if (typeName == "string")
       {
         return true;
       }
 
-      bool isEnumType = TypesUtil.IsEnumType(type);
+      var isEnumType = TypesUtil.IsEnumType(type);
       if (isEnumType)
       {
         return true;
       }
 
-      bool isInt = PredefinedType.IsInt(type) || PredefinedType.IsLong(type);
+      var isInt = PredefinedType.IsInt(type) || PredefinedType.IsLong(type);
       if (isInt)
       {
         return true;
@@ -208,23 +229,23 @@ namespace AgentJohnson.Statements
       return false;
     }
 
-    #endregion
-
-    #region Private methods
-
     /// <summary>
     /// Gets the cases.
     /// </summary>
-    /// <param name="list">The list of statements.</param>
-    /// <param name="statements">The statements.</param>
+    /// <param name="list">
+    /// The list of statements.
+    /// </param>
+    /// <param name="statements">
+    /// The statements.
+    /// </param>
     private static void GetCases(List<KeyCode> list, IList<IStatement> statements)
     {
       object caseValue = null;
       StringBuilder code = null;
 
-      foreach (IStatement statement in statements)
+      foreach (var statement in statements)
       {
-        ISwitchLabelStatement switchLabelStatement = statement as ISwitchLabelStatement;
+        var switchLabelStatement = statement as ISwitchLabelStatement;
         if (switchLabelStatement != null)
         {
           if (code != null)
@@ -238,7 +259,7 @@ namespace AgentJohnson.Statements
 
           caseValue = null;
 
-          ICSharpExpression valueExpression = switchLabelStatement.ValueExpression;
+          var valueExpression = switchLabelStatement.ValueExpression;
           if (valueExpression != null)
           {
             caseValue = valueExpression.ConstantValue.Value;
@@ -262,14 +283,12 @@ namespace AgentJohnson.Statements
 
     #endregion
 
-    #region Nested type: KeyCode
-
     /// <summary>
     /// Defines the key code class.
     /// </summary>
     public class KeyCode
     {
-      #region Public properties
+      #region Properties
 
       /// <summary>
       /// Gets or sets the key.
@@ -285,7 +304,5 @@ namespace AgentJohnson.Statements
 
       #endregion
     }
-
-    #endregion
   }
 }

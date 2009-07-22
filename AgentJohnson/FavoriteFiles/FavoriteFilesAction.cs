@@ -1,3 +1,12 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FavoriteFilesAction.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Handles Find Text action, see Actions.xml
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson.FavoriteFiles
 {
   using System.Collections.Generic;
@@ -21,23 +30,36 @@ namespace AgentJohnson.FavoriteFiles
   [ActionHandler("FavoriteFiles")]
   public class FavoriteFilesAction : IActionHandler
   {
-    #region Fields
+    #region Constants and Fields
 
+    /// <summary>
+    /// The _current file.
+    /// </summary>
     private FavoriteFilePath _currentFile;
+
+    /// <summary>
+    /// The _solution.
+    /// </summary>
     private ISolution _solution;
 
     #endregion
 
-    #region Public methods
+    #region Implemented Interfaces
 
-    ///<summary>
+    #region IActionHandler
+
+    /// <summary>
     /// Executes action. Called after Update, that set <see cref="ActionPresentation"/>.Enabled to true.
-    ///</summary>
-    ///<param name="context"><c>DataContext</c></param>
-    ///<param name="nextExecute">delegate to call</param>
+    /// </summary>
+    /// <param name="context">
+    /// <c>DataContext</c>
+    /// </param>
+    /// <param name="nextExecute">
+    /// delegate to call
+    /// </param>
     public void Execute(IDataContext context, DelegateExecute nextExecute)
     {
-      ISolution solution = context.GetData(DataConstants.SOLUTION);
+      var solution = context.GetData(DataConstants.SOLUTION);
       if (solution == null)
       {
         return;
@@ -46,13 +68,22 @@ namespace AgentJohnson.FavoriteFiles
       Execute(solution, context);
     }
 
-    ///<summary>
+    /// <summary>
     /// Updates action visual presentation. If presentation.Enabled is set to false, Execute
     /// will not be called.
-    ///</summary>
-    ///<param name="context"><c>DataContext</c></param>
-    ///<param name="presentation">presentation to update</param>
-    ///<param name="nextUpdate">delegate to call</param>
+    /// </summary>
+    /// <param name="context">
+    /// <c>DataContext</c>
+    /// </param>
+    /// <param name="presentation">
+    /// presentation to update
+    /// </param>
+    /// <param name="nextUpdate">
+    /// delegate to call
+    /// </param>
+    /// <returns>
+    /// The update.
+    /// </returns>
     public bool Update(IDataContext context, ActionPresentation presentation, DelegateUpdate nextUpdate)
     {
       return context.CheckAllNotNull(DataConstants.SOLUTION);
@@ -60,17 +91,25 @@ namespace AgentJohnson.FavoriteFiles
 
     #endregion
 
-    #region Private methods
+    #endregion
+
+    #region Methods
 
     /// <summary>
     /// Describes the favorite file.
     /// </summary>
-    /// <param name="favoriteFilePath">The favorite file path.</param>
-    /// <param name="index">The index.</param>
-    /// <returns>The favorite file.</returns>
+    /// <param name="favoriteFilePath">
+    /// The favorite file path.
+    /// </param>
+    /// <param name="index">
+    /// The index.
+    /// </param>
+    /// <returns>
+    /// The favorite file.
+    /// </returns>
     private static SimpleMenuItem DescribeFavoriteFile(FavoriteFilePath favoriteFilePath, int index)
     {
-      SimpleMenuItem result = new SimpleMenuItem();
+      var result = new SimpleMenuItem();
 
       if (favoriteFilePath == null)
       {
@@ -86,6 +125,7 @@ namespace AgentJohnson.FavoriteFiles
       {
         result.Text = favoriteFilePath.Path;
       }
+
       result.Style = MenuItemStyle.Enabled;
       result.ShortcutText = new RichText("(" + favoriteFilePath + ")", TextStyle.FromForeColor(Color.LightGray));
 
@@ -102,28 +142,34 @@ namespace AgentJohnson.FavoriteFiles
     /// <summary>
     /// Gets the current file.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="dataContext">The data context.</param>
-    /// <returns>The current file.</returns>
+    /// <param name="solution">
+    /// The solution.
+    /// </param>
+    /// <param name="dataContext">
+    /// The data context.
+    /// </param>
+    /// <returns>
+    /// The current file.
+    /// </returns>
     private static FavoriteFilePath GetCurrentFile(ISolution solution, IDataContext dataContext)
     {
-      IDocument document = dataContext.GetData(DataConstants.DOCUMENT);
+      var document = dataContext.GetData(DataConstants.DOCUMENT);
       if (document == null)
       {
         return null;
       }
 
-      IProjectFile projectFile = DocumentManager.GetInstance(solution).GetProjectFile(document);
+      var projectFile = DocumentManager.GetInstance(solution).GetProjectFile(document);
       if (projectFile == null)
       {
         return null;
       }
 
-      FavoriteFilePath result = new FavoriteFilePath();
+      var result = new FavoriteFilePath();
 
-      FileSystemPath path = projectFile.Location;
+      var path = projectFile.Location;
 
-      IProject project = projectFile.GetProject();
+      var project = projectFile.GetProject();
 
       // miscellaneous files
       if (!project.IsWritable && project.LanguageType == ProjectFileType.UNKNOWN && project.Location.IsEmpty)
@@ -147,7 +193,7 @@ namespace AgentJohnson.FavoriteFiles
     /// </summary>
     private static void Organize()
     {
-      using (OrganizeDialog organizeDialog = new OrganizeDialog())
+      using (var organizeDialog = new OrganizeDialog())
       {
         organizeDialog.ShowDialog();
       }
@@ -163,11 +209,11 @@ namespace AgentJohnson.FavoriteFiles
         return;
       }
 
-      List<FavoriteFilePath> favoriteFiles = FavoriteFilesSettings.Instance.FavoriteFiles;
+      var favoriteFiles = FavoriteFilesSettings.Instance.FavoriteFiles;
 
-      for (int n = favoriteFiles.Count - 1; n >= 0; n--)
+      for (var n = favoriteFiles.Count - 1; n >= 0; n--)
       {
-        FavoriteFilePath existingFavoriteFile = favoriteFiles[n];
+        var existingFavoriteFile = favoriteFiles[n];
 
         if (existingFavoriteFile.Path == this._currentFile.Path && existingFavoriteFile.ProjectName == this._currentFile.ProjectName)
         {
@@ -181,10 +227,12 @@ namespace AgentJohnson.FavoriteFiles
     /// <summary>
     /// Describes the add menu item.
     /// </summary>
-    /// <returns>The add menu item.</returns>
+    /// <returns>
+    /// The add menu item.
+    /// </returns>
     private SimpleMenuItem DescribeAddMenuItem()
     {
-      SimpleMenuItem result = new SimpleMenuItem
+      var result = new SimpleMenuItem
       {
         Text = new RichText("Add Current File")
       };
@@ -202,10 +250,12 @@ namespace AgentJohnson.FavoriteFiles
     /// <summary>
     /// Describes the more menu item.
     /// </summary>
-    /// <returns>The more menu item.</returns>
+    /// <returns>
+    /// The more menu item.
+    /// </returns>
     private SimpleMenuItem DescribeOrganizeMenuItem()
     {
-      SimpleMenuItem result = new SimpleMenuItem
+      var result = new SimpleMenuItem
       {
         Text = new RichText("Organize...")
       };
@@ -223,26 +273,30 @@ namespace AgentJohnson.FavoriteFiles
     /// <summary>
     /// Executes action. Called after Update, that set <c>ActionPresentation</c>.Enabled to true.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="context">The context.</param>
+    /// <param name="solution">
+    /// The solution.
+    /// </param>
+    /// <param name="context">
+    /// The context.
+    /// </param>
     private void Execute(ISolution solution, IDataContext context)
     {
       this._solution = solution;
       this._currentFile = GetCurrentFile(this._solution, context);
 
-      List<SimpleMenuItem> items = new List<SimpleMenuItem>();
+      var items = new List<SimpleMenuItem>();
 
-      List<FavoriteFilePath> files = FavoriteFilesSettings.Instance.FavoriteFiles;
+      var files = FavoriteFilesSettings.Instance.FavoriteFiles;
 
-      int index = 0;
+      var index = 0;
 
-      foreach (FavoriteFilePath favoriteFilePath in files)
+      foreach (var favoriteFilePath in files)
       {
-        FavoriteFilePath path = favoriteFilePath;
+        var path = favoriteFilePath;
 
         if (string.IsNullOrEmpty(favoriteFilePath.ProjectName))
         {
-          SimpleMenuItem item = DescribeFavoriteFile(favoriteFilePath, index);
+          var item = DescribeFavoriteFile(favoriteFilePath, index);
 
           item.Clicked += delegate { this.menu_ItemClicked(path); };
 
@@ -253,11 +307,11 @@ namespace AgentJohnson.FavoriteFiles
           continue;
         }
 
-        IProject project = solution.GetProject(favoriteFilePath.ProjectName);
+        var project = solution.GetProject(favoriteFilePath.ProjectName);
 
         if (project != null)
         {
-          SimpleMenuItem item = DescribeFavoriteFile(favoriteFilePath, index);
+          var item = DescribeFavoriteFile(favoriteFilePath, index);
 
           item.Clicked += delegate { this.menu_ItemClicked(path); };
 
@@ -277,7 +331,7 @@ namespace AgentJohnson.FavoriteFiles
       items.Add(this.DescribeAddMenuItem());
       items.Add(this.DescribeOrganizeMenuItem());
 
-      JetPopupMenu menu = new JetPopupMenu();
+      var menu = new JetPopupMenu();
 
       menu.Caption.Value = WindowlessControl.Create("Favorite Files");
       menu.SetItems(items.ToArray());
@@ -287,75 +341,11 @@ namespace AgentJohnson.FavoriteFiles
     }
 
     /// <summary>
-    /// Opens the favorite file.
-    /// </summary>
-    /// <param name="favoriteFilePath">The favorite file path.</param>
-    private void OpenFavoriteFile(FavoriteFilePath favoriteFilePath)
-    {
-      FileSystemPath path = new FileSystemPath(favoriteFilePath.Path);
-
-      if (string.IsNullOrEmpty(favoriteFilePath.ProjectName))
-      {
-        _DTE dte = VSShell.Instance.ApplicationObject;
-        dte.ItemOperations.OpenFile(favoriteFilePath.Path, Constants.vsViewKindTextView);
-        return;
-      }
-
-      if (!string.IsNullOrEmpty(favoriteFilePath.ProjectName))
-      {
-        IProject project = this._solution.GetProject(favoriteFilePath.ProjectName);
-
-        if (project == null)
-        {
-          return;
-        }
-
-        FileSystemPath projectPath = project.Location;
-
-        path = projectPath.Combine(path);
-      }
-
-      IList<IProjectItem> location = this._solution.FindProjectItemsByLocation(path);
-      if (location == null || location.Length() == 0)
-      {
-        return;
-      }
-
-      IProjectItem projectItem = location[0];
-
-      if (projectItem == null)
-      {
-        System.Windows.Forms.MessageBox.Show("File not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        return;
-      }
-
-      if (projectItem.Kind != ProjectItemKind.PHYSICAL_FILE)
-      {
-        System.Windows.Forms.MessageBox.Show("File not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        return;
-      }
-
-      IProjectFile projectFile = projectItem as IProjectFile;
-      if (projectFile == null)
-      {
-        System.Windows.Forms.MessageBox.Show("File not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        return;
-      }
-
-      if (EditorManager.GetInstance(this._solution).OpenProjectFile(projectFile, true) == null)
-      {
-        System.Windows.Forms.MessageBox.Show("File not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-      }
-    }
-
-    #endregion
-
-    #region Events
-
-    /// <summary>
     /// Handles the ItemClicked event of the menu control.
     /// </summary>
-    /// <param name="path">The path.</param>
+    /// <param name="path">
+    /// The path.
+    /// </param>
     private void menu_ItemClicked(FavoriteFilePath path)
     {
       if (path.Path == "__add")
@@ -369,6 +359,70 @@ namespace AgentJohnson.FavoriteFiles
       else
       {
         this.OpenFavoriteFile(path);
+      }
+    }
+
+    /// <summary>
+    /// Opens the favorite file.
+    /// </summary>
+    /// <param name="favoriteFilePath">
+    /// The favorite file path.
+    /// </param>
+    private void OpenFavoriteFile(FavoriteFilePath favoriteFilePath)
+    {
+      var path = new FileSystemPath(favoriteFilePath.Path);
+
+      if (string.IsNullOrEmpty(favoriteFilePath.ProjectName))
+      {
+        _DTE dte = VSShell.Instance.ApplicationObject;
+        dte.ItemOperations.OpenFile(favoriteFilePath.Path, Constants.vsViewKindTextView);
+        return;
+      }
+
+      if (!string.IsNullOrEmpty(favoriteFilePath.ProjectName))
+      {
+        var project = this._solution.GetProject(favoriteFilePath.ProjectName);
+
+        if (project == null)
+        {
+          return;
+        }
+
+        var projectPath = project.Location;
+
+        path = projectPath.Combine(path);
+      }
+
+      var location = this._solution.FindProjectItemsByLocation(path);
+      if (location == null || location.Length() == 0)
+      {
+        return;
+      }
+
+      var projectItem = location[0];
+
+      if (projectItem == null)
+      {
+        System.Windows.Forms.MessageBox.Show("File not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        return;
+      }
+
+      if (projectItem.Kind != ProjectItemKind.PHYSICAL_FILE)
+      {
+        System.Windows.Forms.MessageBox.Show("File not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        return;
+      }
+
+      var projectFile = projectItem as IProjectFile;
+      if (projectFile == null)
+      {
+        System.Windows.Forms.MessageBox.Show("File not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        return;
+      }
+
+      if (EditorManager.GetInstance(this._solution).OpenProjectFile(projectFile, true) == null)
+      {
+        System.Windows.Forms.MessageBox.Show("File not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
       }
     }
 

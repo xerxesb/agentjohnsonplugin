@@ -1,42 +1,71 @@
-using System;
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="LiveTemplateAttribute.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The live template attribute.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate
+{
+  using System;
+
   /// <summary>
-  /// 
+  /// The live template attribute.
   /// </summary>
   [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-  public sealed class LiveTemplateAttribute : Attribute {
-    #region Fields
+  public sealed class LiveTemplateAttribute : Attribute
+  {
+    #region Constants and Fields
 
-    readonly string _description;
-    readonly string _name;
-    int _priority;
+    /// <summary>
+    /// The _description.
+    /// </summary>
+    private readonly string _description;
+
+    /// <summary>
+    /// The _name.
+    /// </summary>
+    private readonly string _name;
+
+    /// <summary>
+    /// The _priority.
+    /// </summary>
+    private int _priority;
 
     #endregion
 
-    #region Constructors
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LiveTemplateAttribute"/> class.
     /// </summary>
-    /// <param name="description">The description.</param>
-    /// <param name="name">The name.</param>
-    public LiveTemplateAttribute(string name, string description) {
-      _description = description;
-      _name = name;
+    /// <param name="name">
+    /// The name.
+    /// </param>
+    /// <param name="description">
+    /// The description.
+    /// </param>
+    public LiveTemplateAttribute(string name, string description)
+    {
+      this._description = description;
+      this._name = name;
     }
 
     #endregion
 
-    #region Public properties
+    #region Properties
 
     /// <summary>
     /// Gets the description.
     /// </summary>
     /// <value>The description.</value>
-    public string Description {
-      get {
-        return _description ?? string.Empty;
+    public string Description
+    {
+      get
+      {
+        return this._description ?? string.Empty;
       }
     }
 
@@ -44,9 +73,11 @@ namespace AgentJohnson.SmartGenerate {
     /// Gets the name.
     /// </summary>
     /// <value>The name.</value>
-    public string Name {
-      get {
-        return _name ?? string.Empty;
+    public string Name
+    {
+      get
+      {
+        return this._name ?? string.Empty;
       }
     }
 
@@ -54,12 +85,16 @@ namespace AgentJohnson.SmartGenerate {
     /// Gets or sets the priority.
     /// </summary>
     /// <value>The priority.</value>
-    public int Priority {
-      get {
-        return _priority;
+    public int Priority
+    {
+      get
+      {
+        return this._priority;
       }
-      set {
-        _priority = value;
+
+      set
+      {
+        this._priority = value;
       }
     }
 

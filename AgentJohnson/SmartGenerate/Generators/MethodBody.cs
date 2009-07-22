@@ -1,51 +1,61 @@
-﻿namespace AgentJohnson.SmartGenerate.Generators
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="MethodBody.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The method body.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace AgentJohnson.SmartGenerate.Generators
 {
-  using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
-  using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.ReSharper.Psi.Util;
 
   /// <summary>
+  /// The method body.
   /// </summary>
   [SmartGenerate("Generate method body", "Generates the body of a method with a return value.", Priority = 0)]
   public class MethodBody : SmartGenerateHandlerBase
   {
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    /// <param name="smartGenerateParameters">
+    /// The get menu items parameters.
+    /// </param>
     protected override void GetItems(SmartGenerateParameters smartGenerateParameters)
     {
-      IElement element = smartGenerateParameters.Element;
+      var element = smartGenerateParameters.Element;
 
-      IMethodDeclaration methodDeclaration = element.GetContainingElement(typeof(IMethodDeclaration), true) as IMethodDeclaration;
+      var methodDeclaration = element.GetContainingElement(typeof(IMethodDeclaration), true) as IMethodDeclaration;
       if (methodDeclaration == null)
       {
         return;
       }
 
-      IBlock body = methodDeclaration.Body;
+      var body = methodDeclaration.Body;
       if (body == null || body.Statements.Count > 0)
       {
         return;
       }
 
-      string name = methodDeclaration.DeclaredName;
+      var name = methodDeclaration.DeclaredName;
       if (string.IsNullOrEmpty(name))
       {
         return;
       }
 
-      IMethod method = methodDeclaration as IMethod;
+      var method = methodDeclaration.DeclaredElement;
       if (method == null)
       {
         return;
       }
 
-      IType returnType = method.ReturnType;
-      string returnTypeName = returnType.GetPresentableName(element.Language);
+      var returnType = method.ReturnType;
+      var returnTypeName = returnType.GetPresentableName(element.Language);
       if (returnTypeName == "void" || string.IsNullOrEmpty(returnTypeName))
       {
         return;

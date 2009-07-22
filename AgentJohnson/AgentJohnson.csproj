@@ -119,6 +119,15 @@
       <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v4.5\Bin\JetBrains.ReSharper.Feature.Services.CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="JetBrains.ReSharper.Features.Common, Version=4.5.1231.7, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v4.5\Bin\JetBrains.ReSharper.Features.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="JetBrains.ReSharper.Features.Environment, Version=4.5.1231.7, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v4.5\Bin\JetBrains.ReSharper.Features.Environment.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="JetBrains.ReSharper.Intentions, Version=4.5.1153.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v4.5\Bin\JetBrains.ReSharper.Intentions.dll</HintPath>
@@ -179,6 +188,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionHandlerBase.cs" />
+    <Compile Include="Comments\CopySummary.cs" />
     <Compile Include="ContextActionBase.cs" />
     <Compile Include="Enums\SortEnums.cs" />
     <Compile Include="LiveMacros\PullParameters.cs" />
@@ -201,6 +211,14 @@
     <Compile Include="Options\ValueAnalysisDetailsPage.Designer.cs">
       <DependentUpon>ValueAnalysisDetailsPage.cs</DependentUpon>
     </Compile>
+    <Compile Include="RecentChanges\RecentChangesAction.cs" />
+    <Compile Include="RecentChanges\RecentChanges.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RecentChanges\RecentChanges.Designer.cs">
+      <DependentUpon>RecentChanges.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Refactorings\DuplicateMethod.cs" />
     <Compile Include="Refactorings\ImplementICloneableActionHandler.cs" />
     <Compile Include="Refactorings\ImplementIDisposableActionHandler.cs" />
     <Compile Include="Refactorings\ImplementISerializableActionHandler.cs" />
@@ -363,6 +381,9 @@
     <EmbeddedResource Include="Resources\StringConstant.gif" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="RecentChanges\RecentChanges.resx">
+      <DependentUpon>RecentChanges.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\SmartGenerate.gif" />
     <EmbeddedResource Include="Resources\LeftArrow.png" />
     <EmbeddedResource Include="Resources\RightArrow.png" />

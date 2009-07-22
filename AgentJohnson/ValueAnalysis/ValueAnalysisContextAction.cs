@@ -1,9 +1,15 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ValueAnalysisContextAction.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Represents the Context Action.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson.ValueAnalysis
 {
-  using System;
-
   using EnvDTE;
-
   using JetBrains.Annotations;
   using JetBrains.ReSharper.Intentions;
   using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
@@ -16,6 +22,8 @@ namespace AgentJohnson.ValueAnalysis
   [ContextAction(Description = "Annotates a function with Value Analysis attributes and assert statements.", Name = "Annotate with Value Analysis attributes", Priority = 0, Group = "C#")]
   public class ValueAnalysisContextAction : ContextActionBase
   {
+    #region Constructors and Destructors
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ValueAnalysisContextAction"/> class.
     /// </summary>
@@ -26,6 +34,10 @@ namespace AgentJohnson.ValueAnalysis
     {
     }
 
+    #endregion
+
+    #region Methods
+
     /// <summary>
     /// Executes the internal.
     /// </summary>
@@ -34,52 +46,28 @@ namespace AgentJohnson.ValueAnalysis
     /// </param>
     protected override void Execute(IElement element)
     {
-      ITypeMemberDeclaration typeMemberDeclaration = this.GetTypeMemberDeclaration();
+      var typeMemberDeclaration = this.GetTypeMemberDeclaration();
       if (typeMemberDeclaration == null)
       {
         return;
       }
 
-      ValueAnalysisRefactoring valueAnalysisRefactoring = new ValueAnalysisRefactoring(typeMemberDeclaration, this.Provider);
+      var valueAnalysisRefactoring = new ValueAnalysisRefactoring(typeMemberDeclaration, this.Provider);
 
       valueAnalysisRefactoring.Execute();
-    }
 
-    /// <summary>
-    /// Executes the internal finally.
-    /// </summary>
-    /// <param name="data">The data.</param>
-    /// <returns>The internal finally.</returns>
-    protected override object[] ExecuteInternalFinally(params object[] data)
-    {
       if (!ValueAnalysisSettings.Instance.ExecuteGhostDoc)
       {
-        return data;
+        return;
       }
-
-      _DTE dte = VSShell.Instance.ApplicationObject;
-      Command command;
-
-      try
-      {
-        command = dte.Commands.Item("Weigelt.GhostDoc.AddIn.DocumentThis", -1);
-      } catch
-      {
-        command = null;
-      }
-
-      if (command != null)
-      {
-        dte.ExecuteCommand("Weigelt.GhostDoc.AddIn.DocumentThis", string.Empty);
-      }
-
-      return data;
     }
 
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <returns>The text.</returns>
+    /// <returns>
+    /// The text of the action.
+    /// </returns>
     /// <value>
     /// The text.
     /// </value>
@@ -99,25 +87,53 @@ namespace AgentJohnson.ValueAnalysis
     /// </returns>
     protected override bool IsAvailable(IElement element)
     {
-      ITypeMemberDeclaration typeMemberDeclaration = this.GetTypeMemberDeclaration();
+      var typeMemberDeclaration = this.GetTypeMemberDeclaration();
       if (typeMemberDeclaration == null)
       {
         return false;
       }
 
-      ValueAnalysisRefactoring valueAnalysisRefactoring = new ValueAnalysisRefactoring(typeMemberDeclaration, this.Provider);
+      var valueAnalysisRefactoring = new ValueAnalysisRefactoring(typeMemberDeclaration, this.Provider);
 
       return valueAnalysisRefactoring.IsAvailable();
     }
 
     /// <summary>
+    /// Posts the execute.
+    /// </summary>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    protected override void PostExecute(IElement element)
+    {
+      _DTE dte = VSShell.Instance.ApplicationObject;
+      Command command;
+
+      try
+      {
+        command = dte.Commands.Item("Tools.SubMain.GhostDoc.DocumentThis", -1);
+      }
+      catch
+      {
+        command = null;
+      }
+
+      if (command != null)
+      {
+        dte.ExecuteCommand("Tools.SubMain.GhostDoc.DocumentThis", string.Empty);
+      }
+    }
+
+    /// <summary>
     /// Gets the type member declaration.
     /// </summary>
-    /// <returns>The type member declaration.</returns>
+    /// <returns>
+    /// The type member declaration.
+    /// </returns>
     [CanBeNull]
     private ITypeMemberDeclaration GetTypeMemberDeclaration()
     {
-      IElement element = this.Provider.SelectedElement;
+      var element = this.Provider.SelectedElement;
       if (element == null)
       {
         return null;
@@ -125,7 +141,7 @@ namespace AgentJohnson.ValueAnalysis
 
       ITypeMemberDeclaration typeMemberDeclaration = null;
 
-      ITreeNode treeNode = element as ITreeNode;
+      var treeNode = element as ITreeNode;
       if (treeNode != null)
       {
         typeMemberDeclaration = treeNode.Parent as ITypeMemberDeclaration;
@@ -133,7 +149,7 @@ namespace AgentJohnson.ValueAnalysis
 
       if (typeMemberDeclaration == null)
       {
-        IIdentifierNode identifierNode = element as IIdentifierNode;
+        var identifierNode = element as IIdentifierNode;
 
         if (identifierNode != null)
         {
@@ -143,5 +159,7 @@ namespace AgentJohnson.ValueAnalysis
 
       return typeMemberDeclaration;
     }
+
+    #endregion
   }
 }

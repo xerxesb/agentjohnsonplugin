@@ -1,14 +1,24 @@
-using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Tree;
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ScopeEntry.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Defines the scope entry class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace AgentJohnson.SmartGenerate.Scopes {
+namespace AgentJohnson.SmartGenerate.Scopes
+{
+  using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Psi.CSharp.Tree;
+  using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
   /// Defines the scope entry class.
   /// </summary>
-  public class ScopeEntry {
-    #region Public properties
+  public class ScopeEntry
+  {
+    #region Properties
 
     /// <summary>
     /// Gets or sets the element.

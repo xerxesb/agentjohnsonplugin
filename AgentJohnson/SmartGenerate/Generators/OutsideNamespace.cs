@@ -1,21 +1,33 @@
-﻿namespace AgentJohnson.SmartGenerate.Generators
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="OutsideNamespace.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The outside namespace.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace AgentJohnson.SmartGenerate.Generators
 {
   using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
+  /// The outside namespace.
   /// </summary>
   [SmartGenerate("Generate namespace", "Generates a new namespace.", Priority = 0)]
   public class OutsideNamespace : SmartGenerateHandlerBase
   {
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    /// <param name="smartGenerateParameters">
+    /// The get menu items parameters.
+    /// </param>
     protected override void GetItems(SmartGenerateParameters smartGenerateParameters)
     {
-      IElement namespaceDeclaration = smartGenerateParameters.Element.GetContainingElement(typeof(INamespaceDeclaration), true);
+      var namespaceDeclaration = smartGenerateParameters.Element.GetContainingElement(typeof(INamespaceDeclaration), true);
       if (namespaceDeclaration != null)
       {
         return;

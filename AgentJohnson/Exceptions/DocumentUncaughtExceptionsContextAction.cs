@@ -1,6 +1,11 @@
-// <copyright file="DocumentUncaughtExceptionsContextAction.cs" company="Sitecore A/S">
-//   Copyright (c) Sitecore A/S. All rights reserved.
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="DocumentUncaughtExceptionsContextAction.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
 // </copyright>
+// <summary>
+//   Defines the document uncaught exceptions context action class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace AgentJohnson.Exceptions
 {
@@ -15,7 +20,6 @@ namespace AgentJohnson.Exceptions
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.ExtensionsAPI;
-  using JetBrains.ReSharper.Psi.Resolve;
   using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
@@ -24,29 +28,33 @@ namespace AgentJohnson.Exceptions
   [ContextAction(Description = "Document uncaught exceptions that are thrown in called functions", Name = "Add xml-docs comments for uncaught exceptions", Priority = -1, Group = "C#")]
   public class DocumentUncaughtExceptionsContextAction : ContextActionBase
   {
-    #region Constructor
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DocumentUncaughtExceptionsContextAction"/> class.
     /// </summary>
-    /// <param name="provider">The provider.</param>
+    /// <param name="provider">
+    /// The provider.
+    /// </param>
     public DocumentUncaughtExceptionsContextAction(ICSharpContextActionDataProvider provider) : base(provider)
     {
     }
 
     #endregion
 
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Executes the specified solution.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     protected override void Execute(IElement element)
     {
       Shell.Instance.Locks.AssertReadAccessAllowed();
 
-      ITreeNode node = element.ToTreeNode();
+      var node = element.ToTreeNode();
       if (node == null)
       {
         return;
@@ -77,7 +85,12 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <value>The context action text.</value>
+    /// <value>
+    /// The context action text.
+    /// </value>
+    /// <returns>
+    /// The get text.
+    /// </returns>
     protected override string GetText()
     {
       return "Add xml-docs comments for uncaught exceptions [Agent Johnson]";
@@ -86,13 +99,15 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Determines whether the specified cache is available.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if the specified cache is available; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified cache is available; otherwise, <c>false</c>.
     /// </returns>
     protected override bool IsAvailable(IElement element)
     {
-      ITreeNode node = element.ToTreeNode();
+      var node = element.ToTreeNode();
       if (node == null)
       {
         return false;
@@ -122,37 +137,37 @@ namespace AgentJohnson.Exceptions
         return false;
       }
 
-      List<string[]> exceptions = new List<string[]>();
+      var exceptions = new List<string[]>();
 
       GetExceptions(invocationExpression, exceptions);
 
       return exceptions.Count > 0;
     }
 
-    #endregion
-
-    #region Private methods
-
     /// <summary>
     /// Examines the catches.
     /// </summary>
-    /// <param name="tryStatement">The try statement.</param>
-    /// <param name="exceptions">The exceptions.</param>
+    /// <param name="tryStatement">
+    /// The try statement.
+    /// </param>
+    /// <param name="exceptions">
+    /// The exceptions.
+    /// </param>
     private static void ExamineCatches(ITryStatement tryStatement, IList<string[]> exceptions)
     {
-      IList<ICatchClause> list = tryStatement.Catches;
-      List<string> catches = new List<string>();
+      var list = tryStatement.Catches;
+      var catches = new List<string>();
 
-      foreach (ICatchClause clause in list)
+      foreach (var clause in list)
       {
-        IDeclaredType declaredType = clause.ExceptionType;
+        var declaredType = clause.ExceptionType;
 
         if (declaredType == null)
         {
           break;
         }
 
-        string clrName = declaredType.GetCLRName();
+        var clrName = declaredType.GetCLRName();
 
         if (!string.IsNullOrEmpty(clrName))
         {
@@ -160,9 +175,9 @@ namespace AgentJohnson.Exceptions
         }
       }
 
-      for (int n = exceptions.Count - 1; n >= 0; n--)
+      for (var n = exceptions.Count - 1; n >= 0; n--)
       {
-        string typeName = exceptions[n][0];
+        var typeName = exceptions[n][0];
 
         if (catches.Contains(typeName))
         {
@@ -174,7 +189,9 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Executes this instance.
     /// </summary>
-    /// <param name="invocationExpression">The invocation expression.</param>
+    /// <param name="invocationExpression">
+    /// The invocation expression.
+    /// </param>
     private static void Execute(IInvocationExpression invocationExpression)
     {
       ITypeMemberDeclaration typeMemberDeclaration = invocationExpression.GetContainingTypeMemberDeclaration();
@@ -183,41 +200,41 @@ namespace AgentJohnson.Exceptions
         return;
       }
 
-      IDocCommentBlockOwnerNode docCommentBlockOwnerNode = typeMemberDeclaration as IDocCommentBlockOwnerNode;
+      var docCommentBlockOwnerNode = typeMemberDeclaration as IDocCommentBlockOwnerNode;
       if (docCommentBlockOwnerNode == null)
       {
         return;
       }
 
-      ITreeNode anchor = typeMemberDeclaration.ToTreeNode();
+      var anchor = typeMemberDeclaration.ToTreeNode();
       if (anchor == null)
       {
         return;
       }
 
-      List<string[]> exceptions = new List<string[]>();
+      var exceptions = new List<string[]>();
 
       GetExceptions(invocationExpression, exceptions);
 
-      StringBuilder text = new StringBuilder();
+      var text = new StringBuilder();
 
-      foreach (string[] exception in exceptions)
+      foreach (var exception in exceptions)
       {
-        string t = exception[1];
+        var t = exception[1];
 
         t = Regex.Replace(t, "<paramref name=\"([^\"]*)\" />", "$1");
 
         text.Append("\r\n <exception cref=\"" + exception[0] + "\">" + t + "</exception>");
       }
 
-      string indent = GetIndent(anchor);
+      var indent = GetIndent(anchor);
 
       InsertSlashes(text, indent);
 
-      IDocCommentBlockNode docCommentBlockNode = docCommentBlockOwnerNode.GetDocCommentBlockNode();
+      var docCommentBlockNode = docCommentBlockOwnerNode.GetDocCommentBlockNode();
       if (docCommentBlockNode != null)
       {
-        string docCommentText = GetDocCommentText(docCommentBlockNode);
+        var docCommentText = GetDocCommentText(docCommentBlockNode);
 
         text.Insert(0, docCommentText);
       }
@@ -228,13 +245,13 @@ namespace AgentJohnson.Exceptions
 
       text.Append("\nvoid foo(){}");
 
-      ICSharpTypeMemberDeclaration declaration = CSharpElementFactory.GetInstance(typeMemberDeclaration.GetPsiModule()).CreateTypeMemberDeclaration(text.ToString());
+      var declaration = CSharpElementFactory.GetInstance(typeMemberDeclaration.GetPsiModule()).CreateTypeMemberDeclaration(text.ToString());
       if (declaration == null)
       {
         return;
       }
 
-      IDocCommentBlockNode node = SharedImplUtil.GetDocCommentBlockNode(declaration.ToTreeNode());
+      var node = SharedImplUtil.GetDocCommentBlockNode(declaration.ToTreeNode());
       if (node == null)
       {
         return;
@@ -246,8 +263,12 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Gets the doc comment text.
     /// </summary>
-    /// <param name="docCommentBlockNode">The doc comment block node.</param>
-    /// <returns>The doc comment text.</returns>
+    /// <param name="docCommentBlockNode">
+    /// The doc comment block node.
+    /// </param>
+    /// <returns>
+    /// The doc comment text.
+    /// </returns>
     private static string GetDocCommentText(IElement docCommentBlockNode)
     {
       return docCommentBlockNode.GetText();
@@ -256,8 +277,12 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Gets the exceptions.
     /// </summary>
-    /// <param name="invocationExpression">The invocation expression.</param>
-    /// <param name="exceptions">The exceptions.</param>
+    /// <param name="invocationExpression">
+    /// The invocation expression.
+    /// </param>
+    /// <param name="exceptions">
+    /// The exceptions.
+    /// </param>
     private static void GetExceptions(IInvocationExpression invocationExpression, List<string[]> exceptions)
     {
       ProcessInvocation(invocationExpression, exceptions);
@@ -273,22 +298,26 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Gets the exceptions.
     /// </summary>
-    /// <param name="exceptionList">The exception list.</param>
-    /// <returns>The exceptions.</returns>
+    /// <param name="exceptionList">
+    /// The exception list.
+    /// </param>
+    /// <returns>
+    /// The exceptions.
+    /// </returns>
     private static List<string[]> GetExceptions(XmlNodeList exceptionList)
     {
-      List<string[]> result = new List<string[]>();
+      var result = new List<string[]>();
 
       foreach (XmlNode exceptionNode in exceptionList)
       {
-        XmlAttribute attribute = exceptionNode.Attributes["cref"];
+        var attribute = exceptionNode.Attributes["cref"];
 
         if (attribute == null)
         {
           continue;
         }
 
-        string typeName = attribute.Value;
+        var typeName = attribute.Value;
 
         if (!string.IsNullOrEmpty(typeName))
         {
@@ -297,7 +326,7 @@ namespace AgentJohnson.Exceptions
             typeName = typeName.Substring(2);
           }
 
-          string[] entry = new[]
+          var entry = new[]
           {
             typeName, exceptionNode.InnerXml
           };
@@ -312,13 +341,17 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Gets the indent.
     /// </summary>
-    /// <param name="anchor">The anchor.</param>
-    /// <returns>The indent.</returns>
+    /// <param name="anchor">
+    /// The anchor.
+    /// </param>
+    /// <returns>
+    /// The indent.
+    /// </returns>
     private static string GetIndent(IElement anchor)
     {
-      string indent = string.Empty;
+      var indent = string.Empty;
 
-      IWhitespaceNode whitespace = anchor.ToTreeNode().PrevSibling as IWhitespaceNode;
+      var whitespace = anchor.ToTreeNode().PrevSibling as IWhitespaceNode;
       if (whitespace != null)
       {
         indent = whitespace.GetText();
@@ -330,13 +363,17 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Inserts the slashes.
     /// </summary>
-    /// <param name="text">The text to insert slashes into.</param>
-    /// <param name="indent">The indent.</param>
+    /// <param name="text">
+    /// The text to insert slashes into.
+    /// </param>
+    /// <param name="indent">
+    /// The indent.
+    /// </param>
     private static void InsertSlashes(StringBuilder text, string indent)
     {
-      string slashes = indent + "///";
+      var slashes = indent + "///";
 
-      for (int i = 0; i < text.Length; i++)
+      for (var i = 0; i < text.Length; i++)
       {
         if (text[i] == '\n')
         {
@@ -348,51 +385,55 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Determines whether the specified element is visible.
     /// </summary>
-    /// <param name="invocationExpression">The invocation expression.</param>
-    /// <param name="exceptions">The exceptions.</param>
+    /// <param name="invocationExpression">
+    /// The invocation expression.
+    /// </param>
+    /// <param name="exceptions">
+    /// The exceptions.
+    /// </param>
     private static void ProcessInvocation(IInvocationExpression invocationExpression, List<string[]> exceptions)
     {
-      IReferenceExpression reference = invocationExpression.InvokedExpression as IReferenceExpression;
+      var reference = invocationExpression.InvokedExpression as IReferenceExpression;
       if (reference == null)
       {
         return;
       }
 
-      IResolveResult resolveResult = reference.Reference.Resolve();
+      var resolveResult = reference.Reference.Resolve();
 
-      IDeclaredElement declaredElement = resolveResult.DeclaredElement;
+      var declaredElement = resolveResult.DeclaredElement;
       if (declaredElement == null)
       {
         return;
       }
 
-      XmlNode xmlNode = declaredElement.GetXMLDoc(true);
+      var xmlNode = declaredElement.GetXMLDoc(true);
       if (xmlNode == null)
       {
         return;
       }
 
-      XmlNodeList exceptionList = xmlNode.SelectNodes("exception");
+      var exceptionList = xmlNode.SelectNodes("exception");
       if (exceptionList == null || exceptionList.Count == 0)
       {
         return;
       }
 
-      ITreeNode node = invocationExpression as ITreeNode;
+      var node = invocationExpression as ITreeNode;
       if (node == null)
       {
         return;
       }
 
-      List<string[]> ex = GetExceptions(exceptionList);
+      var ex = GetExceptions(exceptionList);
 
       RemoveCaught(node, ex);
 
-      foreach (string[] exception in ex)
+      foreach (var exception in ex)
       {
-        bool found = false;
+        var found = false;
 
-        foreach (string[] e in exceptions)
+        foreach (var e in exceptions)
         {
           if (e[0] == exception[0])
           {
@@ -411,13 +452,17 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Removes the caught.
     /// </summary>
-    /// <param name="node">The tree node.</param>
-    /// <param name="exceptions">The exceptions.</param>
+    /// <param name="node">
+    /// The tree node.
+    /// </param>
+    /// <param name="exceptions">
+    /// The exceptions.
+    /// </param>
     private static void RemoveCaught(ITreeNode node, List<string[]> exceptions)
     {
       while (node != null)
       {
-        ITryStatement tryStatement = node as ITryStatement;
+        var tryStatement = node as ITryStatement;
 
         if (tryStatement != null)
         {
@@ -436,8 +481,12 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Determines whether this instance is documented.
     /// </summary>
-    /// <param name="invocationExpression">The invocation expression.</param>
-    /// <param name="exceptions">The exceptions.</param>
+    /// <param name="invocationExpression">
+    /// The invocation expression.
+    /// </param>
+    /// <param name="exceptions">
+    /// The exceptions.
+    /// </param>
     private static void RemoveDocumented(IInvocationExpression invocationExpression, List<string[]> exceptions)
     {
       ITypeMemberDeclaration typeMemberDeclaration = invocationExpression.GetContainingTypeMemberDeclaration();
@@ -452,13 +501,13 @@ namespace AgentJohnson.Exceptions
         return;
       }
 
-      XmlNode xmlNode = declaredElement.GetXMLDoc(false);
+      var xmlNode = declaredElement.GetXMLDoc(false);
       if (xmlNode == null)
       {
         return;
       }
 
-      XmlNodeList exceptionList = xmlNode.SelectNodes("exception");
+      var exceptionList = xmlNode.SelectNodes("exception");
       if (exceptionList == null || exceptionList.Count == 0)
       {
         return;
@@ -466,13 +515,13 @@ namespace AgentJohnson.Exceptions
 
       foreach (XmlNode node in exceptionList)
       {
-        XmlAttribute attribute = node.Attributes["cref"];
+        var attribute = node.Attributes["cref"];
         if (attribute == null)
         {
           continue;
         }
 
-        string cref = attribute.Value;
+        var cref = attribute.Value;
         if (string.IsNullOrEmpty(cref))
         {
           continue;
@@ -483,7 +532,7 @@ namespace AgentJohnson.Exceptions
           cref = cref.Substring(2);
         }
 
-        foreach (string[] exception in exceptions)
+        foreach (var exception in exceptions)
         {
           if (exception[0] == cref)
           {

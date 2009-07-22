@@ -1,4 +1,13 @@
-﻿namespace AgentJohnson.SmartGenerate
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="SmartGenerateHandlerBase.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Defines the smart generate base class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace AgentJohnson.SmartGenerate
 {
   using System.Collections.Generic;
   using System.Security;
@@ -10,19 +19,28 @@
   /// </summary>
   public abstract class SmartGenerateHandlerBase : ISmartGenerateHandler
   {
-    #region Fields
+    #region Constants and Fields
 
+    /// <summary>
+    /// The _items.
+    /// </summary>
     private List<ISmartGenerateAction> _items;
 
     #endregion
 
-    #region Public methods
+    #region Implemented Interfaces
+
+    #region ISmartGenerateHandler
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
-    /// <returns>The items.</returns>
+    /// <param name="smartGenerateParameters">
+    /// The get menu items parameters.
+    /// </param>
+    /// <returns>
+    /// The items.
+    /// </returns>
     public virtual IEnumerable<ISmartGenerateAction> GetMenuItems(SmartGenerateParameters smartGenerateParameters)
     {
       this._items = new List<ISmartGenerateAction>();
@@ -34,15 +52,25 @@
 
     #endregion
 
-    #region Protected methods
+    #endregion
+
+    #region Methods
 
     /// <summary>
     /// Adds the specified text.
     /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="template">The template.</param>
-    /// <param name="parameters">The parameters.</param>
-    /// <returns>The menu item.</returns>
+    /// <param name="text">
+    /// The text.
+    /// </param>
+    /// <param name="template">
+    /// The template.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters.
+    /// </param>
+    /// <returns>
+    /// The menu item.
+    /// </returns>
     [CanBeNull]
     protected ISmartGenerateAction AddAction([NotNull] string text, [NotNull] string template, params string[] parameters)
     {
@@ -52,28 +80,38 @@
     /// <summary>
     /// Adds the specified text.
     /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="template">The template.</param>
-    /// <param name="selectionRange">The selection range.</param>
-    /// <param name="parameters">The parameters.</param>
-    /// <returns>The menu item.</returns>
+    /// <param name="text">
+    /// The text.
+    /// </param>
+    /// <param name="template">
+    /// The template.
+    /// </param>
+    /// <param name="selectionRange">
+    /// The selection range.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters.
+    /// </param>
+    /// <returns>
+    /// The menu item.
+    /// </returns>
     [CanBeNull]
     protected ISmartGenerateAction AddAction([NotNull] string text, [NotNull] string template, TextRange selectionRange, params string[] parameters)
     {
-      string expandedTemplate = SmartGenerateManager.Instance.GetTemplate(template);
+      var expandedTemplate = SmartGenerateManager.Instance.GetTemplate(template);
 
       if (string.IsNullOrEmpty(expandedTemplate))
       {
         return null;
       }
 
-      SmartGenerateAction action = new SmartGenerateAction();
+      var action = new SmartGenerateAction();
 
       if (parameters.Length > 0)
       {
         text = string.Format(text, parameters);
 
-        for (int n = 0; n < parameters.Length; n++)
+        for (var n = 0; n < parameters.Length; n++)
         {
           parameters[n] = SecurityElement.Escape(parameters[n]);
         }
@@ -93,7 +131,9 @@
     /// <summary>
     /// Adds the menu item.
     /// </summary>
-    /// <param name="action">The menu item.</param>
+    /// <param name="action">
+    /// The menu item.
+    /// </param>
     protected void AddAction([NotNull] ISmartGenerateAction action)
     {
       this._items.Add(action);
@@ -110,7 +150,9 @@
     /// <summary>
     /// Gets the smart generate items.
     /// </summary>
-    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    /// <param name="smartGenerateParameters">
+    /// The get menu items parameters.
+    /// </param>
     protected abstract void GetItems(SmartGenerateParameters smartGenerateParameters);
 
     #endregion

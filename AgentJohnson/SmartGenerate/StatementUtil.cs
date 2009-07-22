@@ -1,30 +1,47 @@
-﻿using JetBrains.Annotations;
-using JetBrains.DocumentModel;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.Util;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="StatementUtil.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Defines the statement utility class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate
+{
+  using JetBrains.Annotations;
+  using JetBrains.ReSharper.Psi.CSharp.Tree;
+  using JetBrains.ReSharper.Psi.Tree;
+  using JetBrains.Util;
+
   /// <summary>
   /// Defines the statement utility class.
   /// </summary>
-  public static class StatementUtil {
-    #region Public methods
+  public static class StatementUtil
+  {
+    #region Public Methods
 
     /// <summary>
     /// Gets the new statement position.
     /// </summary>
-    /// <param name="element">The element.</param>
-    /// <returns>The new statement position.</returns>
-    public static TextRange GetNewStatementPosition(IElement element) {
-      IBlock block = element.GetContainingElement(typeof(IBlock), true) as IBlock;
-      if(block == null) {
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    /// <returns>
+    /// The new statement position.
+    /// </returns>
+    public static TextRange GetNewStatementPosition(IElement element)
+    {
+      var block = element.GetContainingElement(typeof(IBlock), true) as IBlock;
+      if (block == null)
+      {
         return TextRange.InvalidRange;
       }
 
-      IStatement statement = element.GetContainingElement(typeof(IStatement), true) as IStatement;
-      if(statement != null && statement != block && block.Contains(statement)) {
-        TextRange range = statement.GetTreeTextRange();
+      var statement = element.GetContainingElement(typeof(IStatement), true) as IStatement;
+      if (statement != null && statement != block && block.Contains(statement))
+      {
+        var range = statement.GetTreeTextRange();
 
         return new TextRange(range.EndOffset + 1);
       }
@@ -35,17 +52,23 @@ namespace AgentJohnson.SmartGenerate {
     /// <summary>
     /// Gets the previous statement.
     /// </summary>
-    /// <param name="element">The element.</param>
-    /// <returns></returns>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    /// <returns>
+    /// </returns>
     [CanBeNull]
-    public static IStatement GetPreviousStatement(IElement element) {
-      IBlock block = element.GetContainingElement(typeof(IBlock), true) as IBlock;
-      if(block == null) {
+    public static IStatement GetPreviousStatement(IElement element)
+    {
+      var block = element.GetContainingElement(typeof(IBlock), true) as IBlock;
+      if (block == null)
+      {
         return null;
       }
 
-      IElement statement = element.GetContainingElement(typeof(IStatement), true);
-      if(statement != null && !block.Contains(statement)) {
+      var statement = element.GetContainingElement(typeof(IStatement), true);
+      if (statement != null && !block.Contains(statement))
+      {
         return null;
       }
 
@@ -55,15 +78,22 @@ namespace AgentJohnson.SmartGenerate {
     /// <summary>
     /// Gets the previous statement.
     /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="block">The block.</param>
-    public static IStatement GetPreviousStatement(IBlock block, IElement element) {
+    /// <param name="block">
+    /// The block.
+    /// </param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    public static IStatement GetPreviousStatement(IBlock block, IElement element)
+    {
       IStatement result = null;
 
-      int caret = element.GetTreeStartOffset();
+      var caret = element.GetTreeStartOffset();
 
-      foreach(IStatement statement in block.Statements) {
-        if(statement.GetTreeStartOffset() > caret) {
+      foreach (var statement in block.Statements)
+      {
+        if (statement.GetTreeStartOffset() > caret)
+        {
           break;
         }
 
@@ -76,25 +106,31 @@ namespace AgentJohnson.SmartGenerate {
     /// <summary>
     /// Determines whether [is after last statement] [the specified element].
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if [is after last statement] [the specified element]; otherwise, <c>false</c>.
+    /// <c>true</c> if [is after last statement] [the specified element]; otherwise, <c>false</c>.
     /// </returns>
-    public static bool IsAfterLastStatement(IElement element) {
-      IBlock block = element.GetContainingElement(typeof(IBlock), true) as IBlock;
-      if(block == null) {
+    public static bool IsAfterLastStatement(IElement element)
+    {
+      var block = element.GetContainingElement(typeof(IBlock), true) as IBlock;
+      if (block == null)
+      {
         return false;
       }
 
-      if(block.Statements.Count <= 0) {
+      if (block.Statements.Count <= 0)
+      {
         return true;
       }
 
-      IStatement statement = block.Statements[block.Statements.Count - 1];
-      DocumentRange range = statement.GetDocumentRange();
+      var statement = block.Statements[block.Statements.Count - 1];
+      var range = statement.GetDocumentRange();
 
-      int end = range.TextRange.StartOffset + range.TextRange.Length;
-      if(end > element.GetTreeTextRange().StartOffset) {
+      var end = range.TextRange.StartOffset + range.TextRange.Length;
+      if (end > element.GetTreeTextRange().StartOffset)
+      {
         return false;
       }
 

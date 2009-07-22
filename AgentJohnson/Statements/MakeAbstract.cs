@@ -1,10 +1,14 @@
-// <copyright file="MakeAbstract.cs" company="Sitecore A/S">
-//   Copyright (c) Sitecore A/S. All rights reserved.
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="MakeAbstract.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
 // </copyright>
+// <summary>
+//   Defines the make abstract class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace AgentJohnson.Statements
 {
-  using System.Collections.Generic;
   using JetBrains.ReSharper.Intentions;
   using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -16,29 +20,33 @@ namespace AgentJohnson.Statements
   [ContextAction(Description = "Converts a virtual method to an abstract method.", Name = "Make virtual member abstract", Priority = -1, Group = "C#")]
   public class MakeAbstract : ContextActionBase
   {
-    #region Constructor
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MakeAbstract"/> class.
     /// </summary>
-    /// <param name="provider">The provider.</param>
+    /// <param name="provider">
+    /// The provider.
+    /// </param>
     public MakeAbstract(ICSharpContextActionDataProvider provider) : base(provider)
     {
     }
 
     #endregion
 
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Executes this instance.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     protected override void Execute(IElement element)
     {
-      IClassDeclaration classDeclaration = element.GetContainingElement<IClassDeclaration>(true);
+      var classDeclaration = element.GetContainingElement<IClassDeclaration>(true);
 
-      IMethodDeclaration functionDeclaration = element.GetContainingElement<IMethodDeclaration>(true);
+      var functionDeclaration = element.GetContainingElement<IMethodDeclaration>(true);
       if (functionDeclaration != null)
       {
         functionDeclaration.SetAbstract(true);
@@ -46,15 +54,15 @@ namespace AgentJohnson.Statements
         functionDeclaration.SetBody(null);
       }
 
-      IPropertyDeclaration propertyDeclaration = element.GetContainingElement<IPropertyDeclaration>(true);
+      var propertyDeclaration = element.GetContainingElement<IPropertyDeclaration>(true);
       if (propertyDeclaration != null)
       {
         propertyDeclaration.SetAbstract(true);
         propertyDeclaration.SetVirtual(false);
 
-        IList<IAccessorDeclaration> accessorDeclarations = propertyDeclaration.AccessorDeclarations;
+        var accessorDeclarations = propertyDeclaration.AccessorDeclarations;
 
-        foreach (IAccessorDeclaration accessorDeclaration in accessorDeclarations)
+        foreach (var accessorDeclaration in accessorDeclarations)
         {
           accessorDeclaration.SetBody(null);
         }
@@ -71,7 +79,9 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <returns>The text in the context menu.</returns>
+    /// <returns>
+    /// The text in the context menu.
+    /// </returns>
     protected override string GetText()
     {
       return "Make abstract [Agent Johnson]";
@@ -80,26 +90,28 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Determines whether this instance is available.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if this instance is available; otherwise, <c>false</c>.
+    /// <c>true</c> if this instance is available; otherwise, <c>false</c>.
     /// </returns>
     protected override bool IsAvailable(IElement element)
     {
-      string text = element.GetText();
+      var text = element.GetText();
 
       if (text != "virtual")
       {
         return false;
       }
 
-      IFunctionDeclaration functionDeclaration = element.GetContainingElement<IFunctionDeclaration>(true);
+      var functionDeclaration = element.GetContainingElement<IFunctionDeclaration>(true);
       if (functionDeclaration != null)
       {
         return true;
       }
 
-      IPropertyDeclaration propertyDeclaration = element.GetContainingElement<IPropertyDeclaration>(true);
+      var propertyDeclaration = element.GetContainingElement<IPropertyDeclaration>(true);
       if (propertyDeclaration != null)
       {
         return true;

@@ -1,3 +1,12 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="InterfaceMembers.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The interface members.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson.SmartGenerate.LiveTemplates
 {
   using System.Collections.Generic;
@@ -5,34 +14,41 @@ namespace AgentJohnson.SmartGenerate.LiveTemplates
   using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
+  /// The interface members.
   /// </summary>
   [LiveTemplate("Interface member", "Generate interface member")]
   public class InterfaceMembers : ILiveTemplate
   {
-    #region Public methods
+    #region Implemented Interfaces
+
+    #region ILiveTemplate
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="parameters">The parameters.</param>
-    /// <returns>The items.</returns>
+    /// <param name="parameters">
+    /// The parameters.
+    /// </param>
+    /// <returns>
+    /// The items.
+    /// </returns>
     public IEnumerable<LiveTemplateItem> GetItems(SmartGenerateParameters parameters)
     {
-      IElement element = parameters.Element;
+      var element = parameters.Element;
 
-      IElement interfaceDeclaration = element.GetContainingElement(typeof(IInterfaceDeclaration), true);
+      var interfaceDeclaration = element.GetContainingElement(typeof(IInterfaceDeclaration), true);
       if (interfaceDeclaration == null)
       {
         return null;
       }
 
-      IElement memberDeclaration = element.GetContainingElement(typeof(ITypeMemberDeclaration), true);
+      var memberDeclaration = element.GetContainingElement(typeof(ITypeMemberDeclaration), true);
       if (memberDeclaration != null && !(memberDeclaration is IInterfaceDeclaration))
       {
         return null;
       }
 
-      LiveTemplateItem liveTemplateItem = new LiveTemplateItem
+      var liveTemplateItem = new LiveTemplateItem
       {
         MenuText = "Interface member",
         Description = "Interface member",
@@ -44,6 +60,8 @@ namespace AgentJohnson.SmartGenerate.LiveTemplates
         liveTemplateItem
       };
     }
+
+    #endregion
 
     #endregion
   }

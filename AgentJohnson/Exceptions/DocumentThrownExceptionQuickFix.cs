@@ -1,3 +1,12 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="DocumentThrownExceptionQuickFix.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Defines the document thrown exception quick fix class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson.Exceptions
 {
   using System.Collections.Generic;
@@ -11,18 +20,23 @@ namespace AgentJohnson.Exceptions
   [QuickFix]
   public class DocumentThrownExceptionQuickFix : IQuickFix
   {
-    #region Fields
+    #region Constants and Fields
 
+    /// <summary>
+    /// The _warning.
+    /// </summary>
     private readonly DocumentThrownExceptionWarning _warning;
 
     #endregion
 
-    #region Constructors
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DocumentThrownExceptionQuickFix"/> class.
     /// </summary>
-    /// <param name="warning">The suggestion.</param>
+    /// <param name="warning">
+    /// The suggestion.
+    /// </param>
     public DocumentThrownExceptionQuickFix(DocumentThrownExceptionWarning warning)
     {
       this._warning = warning;
@@ -30,22 +44,7 @@ namespace AgentJohnson.Exceptions
 
     #endregion
 
-    #region Public methods
-
-    /// <summary>
-    /// Check if this action is available at the constructed context.
-    /// Actions could store precalculated info in <paramref name="cache"/> to share it between different actions
-    /// </summary>
-    /// <param name="cache"></param>
-    /// <returns></returns>
-    public bool IsAvailable(IUserDataHolder cache)
-    {
-      return true;
-    }
-
-    #endregion
-
-    #region IQuickFix Members
+    #region Properties
 
     /// <summary>
     /// Gets the items.
@@ -55,7 +54,7 @@ namespace AgentJohnson.Exceptions
     {
       get
       {
-        List<IBulbItem> items = new List<IBulbItem>
+        var items = new List<IBulbItem>
         {
           new DocumentThrownExceptionBulbItem(this._warning)
         };
@@ -63,6 +62,28 @@ namespace AgentJohnson.Exceptions
         return items.ToArray();
       }
     }
+
+    #endregion
+
+    #region Implemented Interfaces
+
+    #region IBulbAction
+
+    /// <summary>
+    /// Check if this action is available at the constructed context.
+    /// Actions could store precalculated info in <paramref name="cache"/> to share it between different actions
+    /// </summary>
+    /// <param name="cache">
+    /// </param>
+    /// <returns>
+    /// The is available.
+    /// </returns>
+    public bool IsAvailable(IUserDataHolder cache)
+    {
+      return true;
+    }
+
+    #endregion
 
     #endregion
   }

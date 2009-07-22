@@ -1,6 +1,11 @@
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Scope.cs" company="Jakob Christensen">
-//   Copyright (c) Jakob Christensen. All rights reserved.
+//   Copyright (C) 2009 Jakob Christensen
 // </copyright>
+// <summary>
+//   Defines the scope class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace AgentJohnson.SmartGenerate.Scopes
 {
@@ -15,23 +20,27 @@ namespace AgentJohnson.SmartGenerate.Scopes
   /// </summary>
   public class Scope
   {
-    #region Public methods
+    #region Public Methods
 
     /// <summary>
     /// Gets the nearest variable.
     /// </summary>
-    /// <param name="element">The element.</param>
-    /// <returns>The populated list.</returns>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    /// <returns>
+    /// The populated list.
+    /// </returns>
     public static List<ScopeEntry> Populate(IElement element)
     {
-      List<ScopeEntry> result = new List<ScopeEntry>();
-      ITreeNode node = element.ToTreeNode();
+      var result = new List<ScopeEntry>();
+      var node = element.ToTreeNode();
 
       while (node != null)
       {
         GetLocalVariable(result, node);
 
-        ITreeNode prevSibling = node.PrevSibling;
+        var prevSibling = node.PrevSibling;
 
         if (prevSibling == null)
         {
@@ -53,30 +62,34 @@ namespace AgentJohnson.SmartGenerate.Scopes
 
     #endregion
 
-    #region Private methods
+    #region Methods
 
     /// <summary>
     /// Gets the 'for' loop.
     /// </summary>
-    /// <param name="entries">The entries.</param>
-    /// <param name="node">The tree node.</param>
+    /// <param name="entries">
+    /// The entries.
+    /// </param>
+    /// <param name="node">
+    /// The tree node.
+    /// </param>
     private static void GetFor(List<ScopeEntry> entries, ITreeNode node)
     {
-      IForStatement forStatement = node as IForStatement;
+      var forStatement = node as IForStatement;
       if (forStatement == null)
       {
         return;
       }
 
-      foreach (ILocalVariableDeclaration localVariableDeclaration in forStatement.InitializerDeclarations)
+      foreach (var localVariableDeclaration in forStatement.InitializerDeclarations)
       {
-        ILocalVariable localVariable = localVariableDeclaration as ILocalVariable;
+        var localVariable = localVariableDeclaration.DeclaredElement as ILocalVariable;
         if (localVariable == null)
         {
           return;
         }
 
-        ScopeEntry entry = new ScopeEntry
+        var entry = new ScopeEntry
         {
           Element = forStatement,
           Name = localVariable.ShortName,
@@ -91,23 +104,27 @@ namespace AgentJohnson.SmartGenerate.Scopes
     /// <summary>
     /// Gets for each.
     /// </summary>
-    /// <param name="entries">The entries.</param>
-    /// <param name="treeNode">The tree node.</param>
+    /// <param name="entries">
+    /// The entries.
+    /// </param>
+    /// <param name="treeNode">
+    /// The tree node.
+    /// </param>
     private static void GetForEach(List<ScopeEntry> entries, ITreeNode treeNode)
     {
-      IForeachStatement foreachStatement = treeNode as IForeachStatement;
+      var foreachStatement = treeNode as IForeachStatement;
       if (foreachStatement == null)
       {
         return;
       }
 
-      IForeachVariableDeclaration foreachVariableDeclaration = foreachStatement.IteratorDeclaration;
+      var foreachVariableDeclaration = foreachStatement.IteratorDeclaration;
       if (foreachVariableDeclaration == null)
       {
         return;
       }
 
-      IForeachVariableDeclarationNode foreachVariableDeclarationNode = foreachVariableDeclaration.ToTreeNode();
+      var foreachVariableDeclarationNode = foreachVariableDeclaration.ToTreeNode();
       if (foreachVariableDeclarationNode == null)
       {
         return;
@@ -117,7 +134,7 @@ namespace AgentJohnson.SmartGenerate.Scopes
 
       if (foreachVariableDeclaration.IsVar)
       {
-        ITypeOwner typeOwner = foreachVariableDeclaration as ITypeOwner;
+        var typeOwner = foreachVariableDeclaration as ITypeOwner;
         if (typeOwner != null)
         {
           type = typeOwner.Type;
@@ -128,7 +145,7 @@ namespace AgentJohnson.SmartGenerate.Scopes
         type = CSharpTypeFactory.CreateType(foreachVariableDeclarationNode.TypeUsage);
       }
 
-      ScopeEntry entry = new ScopeEntry
+      var entry = new ScopeEntry
       {
         Element = foreachStatement,
         Name = foreachStatement.IteratorName,
@@ -142,11 +159,15 @@ namespace AgentJohnson.SmartGenerate.Scopes
     /// <summary>
     /// Gets the function parameters.
     /// </summary>
-    /// <param name="entries">The entries.</param>
-    /// <param name="node">The tree node.</param>
+    /// <param name="entries">
+    /// The entries.
+    /// </param>
+    /// <param name="node">
+    /// The tree node.
+    /// </param>
     private static void GetFunctionParameters(List<ScopeEntry> entries, ITreeNode node)
     {
-      IParametersOwner parametersOwner = node as IParametersOwner;
+      var parametersOwner = node as IParametersOwner;
       if (parametersOwner == null)
       {
         return;
@@ -157,9 +178,9 @@ namespace AgentJohnson.SmartGenerate.Scopes
         return;
       }
 
-      foreach (IParameter parameter in parametersOwner.Parameters)
+      foreach (var parameter in parametersOwner.Parameters)
       {
-        ScopeEntry entry = new ScopeEntry
+        var entry = new ScopeEntry
         {
           Element = parameter as IParameterDeclaration,
           Name = parameter.ShortName,
@@ -174,25 +195,29 @@ namespace AgentJohnson.SmartGenerate.Scopes
     /// <summary>
     /// Gets the local variable.
     /// </summary>
-    /// <param name="entries">The entries.</param>
-    /// <param name="node">The tree node.</param>
+    /// <param name="entries">
+    /// The entries.
+    /// </param>
+    /// <param name="node">
+    /// The tree node.
+    /// </param>
     private static void GetLocalVariable(List<ScopeEntry> entries, ITreeNode node)
     {
-      IDeclarationStatement declarationStatement = node as IDeclarationStatement;
+      var declarationStatement = node as IDeclarationStatement;
       if (declarationStatement == null)
       {
         return;
       }
 
-      foreach (ILocalVariableDeclaration localVariableDeclaration in declarationStatement.VariableDeclarations)
+      foreach (var localVariableDeclaration in declarationStatement.VariableDeclarations)
       {
-        ILocalVariable localVariable = localVariableDeclaration as ILocalVariable;
+        var localVariable = localVariableDeclaration.DeclaredElement as ILocalVariable;
         if (localVariable == null)
         {
           return;
         }
 
-        ScopeEntry entry = new ScopeEntry
+        var entry = new ScopeEntry
         {
           Element = localVariableDeclaration,
           Name = localVariable.ShortName,
@@ -207,27 +232,31 @@ namespace AgentJohnson.SmartGenerate.Scopes
     /// <summary>
     /// Gets 'using' statement.
     /// </summary>
-    /// <param name="entries">The entries.</param>
-    /// <param name="node">The tree node.</param>
+    /// <param name="entries">
+    /// The entries.
+    /// </param>
+    /// <param name="node">
+    /// The tree node.
+    /// </param>
     private static void GetUsing(List<ScopeEntry> entries, ITreeNode node)
     {
-      IUsingStatement usingStatement = node as IUsingStatement;
+      var usingStatement = node as IUsingStatement;
       if (usingStatement == null)
       {
         return;
       }
 
-      IList<ILocalVariableDeclaration> localVariableDeclarations = usingStatement.VariableDeclarations;
+      var localVariableDeclarations = usingStatement.VariableDeclarations;
 
-      foreach (ILocalVariableDeclaration localVariableDeclaration in localVariableDeclarations)
+      foreach (var localVariableDeclaration in localVariableDeclarations)
       {
-        ILocalVariable localVariable = localVariableDeclaration as ILocalVariable;
+        var localVariable = localVariableDeclaration.DeclaredElement as ILocalVariable;
         if (localVariable == null)
         {
           return;
         }
 
-        ScopeEntry entry = new ScopeEntry
+        var entry = new ScopeEntry
         {
           Element = localVariableDeclaration,
           Name = localVariable.ShortName,

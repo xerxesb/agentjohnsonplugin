@@ -1,3 +1,12 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="SuggestionBase.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Base suggestion for Agent Johnson suggestions.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson
 {
   using System.Drawing;
@@ -10,24 +19,47 @@ namespace AgentJohnson
   /// </summary>
   public abstract class SuggestionBase : IHighlighting
   {
-    #region Fields
+    #region Constants and Fields
 
+    /// <summary>
+    /// The _element.
+    /// </summary>
     private readonly IElement _element;
+
+    /// <summary>
+    /// The _range.
+    /// </summary>
     private readonly DocumentRange _range;
+
+    /// <summary>
+    /// The _suggestion name.
+    /// </summary>
     private readonly string _suggestionName;
+
+    /// <summary>
+    /// The _tool tip.
+    /// </summary>
     private readonly string _toolTip;
 
     #endregion
 
-    #region Constructors
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SuggestionBase"/> class.
     /// </summary>
-    /// <param name="suggestionName">Name of the suggestion.</param>
-    /// <param name="element">The element.</param>
-    /// <param name="highlightingRange">The highlighting range.</param>
-    /// <param name="toolTip">The tool tip.</param>
+    /// <param name="suggestionName">
+    /// Name of the suggestion.
+    /// </param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    /// <param name="highlightingRange">
+    /// The highlighting range.
+    /// </param>
+    /// <param name="toolTip">
+    /// The tool tip.
+    /// </param>
     public SuggestionBase(string suggestionName, IElement element, DocumentRange highlightingRange, string toolTip)
     {
       this._range = highlightingRange;
@@ -38,7 +70,7 @@ namespace AgentJohnson
 
     #endregion
 
-    #region Public properties
+    #region Properties
 
     /// <summary>
     /// Gets the attribute id.
@@ -62,6 +94,7 @@ namespace AgentJohnson
           case Severity.DO_NOT_SHOW:
             return null;
         }
+
         return null;
       }
     }
@@ -92,10 +125,35 @@ namespace AgentJohnson
     }
 
     /// <summary>
+    /// Message for this highlighting to show in tooltip and in status bar (if <see cref="P:JetBrains.ReSharper.Daemon.HighlgihtingAttributeBase.ShowToolTipInStatusBar"/> is <c>true</c>)
+    /// </summary>
+    /// <value></value>
+    public string ErrorStripeToolTip
+    {
+      get
+      {
+        return this.ToolTip;
+      }
+    }
+
+    /// <summary>
     /// Gets the navigation offset.
     /// </summary>
     /// <value>The navigation offset.</value>
     public int NavigationOffset
+    {
+      get
+      {
+        return 0;
+      }
+    }
+
+    /// <summary>
+    /// Specifies the offset from the <c>Range.StartOffset</c> to set the cursor to when navigating
+    /// to this highlighting. Usually returns <c>0</c>
+    /// </summary>
+    /// <value></value>
+    public int NavigationOffsetPatch
     {
       get
       {
@@ -116,9 +174,9 @@ namespace AgentJohnson
     }
 
     /// <summary>
-    /// Get the severity of this highlighting
+    /// Gets the severity of this highlighting
     /// </summary>
-    /// <value></value>
+    /// <value>The severity.</value>
     public virtual Severity Severity
     {
       get
@@ -139,23 +197,6 @@ namespace AgentJohnson
       }
     }
 
-    #endregion
-
-    #region Public methods
-
-    /// <summary>
-    /// Returns true if data (PSI, text ranges) associated with highlighting is valid
-    /// </summary>
-    /// <returns></returns>
-    public bool IsValid()
-    {
-      return true;
-    }
-
-    #endregion
-
-    #region IHighlighting Members
-
     /// <summary>
     /// Message for this highlighting to show in tooltip and in status bar (if <see cref="P:JetBrains.ReSharper.Daemon.HighlgihtingAttributeBase.ShowToolTipInStatusBar"/> is <c>true</c>)
     /// To override the default mechanism of tooltip, mark the implementation class with
@@ -170,30 +211,24 @@ namespace AgentJohnson
       }
     }
 
-    /// <summary>
-    /// Message for this highlighting to show in tooltip and in status bar (if <see cref="P:JetBrains.ReSharper.Daemon.HighlgihtingAttributeBase.ShowToolTipInStatusBar"/> is <c>true</c>)
-    /// </summary>
-    /// <value></value>
-    public string ErrorStripeToolTip
-    {
-      get
-      {
-        return this.ToolTip;
-      }
-    }
+    #endregion
+
+    #region Implemented Interfaces
+
+    #region IHighlighting
 
     /// <summary>
-    /// Specifies the offset from the <c>Range.StartOffset</c> to set the cursor to when navigating
-    /// to this highlighting. Usually returns <c>0</c>
+    /// Returns true if data (PSI, text ranges) associated with highlighting is valid
     /// </summary>
-    /// <value></value>
-    public int NavigationOffsetPatch
+    /// <returns>
+    /// The is valid.
+    /// </returns>
+    public bool IsValid()
     {
-      get
-      {
-        return 0;
-      }
+      return true;
     }
+
+    #endregion
 
     #endregion
   }

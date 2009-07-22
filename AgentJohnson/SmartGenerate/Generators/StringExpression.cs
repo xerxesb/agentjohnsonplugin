@@ -1,29 +1,40 @@
-﻿namespace AgentJohnson.SmartGenerate.Generators
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="StringExpression.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The string expression.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace AgentJohnson.SmartGenerate.Generators
 {
-  using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
+  /// The string expression.
   /// </summary>
   [SmartGenerate("Surround with 'string.IsNullOrEmpty'", "Surrounds the string expression with 'string.IsNullOrEmpty'.", Priority = -20)]
   public class StringExpression : SmartGenerateHandlerBase
   {
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    /// <param name="smartGenerateParameters">
+    /// The get menu items parameters.
+    /// </param>
     protected override void GetItems(SmartGenerateParameters smartGenerateParameters)
     {
-      IElement element = smartGenerateParameters.Element;
+      var element = smartGenerateParameters.Element;
 
-      IExpression expression = element.GetContainingElement(typeof(IExpression), false) as IExpression;
+      var expression = element.GetContainingElement(typeof(IExpression), false) as IExpression;
       while (expression != null)
       {
-        IType type = expression.Type();
+        var type = expression.Type();
 
-        string typeName = type.GetPresentableName(element.Language);
+        var typeName = type.GetPresentableName(element.Language);
 
         if (typeName == "string")
         {

@@ -1,10 +1,14 @@
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="AssignmentCheck.cs" company="Jakob Christensen">
-//   Copyright (c) Jakob Christensen. All rights reserved.
+//   Copyright (C) 2009 Jakob Christensen
 // </copyright>
+// <summary>
+//   Defines the generate assignment check class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace AgentJohnson.SmartGenerate.Generators
 {
-  using System.Collections.Generic;
   using JetBrains.Application;
   using JetBrains.Application.Progress;
   using JetBrains.ReSharper.Psi;
@@ -14,7 +18,6 @@ namespace AgentJohnson.SmartGenerate.Generators
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.ReSharper.Psi.Util;
   using JetBrains.Util;
-  using Scopes;
 
   /// <summary>
   /// Defines the generate assignment check class.
@@ -22,33 +25,35 @@ namespace AgentJohnson.SmartGenerate.Generators
   [SmartGenerate("Generate check if variable is null", "Generates statements that check for null or empty string.", Priority = 0)]
   public class AssignmentCheck : SmartGenerateHandlerBase
   {
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    /// <param name="smartGenerateParameters">
+    /// The get menu items parameters.
+    /// </param>
     protected override void GetItems(SmartGenerateParameters smartGenerateParameters)
     {
-      IElement element = smartGenerateParameters.Element;
-      List<ScopeEntry> scope = smartGenerateParameters.Scope;
+      var element = smartGenerateParameters.Element;
+      var scope = smartGenerateParameters.Scope;
       if (scope.Count == 0)
       {
         return;
       }
 
-      ScopeEntry scopeEntry = scope[smartGenerateParameters.ScopeIndex];
+      var scopeEntry = scope[smartGenerateParameters.ScopeIndex];
 
-      string name = scopeEntry.Name;
-      IType type = scopeEntry.Type;
+      var name = scopeEntry.Name;
+      var type = scopeEntry.Type;
 
-      CSharpControlFlowNullReferenceState state = GetExpressionNullReferenceState(smartGenerateParameters, element, name);
+      var state = GetExpressionNullReferenceState(smartGenerateParameters, element, name);
       if (state == CSharpControlFlowNullReferenceState.NOT_NULL || state == CSharpControlFlowNullReferenceState.NULL)
       {
         return;
       }
 
-      TextRange range = StatementUtil.GetNewStatementPosition(element);
+      var range = StatementUtil.GetNewStatementPosition(element);
 
       if (type.GetPresentableName(element.Language) == "string")
       {
@@ -63,23 +68,27 @@ namespace AgentJohnson.SmartGenerate.Generators
       }
     }
 
-    #endregion
-
-    #region Private methods
-
     /// <summary>
     /// Gets the state.
     /// </summary>
-    /// <param name="smartGenerateParameters">The smart generate parameters.</param>
-    /// <param name="element">The element.</param>
-    /// <param name="name">The variable name.</param>
-    /// <returns>The null reference state.</returns>
+    /// <param name="smartGenerateParameters">
+    /// The smart generate parameters.
+    /// </param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    /// <param name="name">
+    /// The variable name.
+    /// </param>
+    /// <returns>
+    /// The null reference state.
+    /// </returns>
     private static CSharpControlFlowNullReferenceState GetExpressionNullReferenceState(SmartGenerateParameters smartGenerateParameters, IElement element, string name)
     {
-      CSharpControlFlowNullReferenceState state = CSharpControlFlowNullReferenceState.UNKNOWN;
+      var state = CSharpControlFlowNullReferenceState.UNKNOWN;
 
-      PsiManager psiManager = PsiManager.GetInstance(smartGenerateParameters.Solution);
-      using (ModificationCookie cookie = smartGenerateParameters.TextControl.Document.EnsureWritable())
+      var psiManager = PsiManager.GetInstance(smartGenerateParameters.Solution);
+      using (var cookie = smartGenerateParameters.TextControl.Document.EnsureWritable())
       {
         if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
         {
@@ -103,51 +112,57 @@ namespace AgentJohnson.SmartGenerate.Generators
     /// <summary>
     /// Gets the state.
     /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="name">The variable name.</param>
-    /// <returns>The null reference state.</returns>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    /// <param name="name">
+    /// The variable name.
+    /// </param>
+    /// <returns>
+    /// The null reference state.
+    /// </returns>
     private static CSharpControlFlowNullReferenceState GetExpressionNullReferenceState(IElement element, string name)
     {
       const CSharpControlFlowNullReferenceState UNKNOWN = CSharpControlFlowNullReferenceState.UNKNOWN;
 
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
+      var factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
 
-      IStatement statement = factory.CreateStatement("if(" + name + " == null) { }");
-      IStatement anchorSatement = StatementUtil.GetPreviousStatement(element);
+      var statement = factory.CreateStatement("if(" + name + " == null) { }");
+      var anchorSatement = StatementUtil.GetPreviousStatement(element);
 
-      IBlock block = element.GetContainingElement(typeof(IBlock), true) as IBlock;
+      var block = element.GetContainingElement(typeof(IBlock), true) as IBlock;
       if (block == null)
       {
         return UNKNOWN;
       }
 
-      IIfStatement ifStatement = block.AddStatementAfter(statement, anchorSatement) as IIfStatement;
+      var ifStatement = block.AddStatementAfter(statement, anchorSatement) as IIfStatement;
       if (ifStatement == null)
       {
         return UNKNOWN;
       }
 
-      IEqualityExpression equalityExpression = ifStatement.Condition as IEqualityExpression;
+      var equalityExpression = ifStatement.Condition as IEqualityExpression;
       if (equalityExpression == null)
       {
         return UNKNOWN;
       }
 
-      IReferenceExpression referenceExpression = equalityExpression.LeftOperand as IReferenceExpression;
+      var referenceExpression = equalityExpression.LeftOperand as IReferenceExpression;
       if (referenceExpression == null)
       {
         return UNKNOWN;
       }
 
-      ICSharpFunctionDeclaration functionDeclaration = ifStatement.GetContainingElement<ICSharpFunctionDeclaration>(true);
+      var functionDeclaration = ifStatement.GetContainingElement<ICSharpFunctionDeclaration>(true);
       if (functionDeclaration == null)
       {
         return UNKNOWN;
       }
 
-      ICSharpControlFlowGraf graf = CSharpControlFlowBuilder.Build(functionDeclaration);
+      var graf = CSharpControlFlowBuilder.Build(functionDeclaration);
 
-      ICSharpControlFlowAnalysisResult inspect = graf.Inspect(true);
+      var inspect = graf.Inspect(true);
 
       return inspect.GetExpressionNullReferenceState(referenceExpression);
     }

@@ -1,30 +1,45 @@
-﻿namespace AgentJohnson.SmartGenerate.LiveTemplates
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Return.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The return.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace AgentJohnson.SmartGenerate.LiveTemplates
 {
   using System.Collections.Generic;
-  using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
+  /// The return.
   /// </summary>
   [LiveTemplate("At the end of a block", "Executes a Live Template at the end of a block.")]
   public class Return : ILiveTemplate
   {
-    #region Public methods
+    #region Implemented Interfaces
+
+    #region ILiveTemplate
 
     /// <summary>
     /// Gets the name of the template.
     /// </summary>
-    /// <param name="smartGenerateParameters">The smart generate parameters.</param>
-    /// <returns>The items.</returns>
+    /// <param name="smartGenerateParameters">
+    /// The smart generate parameters.
+    /// </param>
+    /// <returns>
+    /// The items.
+    /// </returns>
     public IEnumerable<LiveTemplateItem> GetItems(SmartGenerateParameters smartGenerateParameters)
     {
-      IElement element = smartGenerateParameters.Element;
+      var element = smartGenerateParameters.Element;
 
       if (!StatementUtil.IsAfterLastStatement(element))
       {
         return null;
       }
 
-      LiveTemplateItem liveTemplateItem = new LiveTemplateItem
+      var liveTemplateItem = new LiveTemplateItem
       {
         MenuText = "At the end of a block",
         Description = "At the end of a block",
@@ -36,6 +51,8 @@
         liveTemplateItem
       };
     }
+
+    #endregion
 
     #endregion
   }

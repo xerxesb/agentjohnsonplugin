@@ -1,52 +1,76 @@
-﻿using System;
-using System.Windows.Forms;
-using AgentJohnson.ValueAnalysis;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ValueAnalysisDetailsPage.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The value analysis details page.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace AgentJohnson.Options {
+namespace AgentJohnson.Options
+{
+  using System;
+  using System.Windows.Forms;
+  using ValueAnalysis;
+
   /// <summary>
-  /// 
+  /// The value analysis details page.
   /// </summary>
-  public partial class ValueAnalysisDetailsPage : Form {
-    #region Fields
+  public partial class ValueAnalysisDetailsPage : Form
+  {
+    #region Constants and Fields
 
-    Rule _rule;
-    bool _updating;
+    /// <summary>
+    /// The _rule.
+    /// </summary>
+    private Rule _rule;
+
+    /// <summary>
+    /// The _updating.
+    /// </summary>
+    private bool _updating;
 
     #endregion
 
-    #region Constructors
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ValueAnalysisDetailsPage"/> class.
     /// </summary>
-    public ValueAnalysisDetailsPage() {
-      InitializeComponent();
+    public ValueAnalysisDetailsPage()
+    {
+      this.InitializeComponent();
     }
 
     #endregion
 
-    #region Public methods
+    #region Public Methods
 
     /// <summary>
     /// Commits the specified item.
     /// </summary>
-    /// <param name="item">The item.</param>
-    public void Commit(Rule item) {
-      item.TypeName = TypeName.Text;
-      item.NotNull = NotNull.Checked;
-      item.CanBeNull = CanBeNull.Checked;
-      item.PublicParameterAssertion = PublicParameterAssertion.Text;
-      item.NonPublicParameterAssertion = NonPublicParameterAssertion.Text;
-      item.ReturnAssertion = ReturnAssertion.Text;
+    /// <param name="item">
+    /// The item.
+    /// </param>
+    public void Commit(Rule item)
+    {
+      item.TypeName = this.TypeName.Text;
+      item.NotNull = this.NotNull.Checked;
+      item.CanBeNull = this.CanBeNull.Checked;
+      item.PublicParameterAssertion = this.PublicParameterAssertion.Text;
+      item.NonPublicParameterAssertion = this.NonPublicParameterAssertion.Text;
+      item.ReturnAssertion = this.ReturnAssertion.Text;
 
       item.ValueAssertions.Clear();
 
-      DataGridViewRowCollection rows = ValueAssertions.Rows;
+      var rows = this.ValueAssertions.Rows;
 
-      foreach(DataGridViewRow row in rows) {
+      foreach (DataGridViewRow row in rows)
+      {
         var assertion = row.Cells[0].Value as string;
 
-        if(assertion != null) {
+        if (assertion != null)
+        {
           item.ValueAssertions.Add(assertion);
         }
       }
@@ -55,95 +79,127 @@ namespace AgentJohnson.Options {
     /// <summary>
     /// Displays the specified item.
     /// </summary>
-    /// <param name="rule">The item.</param>
-    public void Display(Rule rule) {
-      _rule = rule;
+    /// <param name="rule">
+    /// The item.
+    /// </param>
+    public void Display(Rule rule)
+    {
+      this._rule = rule;
 
-      TypeName.Text = rule.TypeName;
-      NotNull.Checked = rule.NotNull;
-      CanBeNull.Checked = rule.CanBeNull;
-      PublicParameterAssertion.Text = rule.PublicParameterAssertion;
-      NonPublicParameterAssertion.Text = rule.NonPublicParameterAssertion;
-      ReturnAssertion.Text = rule.ReturnAssertion;
+      this.TypeName.Text = rule.TypeName;
+      this.NotNull.Checked = rule.NotNull;
+      this.CanBeNull.Checked = rule.CanBeNull;
+      this.PublicParameterAssertion.Text = rule.PublicParameterAssertion;
+      this.NonPublicParameterAssertion.Text = rule.NonPublicParameterAssertion;
+      this.ReturnAssertion.Text = rule.ReturnAssertion;
 
-      DataGridViewRowCollection rows = ValueAssertions.Rows;
+      var rows = this.ValueAssertions.Rows;
 
       rows.Clear();
 
-      foreach(string key in rule.ValueAssertions) {
-        rows.Add(new[] {key});
+      foreach (var key in rule.ValueAssertions)
+      {
+        rows.Add(new[]
+        {
+          key
+        });
       }
 
-      EnableButtons();
+      this.EnableButtons();
     }
 
     #endregion
 
-    #region Private methods
+    #region Methods
 
     /// <summary>
     /// Handles the CheckedChanged event of the CanBeNull control.
     /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void CanBeNull_CheckedChanged(object sender, EventArgs e) {
-      if(_updating) {
+    /// <param name="sender">
+    /// The source of the event.
+    /// </param>
+    /// <param name="e">
+    /// The <see cref="System.EventArgs"/> instance containing the event data.
+    /// </param>
+    private void CanBeNull_CheckedChanged(object sender, EventArgs e)
+    {
+      if (this._updating)
+      {
         return;
       }
 
-      if(NotNull.Checked) {
-        _updating = true;
-        CanBeNull.Checked = true;
-        NotNull.Checked = false;
-        _updating = false;
+      if (this.NotNull.Checked)
+      {
+        this._updating = true;
+        this.CanBeNull.Checked = true;
+        this.NotNull.Checked = false;
+        this._updating = false;
       }
     }
 
     /// <summary>
     /// Enables the buttons.
     /// </summary>
-    void EnableButtons() {
-      button1.Enabled = !string.IsNullOrEmpty(TypeName.Text);
+    private void EnableButtons()
+    {
+      this.button1.Enabled = !string.IsNullOrEmpty(this.TypeName.Text);
     }
 
     /// <summary>
     /// Handles the CheckedChanged event of the NotNull control.
     /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void NotNull_CheckedChanged(object sender, EventArgs e) {
-      if(_updating) {
+    /// <param name="sender">
+    /// The source of the event.
+    /// </param>
+    /// <param name="e">
+    /// The <see cref="System.EventArgs"/> instance containing the event data.
+    /// </param>
+    private void NotNull_CheckedChanged(object sender, EventArgs e)
+    {
+      if (this._updating)
+      {
         return;
       }
 
-      if(CanBeNull.Checked) {
-        _updating = true;
-        NotNull.Checked = true;
-        CanBeNull.Checked = false;
-        _updating = false;
+      if (this.CanBeNull.Checked)
+      {
+        this._updating = true;
+        this.NotNull.Checked = true;
+        this.CanBeNull.Checked = false;
+        this._updating = false;
       }
     }
 
     /// <summary>
     /// Handles the O k_ click event.
     /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void OK_Click(object sender, EventArgs e) {
-      Commit(_rule);
+    /// <param name="sender">
+    /// The sender.
+    /// </param>
+    /// <param name="e">
+    /// The <see cref="System.EventArgs"/> instance containing the event data.
+    /// </param>
+    private void OK_Click(object sender, EventArgs e)
+    {
+      this.Commit(this._rule);
 
-      DialogResult = DialogResult.OK;
+      this.DialogResult = DialogResult.OK;
 
-      Close();
+      this.Close();
     }
 
     /// <summary>
     /// Handles the TextChanged event of the TypeName control.
     /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void TypeName_TextChanged(object sender, EventArgs e) {
-      EnableButtons();
+    /// <param name="sender">
+    /// The source of the event.
+    /// </param>
+    /// <param name="e">
+    /// The <see cref="System.EventArgs"/> instance containing the event data.
+    /// </param>
+    private void TypeName_TextChanged(object sender, EventArgs e)
+    {
+      this.EnableButtons();
     }
 
     #endregion

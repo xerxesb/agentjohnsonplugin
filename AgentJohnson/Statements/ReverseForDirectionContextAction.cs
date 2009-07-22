@@ -1,6 +1,14 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ReverseForDirectionContextAction.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The reverse for context action.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson.Statements
 {
-  using System.Collections.Generic;
   using System.Text.RegularExpressions;
   using JetBrains.ReSharper.Intentions;
   using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
@@ -10,72 +18,76 @@ namespace AgentJohnson.Statements
   using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
-  /// 
+  /// The reverse for context action.
   /// </summary>
   [ContextAction(Description = "Reverses the direction of a for-loop.", Name = "Reverse for-loop direction", Priority = -1, Group = "C#")]
   public class ReverseForContextAction : ContextActionBase
   {
-    #region Constructor
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ReverseForContextAction"/> class.
     /// </summary>
-    /// <param name="provider">The provider.</param>
+    /// <param name="provider">
+    /// The provider.
+    /// </param>
     public ReverseForContextAction(ICSharpContextActionDataProvider provider) : base(provider)
     {
     }
 
     #endregion
 
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Executes this instance.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     protected override void Execute(IElement element)
     {
-      CSharpElementFactory factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
+      var factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
       if (factory == null)
       {
         return;
       }
 
-      IForStatement statement = element.ToTreeNode().Parent as IForStatement;
+      var statement = element.ToTreeNode().Parent as IForStatement;
       if (statement == null)
       {
         return;
       }
 
-      IList<ILocalVariableDeclaration> localVariableDeclarations = statement.InitializerDeclarations;
+      var localVariableDeclarations = statement.InitializerDeclarations;
       if (localVariableDeclarations.Count != 1)
       {
         return;
       }
 
-      ILocalVariableDeclaration localVariableDeclaration = localVariableDeclarations[0];
+      var localVariableDeclaration = localVariableDeclarations[0];
       if (localVariableDeclaration == null)
       {
         return;
       }
 
-      IExpressionInitializer expressionInitializer = localVariableDeclaration.Initial as IExpressionInitializer;
+      var expressionInitializer = localVariableDeclaration.Initial as IExpressionInitializer;
       if (expressionInitializer == null)
       {
         return;
       }
 
-      ICSharpExpression from = expressionInitializer.Value;
+      var from = expressionInitializer.Value;
 
-      IRelationalExpression relationalExpression = statement.Condition as IRelationalExpression;
+      var relationalExpression = statement.Condition as IRelationalExpression;
       if (relationalExpression == null)
       {
         return;
       }
 
-      ICSharpExpression to = relationalExpression.RightOperand;
+      var to = relationalExpression.RightOperand;
 
-      IList<ICSharpExpression> iterators = statement.IteratorExpressions;
+      var iterators = statement.IteratorExpressions;
       if (iterators == null)
       {
         return;
@@ -86,7 +98,7 @@ namespace AgentJohnson.Statements
         return;
       }
 
-      IPostfixOperatorExpression postfixOperatorExpression = iterators[0] as IPostfixOperatorExpression;
+      var postfixOperatorExpression = iterators[0] as IPostfixOperatorExpression;
       if (postfixOperatorExpression == null)
       {
         return;
@@ -99,29 +111,29 @@ namespace AgentJohnson.Statements
 
       if (postfixOperatorExpression.PostfixOperatorType == PostfixOperatorType.PLUSPLUS)
       {
-        ICSharpExpression expression = AddToExpression(factory, to, '-');
+        var expression = AddToExpression(factory, to, '-');
 
         expressionInitializer.SetValue(expression);
 
-        ICSharpExpression condition = GetCondition(factory, relationalExpression.LeftOperand, relationalExpression.OperatorSign.GetText(), from);
+        var condition = GetCondition(factory, relationalExpression.LeftOperand, relationalExpression.OperatorSign.GetText(), from);
 
         relationalExpression.ReplaceBy(condition);
 
-        ICSharpExpression dec = factory.CreateExpression(string.Format("{0}--", postfixOperatorExpression.Operand.GetText()));
+        var dec = factory.CreateExpression(string.Format("{0}--", postfixOperatorExpression.Operand.GetText()));
 
         postfixOperatorExpression.ReplaceBy(dec);
       }
       else
       {
-        ICSharpExpression expression = AddToExpression(factory, from, '+');
+        var expression = AddToExpression(factory, from, '+');
 
         expressionInitializer.SetValue(to);
 
-        ICSharpExpression condition = GetCondition(factory, relationalExpression.LeftOperand, relationalExpression.OperatorSign.GetText(), expression);
+        var condition = GetCondition(factory, relationalExpression.LeftOperand, relationalExpression.OperatorSign.GetText(), expression);
 
         relationalExpression.ReplaceBy(condition);
 
-        ICSharpExpression inc = factory.CreateExpression(string.Format("{0}++", postfixOperatorExpression.Operand.GetText()));
+        var inc = factory.CreateExpression(string.Format("{0}++", postfixOperatorExpression.Operand.GetText()));
 
         postfixOperatorExpression.ReplaceBy(inc);
       }
@@ -130,7 +142,9 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <returns>The text.</returns>
+    /// <returns>
+    /// The text.
+    /// </returns>
     protected override string GetText()
     {
       return "Reverse for-loop direction [Agent Johnson]";
@@ -139,31 +153,33 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Determines whether this instance is available.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if this instance is available; otherwise, <c>false</c>.
+    /// <c>true</c> if this instance is available; otherwise, <c>false</c>.
     /// </returns>
     protected override bool IsAvailable(IElement element)
     {
-      IForStatement statement = element.ToTreeNode().Parent as IForStatement;
+      var statement = element.ToTreeNode().Parent as IForStatement;
       if (statement == null)
       {
         return false;
       }
 
-      IList<ILocalVariableDeclaration> localVariableDeclarations = statement.InitializerDeclarations;
+      var localVariableDeclarations = statement.InitializerDeclarations;
       if (localVariableDeclarations.Count != 1)
       {
         return false;
       }
 
-      ILocalVariableDeclaration localVariableDeclaration = localVariableDeclarations[0];
+      var localVariableDeclaration = localVariableDeclarations[0];
       if (localVariableDeclaration == null)
       {
         return false;
       }
 
-      ILocalVariable localVariable = localVariableDeclaration as ILocalVariable;
+      var localVariable = localVariableDeclaration.DeclaredElement as ILocalVariable;
       if (localVariable == null)
       {
         return false;
@@ -174,7 +190,7 @@ namespace AgentJohnson.Statements
         return false;
       }
 
-      IList<ICSharpExpression> iterators = statement.IteratorExpressions;
+      var iterators = statement.IteratorExpressions;
       if (iterators == null)
       {
         return false;
@@ -185,7 +201,7 @@ namespace AgentJohnson.Statements
         return false;
       }
 
-      IPostfixOperatorExpression postfixOperatorExpression = iterators[0] as IPostfixOperatorExpression;
+      var postfixOperatorExpression = iterators[0] as IPostfixOperatorExpression;
       if (postfixOperatorExpression == null)
       {
         return false;
@@ -199,29 +215,32 @@ namespace AgentJohnson.Statements
       return true;
     }
 
-    #endregion
-
-    #region Private methods
-
     /// <summary>
     /// Adds to expression.
     /// </summary>
-    /// <param name="factory">The factory.</param>
-    /// <param name="expression">To.</param>
-    /// <param name="sign">The sign.</param>
-    /// <returns></returns>
+    /// <param name="factory">
+    /// The factory.
+    /// </param>
+    /// <param name="expression">
+    /// To.
+    /// </param>
+    /// <param name="sign">
+    /// The sign.
+    /// </param>
+    /// <returns>
+    /// </returns>
     private static ICSharpExpression AddToExpression(CSharpElementFactory factory, ICSharpExpression expression, char sign)
     {
-      char sign2 = sign == '-' ? '+' : '-';
+      var sign2 = sign == '-' ? '+' : '-';
 
-      string text = expression.GetText();
+      var text = expression.GetText();
 
       if (text.StartsWith("(") && text.EndsWith(")"))
       {
         text = text.Substring(1, text.Length - 2);
       }
 
-      Match match = Regex.Match(text, "\\" + sign2 + "\\s*1\\s*$");
+      var match = Regex.Match(text, "\\" + sign2 + "\\s*1\\s*$");
       if (match.Success)
       {
         text = text.Substring(0, text.Length - match.Value.Length).Trim();
@@ -245,7 +264,7 @@ namespace AgentJohnson.Statements
 
       text = text.Trim();
 
-      ICSharpExpression result = factory.CreateExpression(text);
+      var result = factory.CreateExpression(text);
 
       if (result.IsConstantValue())
       {
@@ -258,11 +277,20 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Gets the condition.
     /// </summary>
-    /// <param name="factory">The factory.</param>
-    /// <param name="leftOperand">The left operand.</param>
-    /// <param name="operatorSign">The operator sign.</param>
-    /// <param name="rightOperand">The right operand.</param>
-    /// <returns></returns>
+    /// <param name="factory">
+    /// The factory.
+    /// </param>
+    /// <param name="leftOperand">
+    /// The left operand.
+    /// </param>
+    /// <param name="operatorSign">
+    /// The operator sign.
+    /// </param>
+    /// <param name="rightOperand">
+    /// The right operand.
+    /// </param>
+    /// <returns>
+    /// </returns>
     private static ICSharpExpression GetCondition(CSharpElementFactory factory, ICSharpExpression leftOperand, string operatorSign, ICSharpExpression rightOperand)
     {
       switch (operatorSign)

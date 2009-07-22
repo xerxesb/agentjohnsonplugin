@@ -1,18 +1,20 @@
-﻿// <copyright file="LocalVariableContext.cs" company="Jakob Christensen">
-//   Copyright (c) Jakob Christensen. All rights reserved.
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="LocalVariableContext.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
 // </copyright>
+// <summary>
+//   Defines the local variable context class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace AgentJohnson.SmartGenerate.Generators
 {
-  using System.Collections.Generic;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.ControlFlow2.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
-  using JetBrains.ReSharper.Psi.Resolve;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.ReSharper.Psi.Util;
   using JetBrains.Util;
-  using Scopes;
 
   /// <summary>
   /// Defines the local variable context class.
@@ -20,26 +22,28 @@ namespace AgentJohnson.SmartGenerate.Generators
   [SmartGenerate("Local Variable Context", "Generates code based on the current local variable context.", Priority = 500)]
   public class LocalVariableContext : SmartGenerateHandlerBase
   {
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    /// <param name="smartGenerateParameters">
+    /// The get menu items parameters.
+    /// </param>
     protected override void GetItems(SmartGenerateParameters smartGenerateParameters)
     {
-      IElement element = smartGenerateParameters.Element;
-      List<ScopeEntry> scope = smartGenerateParameters.Scope;
+      var element = smartGenerateParameters.Element;
+      var scope = smartGenerateParameters.Scope;
       if (scope.Count == 0)
       {
         return;
       }
 
-      string name = scope[smartGenerateParameters.ScopeIndex].Name;
-      IType type = scope[smartGenerateParameters.ScopeIndex].Type;
-      bool isAssigned = scope[smartGenerateParameters.ScopeIndex].IsAssigned;
+      var name = scope[smartGenerateParameters.ScopeIndex].Name;
+      var type = scope[smartGenerateParameters.ScopeIndex].Type;
+      var isAssigned = scope[smartGenerateParameters.ScopeIndex].IsAssigned;
 
-      TextRange range = StatementUtil.GetNewStatementPosition(element);
+      var range = StatementUtil.GetNewStatementPosition(element);
 
       if (!isAssigned)
       {
@@ -53,22 +57,22 @@ namespace AgentJohnson.SmartGenerate.Generators
         return;
       }
 
-      IDeclaredType declaredType = type as IDeclaredType;
+      var declaredType = type as IDeclaredType;
       if (declaredType != null)
       {
-        IEnum enumerate = declaredType.GetTypeElement() as IEnum;
+        var enumerate = declaredType.GetTypeElement() as IEnum;
 
         if (enumerate != null)
         {
           this.AddAction("Generate 'switch' from '{0}'", "EBAF3559-41C5-471D-8457-A20C9566D397", range, name);
         }
 
-        string typeName = type.GetPresentableName(element.Language);
+        var typeName = type.GetPresentableName(element.Language);
 
-        IPsiModule module = declaredType.Module;
+        var module = declaredType.Module;
         if (module != null && typeName != "string")
         {
-          IDeclaredType enumerable = TypeFactory.CreateTypeByCLRName("System.Collections.IEnumerable", module);
+          var enumerable = TypeFactory.CreateTypeByCLRName("System.Collections.IEnumerable", module);
 
           if (declaredType.IsSubtypeOf(enumerable))
           {
@@ -90,47 +94,45 @@ namespace AgentJohnson.SmartGenerate.Generators
       // AddMenuItem("Invoke method on '{0}'", "FE9C6A6B-A068-4182-B301-8002FE05A458", range, name);
 
       // if(HasWritableProperty(type)) {
-      //   AddMenuItem("Assign property on '{0}'", "DA0860C6-535C-489E-940C-841AA6C54C96", range, name);
+      // AddMenuItem("Assign property on '{0}'", "DA0860C6-535C-489E-940C-841AA6C54C96", range, name);
       // }
     }
-
-    #endregion
-
-    #region Private methods
 
     /// <summary>
     /// Determines whether the specified type has constructor.
     /// </summary>
-    /// <param name="type">The type parameter.</param>
+    /// <param name="type">
+    /// The type parameter.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if the specified type has constructor; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified type has constructor; otherwise, <c>false</c>.
     /// </returns>
     private static bool HasAccessableConstructor(IType type)
     {
-      IDeclaredType declaredType = type as IDeclaredType;
+      var declaredType = type as IDeclaredType;
       if (declaredType == null)
       {
         return false;
       }
 
-      IResolveResult resolve = declaredType.Resolve();
+      var resolve = declaredType.Resolve();
 
-      IClass classDeclaration = resolve.DeclaredElement as IClass;
+      var classDeclaration = resolve.DeclaredElement as IClass;
       if (classDeclaration == null)
       {
         return false;
       }
 
-      IList<IConstructor> constructors = classDeclaration.Constructors;
+      var constructors = classDeclaration.Constructors;
 
-      foreach (IConstructor constructor in constructors)
+      foreach (var constructor in constructors)
       {
         if (constructor.IsAbstract || constructor.IsStatic)
         {
           continue;
         }
 
-        AccessRights rights = constructor.GetAccessRights();
+        var rights = constructor.GetAccessRights();
         if (rights == AccessRights.PRIVATE)
         {
           continue;
@@ -145,31 +147,33 @@ namespace AgentJohnson.SmartGenerate.Generators
     /// <summary>
     /// Determines whether [has writable property] [the specified type].
     /// </summary>
-    /// <param name="type">The type parameter.</param>
+    /// <param name="type">
+    /// The type parameter.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if [has writable property] [the specified type]; otherwise, <c>false</c>.
+    /// <c>true</c> if [has writable property] [the specified type]; otherwise, <c>false</c>.
     /// </returns>
     private static bool HasWritableProperty(IType type)
     {
-      IDeclaredType declaredType = type as IDeclaredType;
+      var declaredType = type as IDeclaredType;
       if (declaredType == null)
       {
         return false;
       }
 
-      ITypeElement typeElement = declaredType.GetTypeElement();
+      var typeElement = declaredType.GetTypeElement();
       if (typeElement == null)
       {
         return false;
       }
 
-      IList<IProperty> properties = typeElement.Properties;
+      var properties = typeElement.Properties;
       if (properties == null || properties.Count == 0)
       {
         return false;
       }
 
-      foreach (IProperty property in properties)
+      foreach (var property in properties)
       {
         if (property.IsWritable)
         {
@@ -183,10 +187,18 @@ namespace AgentJohnson.SmartGenerate.Generators
     /// <summary>
     /// Performs the value analysis.
     /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="type">The type parameter.</param>
-    /// <param name="range">The range.</param>
-    /// <param name="name">The variable name.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
+    /// <param name="type">
+    /// The type parameter.
+    /// </param>
+    /// <param name="range">
+    /// The range.
+    /// </param>
+    /// <param name="name">
+    /// The variable name.
+    /// </param>
     private void PerformValueAnalysis(IElement element, IType type, TextRange range, string name)
     {
       if (!type.IsReferenceType())
@@ -194,23 +206,23 @@ namespace AgentJohnson.SmartGenerate.Generators
         return;
       }
 
-      ICSharpFunctionDeclaration functionDeclaration = element.GetContainingElement(typeof(IFunctionDeclaration), true) as ICSharpFunctionDeclaration;
+      var functionDeclaration = element.GetContainingElement(typeof(IFunctionDeclaration), true) as ICSharpFunctionDeclaration;
       if (functionDeclaration == null)
       {
         return;
       }
 
-      IReferenceExpression expression = element.GetContainingElement(typeof(IReferenceExpression), true) as IReferenceExpression;
+      var expression = element.GetContainingElement(typeof(IReferenceExpression), true) as IReferenceExpression;
       if (expression == null)
       {
         return;
       }
 
-      ICSharpControlFlowGraf graf = CSharpControlFlowBuilder.Build(functionDeclaration);
+      var graf = CSharpControlFlowBuilder.Build(functionDeclaration);
 
-      ICSharpControlFlowAnalysisResult inspect = graf.Inspect(true);
+      var inspect = graf.Inspect(true);
 
-      CSharpControlFlowNullReferenceState state = inspect.GetExpressionNullReferenceState(expression);
+      var state = inspect.GetExpressionNullReferenceState(expression);
 
       switch (state)
       {

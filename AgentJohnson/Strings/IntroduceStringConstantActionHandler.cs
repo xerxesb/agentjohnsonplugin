@@ -1,45 +1,73 @@
-using JetBrains.ProjectModel;
-using JetBrains.ActionManagement;
-using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.TextControl;
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="IntroduceStringConstantActionHandler.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The introduce string constant action handler.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace AgentJohnson.Strings {
+namespace AgentJohnson.Strings
+{
+  using JetBrains.ActionManagement;
+  using JetBrains.IDE;
+  using JetBrains.ProjectModel;
+
   /// <summary>
+  /// The introduce string constant action handler.
   /// </summary>
   [ActionHandler("AgentJohnson.IntroduceStringConstant")]
-  public class IntroduceStringConstantActionHandler : ActionHandlerBase {
+  public class IntroduceStringConstantActionHandler : ActionHandlerBase
+  {
+    #region Methods
+
+    /// <summary>
+    /// Executes action. Called after Update, that set ActionPresentation.Enabled to true.
+    /// </summary>
+    /// <param name="solution">
+    /// The solution.
+    /// </param>
+    /// <param name="context">
+    /// The context.
+    /// </param>
+    protected override void Execute(ISolution solution, IDataContext context)
+    {
+      var textControl = context.GetData(DataConstants.TEXT_CONTROL);
+      if (textControl == null)
+      {
+        return;
+      }
+
+      var introduceStringConstantRefactoring = new IntroduceStringConstantRefactoring(solution, textControl);
+
+      introduceStringConstantRefactoring.Execute();
+    }
+
     /// <summary>
     /// Updates the specified context.
     /// </summary>
-    /// <param name="context">The context.</param>
-    /// <returns></returns>
-    protected override bool Update(IDataContext context) {
-      if(!context.CheckAllNotNull(JetBrains.IDE.DataConstants.SOLUTION)) {
+    /// <param name="context">
+    /// The context.
+    /// </param>
+    /// <returns>
+    /// The update.
+    /// </returns>
+    protected override bool Update(IDataContext context)
+    {
+      if (!context.CheckAllNotNull(DataConstants.SOLUTION))
+      {
         return false;
       }
 
-      IElement element = GetElementAtCaret(context);
-      if(element == null){
+      var element = GetElementAtCaret(context);
+      if (element == null)
+      {
         return false;
       }
 
       return IntroduceStringConstantRefactoring.IsAvailable(element);
     }
 
-    /// <summary>
-    /// Executes action. Called after Update, that set ActionPresentation.Enabled to true.
-    /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="context">The context.</param>
-    protected override void Execute(ISolution solution, IDataContext context) {
-      ITextControl textControl = context.GetData(JetBrains.IDE.DataConstants.TEXT_CONTROL);
-      if(textControl == null){
-        return;
-      }
-
-      IntroduceStringConstantRefactoring introduceStringConstantRefactoring = new IntroduceStringConstantRefactoring(solution, textControl);
-
-      introduceStringConstantRefactoring.Execute();
-    }
+    #endregion
   }
 }

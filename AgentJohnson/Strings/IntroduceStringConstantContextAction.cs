@@ -1,3 +1,12 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="IntroduceStringConstantContextAction.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Defines the introduce string constant context action class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson.Strings
 {
   using JetBrains.ReSharper.Intentions;
@@ -10,12 +19,14 @@ namespace AgentJohnson.Strings
   [ContextAction(Description = "Generates a string constant from the literal string.", Name = "Introduce string constant", Priority = -1, Group = "C#")]
   public class IntroduceStringConstantContextAction : ContextActionBase
   {
-    #region Constructor
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="IntroduceStringConstantContextAction"/> class.
     /// </summary>
-    /// <param name="provider">The provider.</param>
+    /// <param name="provider">
+    /// The provider.
+    /// </param>
     public IntroduceStringConstantContextAction(ICSharpContextActionDataProvider provider) : base(provider)
     {
       this.StartTransaction = false;
@@ -23,15 +34,17 @@ namespace AgentJohnson.Strings
 
     #endregion
 
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Executes this instance.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     protected override void Execute(IElement element)
     {
-      IntroduceStringConstantRefactoring introduceStringConstantRefactoring = new IntroduceStringConstantRefactoring(this.Solution, this.TextControl);
+      var introduceStringConstantRefactoring = new IntroduceStringConstantRefactoring(this.Solution, this.TextControl);
 
       introduceStringConstantRefactoring.Execute();
     }
@@ -39,7 +52,9 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <returns>The text.</returns>
+    /// <returns>
+    /// The text.
+    /// </returns>
     protected override string GetText()
     {
       return "Introduce String Constant [Agent Johnson]";
@@ -48,9 +63,11 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Determines whether this instance is available.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if this instance is available; otherwise, <c>false</c>.
+    /// <c>true</c> if this instance is available; otherwise, <c>false</c>.
     /// </returns>
     protected override bool IsAvailable(IElement element)
     {

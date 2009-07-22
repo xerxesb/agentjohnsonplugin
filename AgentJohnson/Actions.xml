@@ -4,6 +4,9 @@
     <action id="FavoriteFiles" text="Favorite Files" shortcut="Control+Shift+X">
       <vs-shortcut>Control+Shift+X</vs-shortcut>
     </action>
+    <action id="RecentChanges" text="Recent Changes" shortcut="Control+Shift+P">
+      <vs-shortcut>Control+Shift+P</vs-shortcut>
+    </action>
   </insert>
 
   <action id="AgentJohnson.IntroduceStringConstant" text="Introduce String Constant"/>
@@ -12,6 +15,9 @@
   <action id="AgentJohnson.ImplementIDisposable" text="Implement IDisposable"/>
   <action id="AgentJohnson.ImplementISerializable" text="Implement ISerializable"/>
   <action id="AgentJohnson.ImplementProxyClass" text="Implement proxy class"/>
+  <action id="AgentJohnson.DuplicateMethod" text="Duplicate method" shortcut="Control+Shift+M">
+    <vs-shortcut>Control+Shift+M</vs-shortcut>
+  </action>
   <action id="SmartGenerate2" text="Internal Use Only"/>
 
   <insert group-id="Refactor" position="last">
@@ -25,5 +31,10 @@
       <action-ref id="AgentJohnson.ImplementISerializable"/>
       <action-ref id="AgentJohnson.ImplementProxyClass"/>
     </action-group>
+  </insert>
+
+  <insert group-id="Code" position="last">
+    <separator />
+    <action-ref id="AgentJohnson.DuplicateMethod" />
   </insert>
 </actions>

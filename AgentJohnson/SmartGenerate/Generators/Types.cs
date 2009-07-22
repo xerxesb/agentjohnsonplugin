@@ -1,36 +1,48 @@
-﻿namespace AgentJohnson.SmartGenerate.Generators
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Types.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The types.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace AgentJohnson.SmartGenerate.Generators
 {
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
+  /// The types.
   /// </summary>
   [SmartGenerate("Generate types", "Generates a class, enum, interface or struct.", Priority = 0)]
   public class Types : SmartGenerateHandlerBase
   {
-    #region Protected methods
+    #region Methods
 
     /// <summary>
     /// Gets the items.
     /// </summary>
-    /// <param name="smartGenerateParameters">The get menu items parameters.</param>
+    /// <param name="smartGenerateParameters">
+    /// The get menu items parameters.
+    /// </param>
     protected override void GetItems(SmartGenerateParameters smartGenerateParameters)
     {
-      IElement element = smartGenerateParameters.Element;
+      var element = smartGenerateParameters.Element;
 
-      IElement classLikeDeclaration = element.GetContainingElement(typeof(IClassLikeDeclaration), true);
+      var classLikeDeclaration = element.GetContainingElement(typeof(IClassLikeDeclaration), true);
       if (classLikeDeclaration != null)
       {
         return;
       }
 
-      IEnumDeclaration enumDecl = element.GetContainingElement(typeof(IEnumDeclaration), true) as IEnumDeclaration;
+      var enumDecl = element.GetContainingElement(typeof(IEnumDeclaration), true) as IEnumDeclaration;
       if (enumDecl != null)
       {
         return;
       }
 
-      IElement namespaceDeclaration = element.GetContainingElement(typeof(INamespaceDeclaration), true);
+      var namespaceDeclaration = element.GetContainingElement(typeof(INamespaceDeclaration), true);
       if (namespaceDeclaration == null)
       {
         return;

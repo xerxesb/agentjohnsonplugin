@@ -1,30 +1,45 @@
-using System.Collections.Generic;
-using JetBrains.Annotations;
-using JetBrains.Util;
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="LiveTemplateItem.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   The live template item.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace AgentJohnson.SmartGenerate {
+namespace AgentJohnson.SmartGenerate
+{
+  using System.Collections.Generic;
+  using JetBrains.Annotations;
+  using JetBrains.Util;
+
   /// <summary>
-  /// 
+  /// The live template item.
   /// </summary>
-  public class LiveTemplateItem {
-    #region Fields
+  public class LiveTemplateItem
+  {
+    #region Constants and Fields
 
-    readonly Dictionary<string, string> _variables = new Dictionary<string, string>();
+    /// <summary>
+    /// The _variables.
+    /// </summary>
+    private readonly Dictionary<string, string> _variables = new Dictionary<string, string>();
 
     #endregion
 
-    #region Constructors
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LiveTemplateItem"/> class.
     /// </summary>
-    public LiveTemplateItem() {
-      Range = TextRange.InvalidRange;
+    public LiveTemplateItem()
+    {
+      this.Range = TextRange.InvalidRange;
     }
 
     #endregion
 
-    #region Public properties
+    #region Properties
 
     /// <summary>
     /// Gets or sets the description.
@@ -45,6 +60,7 @@ namespace AgentJohnson.SmartGenerate {
     /// </summary>
     /// <value>The range.</value>
     public TextRange Range { get; set; }
+
     /// <summary>
     /// Gets or sets the name of the template.
     /// </summary>
@@ -57,9 +73,11 @@ namespace AgentJohnson.SmartGenerate {
     /// </summary>
     /// <value>The variables.</value>
     [NotNull]
-    public Dictionary<string, string> Variables {
-      get {
-        return _variables;
+    public Dictionary<string, string> Variables
+    {
+      get
+      {
+        return this._variables;
       }
     }
 

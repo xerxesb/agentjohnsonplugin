@@ -1,3 +1,12 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="DocumentThrownExceptionBulbItem.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
+// </copyright>
+// <summary>
+//   Defines the document thrown exception bulb item class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace AgentJohnson.Exceptions
 {
   using System;
@@ -18,18 +27,23 @@ namespace AgentJohnson.Exceptions
   /// </summary>
   public class DocumentThrownExceptionBulbItem : IBulbItem
   {
-    #region Fields
+    #region Constants and Fields
 
+    /// <summary>
+    /// The _warning.
+    /// </summary>
     private readonly DocumentThrownExceptionWarning _warning;
 
     #endregion
 
-    #region Constructors
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DocumentThrownExceptionBulbItem"/> class.
     /// </summary>
-    /// <param name="warning">The suggestion.</param>
+    /// <param name="warning">
+    /// The suggestion.
+    /// </param>
     public DocumentThrownExceptionBulbItem(DocumentThrownExceptionWarning warning)
     {
       this._warning = warning;
@@ -37,22 +51,59 @@ namespace AgentJohnson.Exceptions
 
     #endregion
 
-    #region Public methods
+    #region Properties
+
+    /// <summary>
+    /// Gets the text.
+    /// </summary>
+    /// <value>The text.</value>
+    public string Text
+    {
+      get
+      {
+        var throwStatement = this._warning.ThrowStatement as IThrowStatement;
+        if (throwStatement == null)
+        {
+          return string.Empty;
+        }
+
+        var exceptionTypeName = "[exception]";
+
+        var exceptionType = GetExceptionType(throwStatement);
+
+        if (exceptionType != null)
+        {
+          exceptionTypeName = exceptionType.GetPresentableName(throwStatement.Language);
+        }
+
+        return String.Format("Add xml-docs comment for exception '{0}'", exceptionTypeName);
+      }
+    }
+
+    #endregion
+
+    #region Implemented Interfaces
+
+    #region IBulbItem
 
     /// <summary>
     /// Executes the specified solution.
     /// </summary>
-    /// <param name="solution">The solution.</param>
-    /// <param name="textControl">The text control.</param>
+    /// <param name="solution">
+    /// The solution.
+    /// </param>
+    /// <param name="textControl">
+    /// The text control.
+    /// </param>
     public void Execute(ISolution solution, ITextControl textControl)
     {
-      PsiManager psiManager = PsiManager.GetInstance(solution);
+      var psiManager = PsiManager.GetInstance(solution);
       if (psiManager == null)
       {
         return;
       }
 
-      using (ModificationCookie cookie = textControl.Document.EnsureWritable())
+      using (var cookie = textControl.Document.EnsureWritable())
       {
         if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
         {
@@ -68,45 +119,51 @@ namespace AgentJohnson.Exceptions
 
     #endregion
 
-    #region Private methods
+    #endregion
+
+    #region Methods
 
     /// <summary>
     /// Gets the argument null text.
     /// </summary>
-    /// <param name="throwStatement">The statement.</param>
-    /// <returns>The argument null text.</returns>
+    /// <param name="throwStatement">
+    /// The statement.
+    /// </param>
+    /// <returns>
+    /// The argument null text.
+    /// </returns>
     private static string GetArgumentExceptionText(IThrowStatement throwStatement)
     {
       const string result = "Argument is null.";
       string name = null;
 
-      IStatement containingStatement = throwStatement.GetContainingStatement();
+      var containingStatement = throwStatement.GetContainingStatement();
       if (containingStatement is IBlock)
       {
         containingStatement = containingStatement.GetContainingStatement();
       }
 
-      IIfStatement ifStatement = containingStatement as IIfStatement;
+      var ifStatement = containingStatement as IIfStatement;
       if (ifStatement == null)
       {
         return result;
       }
 
-      IEqualityExpression condition = ifStatement.Condition as IEqualityExpression;
+      var condition = ifStatement.Condition as IEqualityExpression;
       if (condition == null)
       {
         return result;
       }
 
-      ICSharpExpression leftOperand = condition.LeftOperand;
-      ICSharpExpression rightOperand = condition.RightOperand;
+      var leftOperand = condition.LeftOperand;
+      var rightOperand = condition.RightOperand;
       if (rightOperand == null || leftOperand == null)
       {
         return result;
       }
 
-      string left = leftOperand.GetText();
-      string right = rightOperand.GetText();
+      var left = leftOperand.GetText();
+      var right = rightOperand.GetText();
 
       if (left == "null")
       {
@@ -128,8 +185,12 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Gets the doc comment text.
     /// </summary>
-    /// <param name="docCommentBlockNode">The doc comment block node.</param>
-    /// <returns>The doc comment text.</returns>
+    /// <param name="docCommentBlockNode">
+    /// The doc comment block node.
+    /// </param>
+    /// <returns>
+    /// The doc comment text.
+    /// </returns>
     private static string GetDocCommentText(IElement docCommentBlockNode)
     {
       return docCommentBlockNode.GetText();
@@ -138,9 +199,15 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Gets the exception text.
     /// </summary>
-    /// <param name="throwStatement">The throw statement.</param>
-    /// <param name="exceptionTypeName">Name of the exception type.</param>
-    /// <returns>The exception text.</returns>
+    /// <param name="throwStatement">
+    /// The throw statement.
+    /// </param>
+    /// <param name="exceptionTypeName">
+    /// Name of the exception type.
+    /// </param>
+    /// <returns>
+    /// The exception text.
+    /// </returns>
     private static string GetExceptionText(IThrowStatement throwStatement, string exceptionTypeName)
     {
       if (exceptionTypeName == "ArgumentNullException")
@@ -148,15 +215,15 @@ namespace AgentJohnson.Exceptions
         return GetArgumentExceptionText(throwStatement);
       }
 
-      string exceptionText = "<c>" + exceptionTypeName + "</c>.";
+      var exceptionText = "<c>" + exceptionTypeName + "</c>.";
 
-      ICSharpExpression exception = throwStatement.Exception;
+      var exception = throwStatement.Exception;
       if (exception == null)
       {
         return exceptionText;
       }
 
-      IArgumentsOwner argumentsOwner = exception as IArgumentsOwner;
+      var argumentsOwner = exception as IArgumentsOwner;
       if (argumentsOwner == null)
       {
         return exceptionText;
@@ -164,24 +231,26 @@ namespace AgentJohnson.Exceptions
 
       string result = null;
 
-      foreach (IArgument argument in argumentsOwner.Arguments)
+      foreach (var argument in argumentsOwner.Arguments)
       {
-        ICSharpArgument csharpArgument = argument as ICSharpArgument;
+        var csharpArgument = argument as ICSharpArgument;
         if (csharpArgument == null)
         {
           continue;
         }
+
         if (csharpArgument.Kind != ParameterKind.VALUE)
         {
           continue;
         }
 
-        ConstantValue2 value = csharpArgument.Value.ConstantValue;
+        var value = csharpArgument.Value.ConstantValue;
         if (!value.IsString())
         {
           continue;
         }
-        string stringValue = value.Value as string;
+
+        var stringValue = value.Value as string;
         if (string.IsNullOrEmpty(stringValue))
         {
           continue;
@@ -208,8 +277,12 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Gets the exception.
     /// </summary>
-    /// <param name="statement">The statement.</param>
-    /// <returns>The exception.</returns>
+    /// <param name="statement">
+    /// The statement.
+    /// </param>
+    /// <returns>
+    /// The exception.
+    /// </returns>
     private static IType GetExceptionType(IThrowStatement statement)
     {
       if (statement.Exception != null)
@@ -236,11 +309,15 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Gets the indent.
     /// </summary>
-    /// <param name="anchor">The anchor.</param>
-    /// <returns>The indent.</returns>
+    /// <param name="anchor">
+    /// The anchor.
+    /// </param>
+    /// <returns>
+    /// The indent.
+    /// </returns>
     private static string GetIndent(IElement anchor)
     {
-      string indent = string.Empty;
+      var indent = string.Empty;
 
       var whitespace = anchor.ToTreeNode().PrevSibling as IWhitespaceNode;
       if (whitespace != null)
@@ -254,13 +331,17 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Inserts the slashes.
     /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="indent">The indent.</param>
+    /// <param name="text">
+    /// The text.
+    /// </param>
+    /// <param name="indent">
+    /// The indent.
+    /// </param>
     private static void InsertSlashes(StringBuilder text, string indent)
     {
-      string slashes = indent + "///";
+      var slashes = indent + "///";
 
-      for (int i = 0; i < text.Length; i++)
+      for (var i = 0; i < text.Length; i++)
       {
         if (text[i] == '\n')
         {
@@ -292,32 +373,32 @@ namespace AgentJohnson.Exceptions
         return;
       }
 
-      ITreeNode anchor = typeMemberDeclaration.ToTreeNode();
+      var anchor = typeMemberDeclaration.ToTreeNode();
       if (anchor == null)
       {
         return;
       }
 
-      IType exceptionType = GetExceptionType(throwStatement);
+      var exceptionType = GetExceptionType(throwStatement);
       if (exceptionType == null)
       {
         return;
       }
 
-      string exceptionTypeName = exceptionType.GetPresentableName(throwStatement.Language);
+      var exceptionTypeName = exceptionType.GetPresentableName(throwStatement.Language);
 
-      string exceptionText = GetExceptionText(throwStatement, exceptionTypeName);
+      var exceptionText = GetExceptionText(throwStatement, exceptionTypeName);
 
       var text = new StringBuilder("\r\n <exception cref=\"" + exceptionTypeName + "\">" + exceptionText + "</exception>");
 
-      string indent = GetIndent(anchor);
+      var indent = GetIndent(anchor);
 
       InsertSlashes(text, indent);
 
-      IDocCommentBlockNode docCommentBlockNode = docCommentBlockOwnerNode.GetDocCommentBlockNode();
+      var docCommentBlockNode = docCommentBlockOwnerNode.GetDocCommentBlockNode();
       if (docCommentBlockNode != null)
       {
-        string docCommentText = GetDocCommentText(docCommentBlockNode);
+        var docCommentText = GetDocCommentText(docCommentBlockNode);
 
         text.Insert(0, docCommentText);
       }
@@ -328,50 +409,19 @@ namespace AgentJohnson.Exceptions
 
       text.Append("\nvoid foo(){}");
 
-      ICSharpTypeMemberDeclaration declaration = CSharpElementFactory.GetInstance(throwStatement.GetPsiModule()).CreateTypeMemberDeclaration(text.ToString());
+      var declaration = CSharpElementFactory.GetInstance(throwStatement.GetPsiModule()).CreateTypeMemberDeclaration(text.ToString());
       if (declaration == null)
       {
         return;
       }
 
-      IDocCommentBlockNode node = SharedImplUtil.GetDocCommentBlockNode(declaration.ToTreeNode());
+      var node = SharedImplUtil.GetDocCommentBlockNode(declaration.ToTreeNode());
       if (node == null)
       {
         return;
       }
 
       docCommentBlockOwnerNode.SetDocCommentBlockNode(node);
-    }
-
-    #endregion
-
-    #region IBulbItem Members
-
-    /// <summary>
-    /// Gets the text.
-    /// </summary>
-    /// <value>The text.</value>
-    public string Text
-    {
-      get
-      {
-        var throwStatement = this._warning.ThrowStatement as IThrowStatement;
-        if (throwStatement == null)
-        {
-          return string.Empty;
-        }
-
-        string exceptionTypeName = "[exception]";
-
-        IType exceptionType = GetExceptionType(throwStatement);
-
-        if (exceptionType != null)
-        {
-          exceptionTypeName = exceptionType.GetPresentableName(throwStatement.Language);
-        }
-
-        return String.Format("Add xml-docs comment for exception '{0}'", exceptionTypeName);
-      }
     }
 
     #endregion

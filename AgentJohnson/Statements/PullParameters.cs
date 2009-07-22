@@ -1,10 +1,14 @@
-// <copyright file="PullParameters.cs" company="Sitecore">
-// Copyright (c) Sitecore. All rights reserved.
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="PullParameters.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
 // </copyright>
+// <summary>
+//   Defines the pull parameters class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace AgentJohnson.Statements
 {
-  using System.Collections.Generic;
   using System.Text;
   using JetBrains.Application;
   using JetBrains.ReSharper.Intentions;
@@ -12,7 +16,6 @@ namespace AgentJohnson.Statements
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
-  using JetBrains.Util;
 
   /// <summary>
   /// Defines the pull parameters class.
@@ -20,6 +23,8 @@ namespace AgentJohnson.Statements
   [ContextAction(Description = "Pulls the containing methods parameters to this method call.", Name = "Pull parameters", Priority = -1, Group = "C#")]
   public class PullParameters : ContextActionBase
   {
+    #region Constructors and Destructors
+
     /// <summary>
     /// Initializes a new instance of the <see cref="PullParameters"/> class.
     /// </summary>
@@ -31,6 +36,10 @@ namespace AgentJohnson.Statements
       this.StartTransaction = false;
     }
 
+    #endregion
+
+    #region Methods
+
     /// <summary>
     /// Executes this instance.
     /// </summary>
@@ -39,7 +48,7 @@ namespace AgentJohnson.Statements
     /// </param>
     protected override void Execute(IElement element)
     {
-      using (ModificationCookie cookie = this.TextControl.Document.EnsureWritable())
+      using (this.TextControl.Document.EnsureWritable())
       {
         try
         {
@@ -58,7 +67,7 @@ namespace AgentJohnson.Statements
           }
 
           this.HandleEmptyParentheses(element);
-        } 
+        }
         finally
         {
           CommandProcessor.Instance.EndCommand();
@@ -69,7 +78,9 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Gets the text.
     /// </summary>
-    /// <returns>The text.</returns>
+    /// <returns>
+    /// The text.
+    /// </returns>
     protected override string GetText()
     {
       return "Pull parameters [Agent Johnson]";
@@ -110,13 +121,13 @@ namespace AgentJohnson.Statements
     /// </returns>
     private static string GetText(IElement element)
     {
-      ITypeMemberDeclaration typeMemberDeclaration = element.GetContainingElement<ITypeMemberDeclaration>(true);
+      var typeMemberDeclaration = element.GetContainingElement<ITypeMemberDeclaration>(true);
       if (typeMemberDeclaration == null)
       {
         return null;
       }
 
-      IParametersOwner parametersOwner = typeMemberDeclaration.DeclaredElement as IParametersOwner;
+      var parametersOwner = typeMemberDeclaration.DeclaredElement as IParametersOwner;
       if (parametersOwner == null)
       {
         return null;
@@ -127,10 +138,10 @@ namespace AgentJohnson.Statements
         return null;
       }
 
-      bool first = true;
-      StringBuilder parametersBuilder = new StringBuilder();
+      var first = true;
+      var parametersBuilder = new StringBuilder();
 
-      foreach (IParameter parameter in parametersOwner.Parameters)
+      foreach (var parameter in parametersOwner.Parameters)
       {
         if (!first)
         {
@@ -148,37 +159,39 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Handles the empty parentheses.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
     /// <c>true</c> if [is empty parentheses] [the specified element]; otherwise, <c>false</c>.
     /// </returns>
     private static bool IsEmptyParentheses(IElement element)
     {
-      string text = element.GetText();
+      var text = element.GetText();
       if (text != ")")
       {
         return false;
       }
 
-      IInvocationExpression invocationExpression = element.ToTreeNode().Parent as IInvocationExpression;
+      var invocationExpression = element.ToTreeNode().Parent as IInvocationExpression;
       if (invocationExpression == null)
       {
         return false;
       }
 
-      IList<ICSharpArgument> arguments = invocationExpression.Arguments;
+      var arguments = invocationExpression.Arguments;
       if (arguments.Count != 0)
       {
         return false;
       }
 
-      ICSharpTypeMemberDeclaration containingTypeMemberDeclaration = invocationExpression.GetContainingTypeMemberDeclaration();
+      var containingTypeMemberDeclaration = invocationExpression.GetContainingTypeMemberDeclaration();
       if (containingTypeMemberDeclaration == null)
       {
         return false;
       }
 
-      IParametersOwner parametersOwner = containingTypeMemberDeclaration.DeclaredElement as IParametersOwner;
+      var parametersOwner = containingTypeMemberDeclaration.DeclaredElement as IParametersOwner;
       if (parametersOwner == null)
       {
         return false;
@@ -195,26 +208,28 @@ namespace AgentJohnson.Statements
     /// <summary>
     /// Handles the end of line.
     /// </summary>
-    /// <param name="element">The element.</param>
+    /// <param name="element">
+    /// The element.
+    /// </param>
     /// <returns>
     /// <c>true</c> if [is expression statement] [the specified element]; otherwise, <c>false</c>.
     /// </returns>
     private static bool IsExpressionStatement(IElement element)
     {
-      ITreeNode treeNode = element.ToTreeNode();
+      var treeNode = element.ToTreeNode();
 
       if (!(treeNode.Parent is IChameleonNode))
       {
         return false;
       }
 
-      IExpressionStatement expressionStatement = treeNode.PrevSibling as IExpressionStatement;
+      var expressionStatement = treeNode.PrevSibling as IExpressionStatement;
       if (expressionStatement == null)
       {
         return false;
       }
 
-      string text = expressionStatement.GetText();
+      var text = expressionStatement.GetText();
 
       if (text.EndsWith(";"))
       {
@@ -235,7 +250,7 @@ namespace AgentJohnson.Statements
     /// </returns>
     private static bool IsReferenceExpression(IElement element)
     {
-      ITreeNode treeNode = element.ToTreeNode();
+      var treeNode = element.ToTreeNode();
 
       if (treeNode.Parent is IExpressionStatement && treeNode.PrevSibling is IReferenceExpression)
       {
@@ -253,9 +268,8 @@ namespace AgentJohnson.Statements
     /// </param>
     private void HandleEmptyParentheses(IElement element)
     {
-      string text = GetText(element);
+      var text = GetText(element);
       this.TextControl.Document.InsertText(this.TextControl.CaretModel.Offset, text);
-
     }
 
     /// <summary>
@@ -266,7 +280,7 @@ namespace AgentJohnson.Statements
     /// </param>
     private void HandleExpressionStatement(IElement element)
     {
-      string text = GetText(element);
+      var text = GetText(element);
       this.TextControl.Document.InsertText(this.TextControl.CaretModel.Offset, "(" + text + ");");
     }
 
@@ -278,8 +292,10 @@ namespace AgentJohnson.Statements
     /// </param>
     private void HandleReferenceExpression(IElement element)
     {
-      string text = GetText(element);
-      // this.TextControl.Document.InsertText(this.TextControl.CaretModel.Offset, "(" + text + ")");
+      var text = GetText(element);
+      this.TextControl.Document.InsertText(this.TextControl.CaretModel.Offset, "(" + text + ")");
     }
+
+    #endregion
   }
 }

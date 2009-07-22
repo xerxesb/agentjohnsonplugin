@@ -1,6 +1,11 @@
-// <copyright file="DocumentThrownExceptionAnalyzer.cs" company="Sitecore A/S">
-//   Copyright (c) Sitecore A/S. All rights reserved.
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="DocumentThrownExceptionAnalyzer.cs" company="Jakob Christensen">
+//   Copyright (C) 2009 Jakob Christensen
 // </copyright>
+// <summary>
+//   Defines the document thrown exception analyzer class.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace AgentJohnson.Exceptions
 {
@@ -16,7 +21,7 @@ namespace AgentJohnson.Exceptions
   /// </summary>
   public class DocumentThrownExceptionAnalyzer : IStatementAnalyzer
   {
-    #region Fields
+    #region Constants and Fields
 
     /// <summary>
     /// The solution.
@@ -25,12 +30,14 @@ namespace AgentJohnson.Exceptions
 
     #endregion
 
-    #region Constructors
+    #region Constructors and Destructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DocumentThrownExceptionAnalyzer"/> class.
     /// </summary>
-    /// <param name="solution">The solution.</param>
+    /// <param name="solution">
+    /// The solution.
+    /// </param>
     public DocumentThrownExceptionAnalyzer(ISolution solution)
     {
       this.solution = solution;
@@ -38,7 +45,7 @@ namespace AgentJohnson.Exceptions
 
     #endregion
 
-    #region Public properties
+    #region Properties
 
     /// <summary>
     /// Gets the solution.
@@ -54,18 +61,24 @@ namespace AgentJohnson.Exceptions
 
     #endregion
 
-    #region Public methods
+    #region Implemented Interfaces
+
+    #region IStatementAnalyzer
 
     /// <summary>
     /// Analyzes the specified statement.
     /// </summary>
-    /// <param name="statement">The statement.</param>
-    /// <returns>Returns the suggestion bases.</returns>
+    /// <param name="statement">
+    /// The statement.
+    /// </param>
+    /// <returns>
+    /// Returns the suggestion bases.
+    /// </returns>
     public SuggestionBase[] Analyze(IStatement statement)
     {
-      List<SuggestionBase> suggestions = new List<SuggestionBase>();
+      var suggestions = new List<SuggestionBase>();
 
-      IThrowStatement throwStatement = statement as IThrowStatement;
+      var throwStatement = statement as IThrowStatement;
       if (throwStatement != null)
       {
         suggestions.AddRange(this.AnalyzeThrowStatement(throwStatement));
@@ -76,21 +89,27 @@ namespace AgentJohnson.Exceptions
 
     #endregion
 
-    #region Private methods
+    #endregion
+
+    #region Methods
 
     /// <summary>
     /// Determines whether [is catch statement] [the specified throw statement].
     /// </summary>
-    /// <param name="throwStatement">The throw statement.</param>
-    /// <param name="tryStatement">The try statement.</param>
+    /// <param name="throwStatement">
+    /// The throw statement.
+    /// </param>
+    /// <param name="tryStatement">
+    /// The try statement.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if [is catch statement] [the specified throw statement]; otherwise, <c>false</c>.
+    /// <c>true</c> if [is catch statement] [the specified throw statement]; otherwise, <c>false</c>.
     /// </returns>
     private static bool IsCatchStatement(IThrowStatement throwStatement, ITryStatement tryStatement)
     {
-      IList<ICatchClause> catchClauses = tryStatement.Catches;
+      var catchClauses = tryStatement.Catches;
 
-      foreach (ICatchClause catchClause in catchClauses)
+      foreach (var catchClause in catchClauses)
       {
         if (throwStatement.Exception == catchClause.ExceptionType)
         {
@@ -104,9 +123,11 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Determines whether the specified throw statement is caught.
     /// </summary>
-    /// <param name="throwStatement">The throw statement.</param>
+    /// <param name="throwStatement">
+    /// The throw statement.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if the specified throw statement is caught; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified throw statement is caught; otherwise, <c>false</c>.
     /// </returns>
     private static bool IsExceptionCaught(IThrowStatement throwStatement)
     {
@@ -118,7 +139,7 @@ namespace AgentJohnson.Exceptions
 
       while (node != null)
       {
-        ITryStatement tryStatement = node as ITryStatement;
+        var tryStatement = node as ITryStatement;
 
         if (tryStatement != null)
         {
@@ -137,9 +158,11 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Determines whether this instance is documented.
     /// </summary>
-    /// <param name="throwStatement">The throw statement.</param>
+    /// <param name="throwStatement">
+    /// The throw statement.
+    /// </param>
     /// <returns>
-    /// 	<c>true</c> if this instance is documented; otherwise, <c>false</c>.
+    /// <c>true</c> if this instance is documented; otherwise, <c>false</c>.
     /// </returns>
     private static bool IsThrowStatementDocumented(IThrowStatement throwStatement)
     {
@@ -155,37 +178,37 @@ namespace AgentJohnson.Exceptions
         return true;
       }
 
-      XmlNode xmlNode = declaredElement.GetXMLDoc(false);
+      var xmlNode = declaredElement.GetXMLDoc(false);
       if (xmlNode == null)
       {
         return false;
       }
 
-      XmlNodeList exceptionList = xmlNode.SelectNodes("exception");
+      var exceptionList = xmlNode.SelectNodes("exception");
       if (exceptionList == null || exceptionList.Count == 0)
       {
         return false;
       }
 
-      ICSharpExpression exception = throwStatement.Exception;
+      var exception = throwStatement.Exception;
       if (exception == null)
       {
         return true;
       }
 
-      IType type = exception.Type();
+      var type = exception.Type();
 
-      string exceptionTypeName = type.GetLongPresentableName(throwStatement.Language);
+      var exceptionTypeName = type.GetLongPresentableName(throwStatement.Language);
 
       foreach (XmlNode node in exceptionList)
       {
-        XmlAttribute attribute = node.Attributes["cref"];
+        var attribute = node.Attributes["cref"];
         if (attribute == null)
         {
           continue;
         }
 
-        string cref = attribute.Value;
+        var cref = attribute.Value;
         if (string.IsNullOrEmpty(cref))
         {
           continue;
@@ -208,11 +231,15 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// Analyzes the documented.
     /// </summary>
-    /// <param name="throwStatement">The statement.</param>
-    /// <returns>Returns a list of suggestion bases.</returns>
+    /// <param name="throwStatement">
+    /// The statement.
+    /// </param>
+    /// <returns>
+    /// Returns a list of suggestion bases.
+    /// </returns>
     private IEnumerable<SuggestionBase> AnalyzeThrowStatement(IThrowStatement throwStatement)
     {
-      List<SuggestionBase> suggestions = new List<SuggestionBase>();
+      var suggestions = new List<SuggestionBase>();
 
       if (IsExceptionCaught(throwStatement))
       {
