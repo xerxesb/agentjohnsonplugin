@@ -218,7 +218,7 @@
     <Compile Include="RecentChanges\RecentChanges.Designer.cs">
       <DependentUpon>RecentChanges.cs</DependentUpon>
     </Compile>
-    <Compile Include="Refactorings\DuplicateMethod.cs" />
+    <Compile Include="Statements\DuplicateMethod.cs" />
     <Compile Include="Refactorings\ImplementICloneableActionHandler.cs" />
     <Compile Include="Refactorings\ImplementIDisposableActionHandler.cs" />
     <Compile Include="Refactorings\ImplementISerializableActionHandler.cs" />

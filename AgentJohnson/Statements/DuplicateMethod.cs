@@ -7,7 +7,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace AgentJohnson.Refactorings
+namespace AgentJohnson.Statements
 {
   using JetBrains.ActionManagement;
   using JetBrains.Application;
