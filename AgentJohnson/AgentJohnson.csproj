@@ -122,6 +122,7 @@
     <Reference Include="JetBrains.ReSharper.Features.Common, Version=4.5.1231.7, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v4.5\Bin\JetBrains.ReSharper.Features.Common.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="JetBrains.ReSharper.Features.Environment, Version=4.5.1231.7, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -284,6 +285,8 @@
     <Compile Include="Strings\IntroduceStringConstantContextAction.cs" />
     <Compile Include="Strings\IntroduceStringConstantRefactoring.cs" />
     <Compile Include="Strings\IntroduceStringConstantSettings.cs" />
+    <Compile Include="Strings\UseStringBuilderContextAction.cs" />
+    <Compile Include="Strings\UseStringCompare.cs" />
     <Compile Include="ValueAnalysis\CheckAssignmentContextAction.cs" />
     <Compile Include="Strings\CheckStringNotNullOrEmptyContextAction.cs" />
     <Compile Include="Enums\GenerateSwitchContextAction.cs" />
