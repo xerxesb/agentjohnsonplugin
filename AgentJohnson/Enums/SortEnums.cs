@@ -16,11 +16,10 @@ namespace AgentJohnson.Enums
   using System.Text.RegularExpressions;
   using JetBrains.Application;
   using JetBrains.ReSharper.Intentions;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
-  using JetBrains.Util;
 
   /// <summary>
   /// Represents the Context Action.
@@ -33,7 +32,7 @@ namespace AgentJohnson.Enums
     /// <summary>
     /// Regular expression.
     /// </summary>
-    private static readonly Regex regex = new Regex("([ //]*)([A-Z0-9_]+)[ ]*(=[ ]*([0-9XULABCDEF]+)[ ]*|),(.*)\n", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex RegEx = new Regex("([ //]*)([A-Z0-9_]+)[ ]*(=[ ]*([0-9XULABCDEF]+)[ ]*|),(.*)\n", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     #endregion
 
@@ -62,7 +61,7 @@ namespace AgentJohnson.Enums
     /// </param>
     protected override void Execute(IElement element)
     {
-      var enumerate = this.GetSelectedElement<IEnumDeclaration>(true);
+      var enumerate = this.Provider.GetSelectedElement<IEnumDeclaration>(true, true);
       if (enumerate == null || enumerate.DeclaredElement == null)
       {
         return;
@@ -70,7 +69,7 @@ namespace AgentJohnson.Enums
 
       using (var cookie = this.Provider.TextControl.Document.EnsureWritable())
       {
-        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+        if (cookie.EnsureWritableResult != global::JetBrains.Util.EnsureWritableResult.SUCCESS)
         {
           return;
         }
@@ -114,7 +113,7 @@ namespace AgentJohnson.Enums
     /// </returns>
     protected override bool IsAvailable(IElement element)
     {
-      var enumerate = this.GetSelectedElement<IEnumDeclaration>(true);
+      var enumerate = this.Provider.GetSelectedElement<IEnumDeclaration>(true, true);
       return enumerate != null;
     }
 
@@ -162,7 +161,7 @@ namespace AgentJohnson.Enums
       var enumValue = new DualEnumValue(enumType);
       var values = new SortedDictionary<DualEnumValue, List<KeyValuePair<string, string>>>();
 
-      var macthes = regex.Matches(current);
+      var macthes = RegEx.Matches(current);
 
       foreach (Match match in macthes)
       {
@@ -264,21 +263,6 @@ namespace AgentJohnson.Enums
       public DualEnumValue(string baseType)
       {
         this.baseType = baseType;
-      }
-
-      /// <summary>
-      /// Initializes a new instance of the <see cref="DualEnumValue"/> class.
-      /// </summary>
-      /// <param name="baseType">
-      /// The base type.
-      /// </param>
-      /// <param name="value">
-      /// The value.
-      /// </param>
-      public DualEnumValue(string baseType, string value)
-        : this(baseType)
-      {
-        this.Set(value);
       }
 
       #endregion

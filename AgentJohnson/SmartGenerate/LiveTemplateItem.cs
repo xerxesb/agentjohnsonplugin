@@ -34,7 +34,7 @@ namespace AgentJohnson.SmartGenerate
     /// </summary>
     public LiveTemplateItem()
     {
-      this.Range = TextRange.InvalidRange;
+      this.Range = global::JetBrains.Util.TextRange.InvalidRange;
     }
 
     #endregion
@@ -59,7 +59,7 @@ namespace AgentJohnson.SmartGenerate
     /// Gets or sets the range.
     /// </summary>
     /// <value>The range.</value>
-    public TextRange Range { get; set; }
+    public global::JetBrains.Util.TextRange Range { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the template.

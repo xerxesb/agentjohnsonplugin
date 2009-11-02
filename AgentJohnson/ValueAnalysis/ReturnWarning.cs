@@ -13,27 +13,23 @@ namespace AgentJohnson.ValueAnalysis
   using JetBrains.ProjectModel;
   using JetBrains.ReSharper.Daemon;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
+  using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
   /// The return warning.
   /// </summary>
-  [ConfigurableSeverityHighlighting(NAME)]
+  [ConfigurableSeverityHighlighting(Name)]
   public class ReturnWarning : SuggestionBase
   {
     #region Constants and Fields
 
     /// <summary>"ReturnAssertion"</summary>
-    public const string NAME = "Return";
+    public const string Name = "Return";
 
     /// <summary>
     /// The _return statement.
     /// </summary>
-    private readonly IReturnStatement _returnStatement;
-
-    /// <summary>
-    /// The _solution.
-    /// </summary>
-    private readonly ISolution _solution;
+    private readonly IReturnStatement returnStatement;
 
     #endregion
 
@@ -48,10 +44,9 @@ namespace AgentJohnson.ValueAnalysis
     /// <param name="returnStatement">
     /// The return statement.
     /// </param>
-    public ReturnWarning(ISolution solution, IReturnStatement returnStatement) : base(NAME, returnStatement, GetRange(returnStatement), "Return value should be asserted")
+    public ReturnWarning(ISolution solution, IReturnStatement returnStatement) : base(Name, returnStatement, GetRange(returnStatement), "Return value should be asserted [Agent Johnson]")
     {
-      this._solution = solution;
-      this._returnStatement = returnStatement;
+      this.returnStatement = returnStatement;
     }
 
     #endregion
@@ -66,7 +61,7 @@ namespace AgentJohnson.ValueAnalysis
     {
       get
       {
-        return HighlightingSettingsManager.Instance.Settings.GetSeverity(NAME) != Severity.DO_NOT_SHOW;
+        return HighlightingSettingsManager.Instance.Settings.GetSeverity(Name) != Severity.DO_NOT_SHOW;
       }
     }
 
@@ -78,7 +73,7 @@ namespace AgentJohnson.ValueAnalysis
     {
       get
       {
-        return this._returnStatement;
+        return this.returnStatement;
       }
     }
 
@@ -90,20 +85,8 @@ namespace AgentJohnson.ValueAnalysis
     {
       get
       {
-        var severity = HighlightingSettingsManager.Instance.Settings.GetSeverity(NAME);
+        var severity = HighlightingSettingsManager.Instance.Settings.GetSeverity(Name);
         return severity == Severity.DO_NOT_SHOW ? severity : Severity.WARNING;
-      }
-    }
-
-    /// <summary>
-    /// Gets the solution.
-    /// </summary>
-    /// <value>The solution.</value>
-    public ISolution Solution
-    {
-      get
-      {
-        return this._solution;
       }
     }
 

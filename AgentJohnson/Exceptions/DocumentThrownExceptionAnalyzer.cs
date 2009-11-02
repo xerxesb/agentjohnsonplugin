@@ -19,7 +19,7 @@ namespace AgentJohnson.Exceptions
   /// <summary>
   /// Defines the document thrown exception analyzer class.
   /// </summary>
-  public class DocumentThrownExceptionAnalyzer : IStatementAnalyzer
+  public class DocumentThrownExceptionAnalyzer 
   {
     #region Constants and Fields
 
@@ -42,52 +42,6 @@ namespace AgentJohnson.Exceptions
     {
       this.solution = solution;
     }
-
-    #endregion
-
-    #region Properties
-
-    /// <summary>
-    /// Gets the solution.
-    /// </summary>
-    /// <value>The solution.</value>
-    public ISolution Solution
-    {
-      get
-      {
-        return this.solution;
-      }
-    }
-
-    #endregion
-
-    #region Implemented Interfaces
-
-    #region IStatementAnalyzer
-
-    /// <summary>
-    /// Analyzes the specified statement.
-    /// </summary>
-    /// <param name="statement">
-    /// The statement.
-    /// </param>
-    /// <returns>
-    /// Returns the suggestion bases.
-    /// </returns>
-    public SuggestionBase[] Analyze(IStatement statement)
-    {
-      var suggestions = new List<SuggestionBase>();
-
-      var throwStatement = statement as IThrowStatement;
-      if (throwStatement != null)
-      {
-        suggestions.AddRange(this.AnalyzeThrowStatement(throwStatement));
-      }
-
-      return suggestions.ToArray();
-    }
-
-    #endregion
 
     #endregion
 
@@ -237,7 +191,7 @@ namespace AgentJohnson.Exceptions
     /// <returns>
     /// Returns a list of suggestion bases.
     /// </returns>
-    private IEnumerable<SuggestionBase> AnalyzeThrowStatement(IThrowStatement throwStatement)
+    public IEnumerable<SuggestionBase> AnalyzeThrowStatement(IThrowStatement throwStatement)
     {
       var suggestions = new List<SuggestionBase>();
 
@@ -251,7 +205,7 @@ namespace AgentJohnson.Exceptions
         return suggestions;
       }
 
-      suggestions.Add(new DocumentThrownExceptionWarning(this.solution, throwStatement));
+      suggestions.Add(new DocumentThrownExceptionWarning(throwStatement));
 
       return suggestions;
     }

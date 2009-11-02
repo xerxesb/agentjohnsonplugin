@@ -17,7 +17,7 @@ namespace AgentJohnson.Statements
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
-  using JetBrains.Util;
+  using JetBrains.TextControl.Coords;
 
   /// <summary>
   /// The invert return value action handler.
@@ -57,11 +57,11 @@ namespace AgentJohnson.Statements
         return;
       }
 
-      var selection = TextRange.InvalidRange;
+      var selection = global::JetBrains.Util.TextRange.InvalidRange;
 
       using (var cookie = textControl.Document.EnsureWritable())
       {
-        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+        if (cookie.EnsureWritableResult != global::JetBrains.Util.EnsureWritableResult.SUCCESS)
         {
           return;
         }
@@ -72,9 +72,9 @@ namespace AgentJohnson.Statements
         }
       }
 
-      if (selection != TextRange.InvalidRange)
+      if (selection != global::JetBrains.Util.TextRange.InvalidRange)
       {
-        textControl.SelectionModel.SetRange(selection);
+        textControl.Selection.SetRange(TextControlPosRange.FromDocRange(textControl, selection.StartOffset, selection.EndOffset));
       }
     }
 
@@ -122,18 +122,18 @@ namespace AgentJohnson.Statements
     /// <returns>
     /// Returns the text range.
     /// </returns>
-    private static TextRange Execute(IElement element)
+    private static global::JetBrains.Util.TextRange Execute(IElement element)
     {
       var typeMemberDeclaration = element.ToTreeNode().Parent as ICSharpTypeMemberDeclaration;
       if (typeMemberDeclaration == null)
       {
-        return TextRange.InvalidRange;
+        return global::JetBrains.Util.TextRange.InvalidRange;
       }
 
       var classDeclaration = typeMemberDeclaration.GetContainingTypeDeclaration() as IClassDeclaration;
       if (classDeclaration == null)
       {
-        return TextRange.InvalidRange;
+        return global::JetBrains.Util.TextRange.InvalidRange;
       }
 
       var text = typeMemberDeclaration.GetText();
@@ -141,28 +141,29 @@ namespace AgentJohnson.Statements
       var factory = CSharpElementFactory.GetInstance(element.GetPsiModule());
       if (factory == null)
       {
-        return TextRange.InvalidRange;
+        return global::JetBrains.Util.TextRange.InvalidRange;
       }
 
       var declaration = factory.CreateTypeMemberDeclaration(text) as IClassMemberDeclaration;
       if (declaration == null)
       {
-        return TextRange.InvalidRange;
+        return global::JetBrains.Util.TextRange.InvalidRange;
       }
 
       var anchor = typeMemberDeclaration as IClassMemberDeclaration;
       if (anchor == null)
       {
-        return TextRange.InvalidRange;
+        return global::JetBrains.Util.TextRange.InvalidRange;
       }
 
       var after = classDeclaration.AddClassMemberDeclarationAfter(declaration, anchor);
       if (after != null)
       {
-        return after.GetNameRange();
+        var treeTextRange = after.GetNameRange();
+        return new global::JetBrains.Util.TextRange(treeTextRange.StartOffset.Offset, treeTextRange.EndOffset.Offset);
       }
 
-      return TextRange.InvalidRange;
+      return global::JetBrains.Util.TextRange.InvalidRange;
     }
 
     #endregion

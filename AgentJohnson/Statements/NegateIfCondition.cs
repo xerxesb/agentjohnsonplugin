@@ -10,10 +10,11 @@
 namespace AgentJohnson.Statements
 {
   using JetBrains.ReSharper.Intentions;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
+  using JetBrains.ReSharper.Psi.CSharp.Util;
 
   /// <summary>
   /// Defines the negate if condition class.
@@ -217,6 +218,12 @@ namespace AgentJohnson.Statements
     /// </param>
     private static void NegateLiteralExpression(CSharpElementFactory factory, ILiteralExpression literalExpression)
     {
+      ICSharpExpression csharpExpression = literalExpression as ICSharpExpression;
+      if (csharpExpression == null)
+      {
+        return;
+      }
+
       var text = literalExpression.GetText();
 
       if (text == "true")
@@ -234,7 +241,7 @@ namespace AgentJohnson.Statements
 
       var expression = factory.CreateExpression(text);
 
-      literalExpression.ReplaceBy(expression);
+      ExpressionUtil.ReplaceExpression(csharpExpression, expression);
     }
 
     /// <summary>

@@ -17,7 +17,6 @@ namespace AgentJohnson.LiveMacros
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.Services;
   using JetBrains.ReSharper.Psi.Tree;
-  using JetBrains.Util;
 
   /// <summary>
   /// Defines the suggest property class.
@@ -35,7 +34,7 @@ namespace AgentJohnson.LiveMacros
     {
       get
       {
-        return EmptyArray<ParameterInfo>.Instance;
+        return global::JetBrains.Util.EmptyArray<ParameterInfo>.Instance;
       }
     }
 

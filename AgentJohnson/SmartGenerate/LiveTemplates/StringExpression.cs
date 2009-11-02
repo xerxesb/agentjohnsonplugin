@@ -10,6 +10,7 @@
 namespace AgentJohnson.SmartGenerate.LiveTemplates
 {
   using System.Collections.Generic;
+  using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
@@ -48,6 +49,9 @@ namespace AgentJohnson.SmartGenerate.LiveTemplates
 
         var typeName = type.GetPresentableName(element.Language);
 
+        var treeTextRange = expression.GetTreeTextRange();
+        var textRange = new global::JetBrains.Util.TextRange(treeTextRange.StartOffset.Offset, treeTextRange.EndOffset.Offset);
+
         if (typeName == "string" && !hasString)
         {
           result.Add(new LiveTemplateItem
@@ -55,7 +59,7 @@ namespace AgentJohnson.SmartGenerate.LiveTemplates
             MenuText = "Surround string expression",
             Description = "Surround string expression",
             Shortcut = "Surround string expression",
-            Range = expression.GetTreeTextRange()
+            Range = textRange
           });
 
           hasString = true;
@@ -68,7 +72,7 @@ namespace AgentJohnson.SmartGenerate.LiveTemplates
             MenuText = "Surround integer expression",
             Description = "Surround integer expression",
             Shortcut = "Surround integer expression",
-            Range = expression.GetTreeTextRange()
+            Range = textRange
           });
 
           hasInt = true;
@@ -81,7 +85,7 @@ namespace AgentJohnson.SmartGenerate.LiveTemplates
             MenuText = "Surround boolean expression",
             Description = "Surround boolean expression",
             Shortcut = "Surround boolean expression",
-            Range = expression.GetTreeTextRange()
+            Range = textRange
           });
 
           hasBool = true;

@@ -10,12 +10,13 @@
 namespace AgentJohnson.Statements
 {
   using System.Text;
-  using JetBrains.Application;
   using JetBrains.ReSharper.Intentions;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
+  using JetBrains.TextControl;
+
 
   /// <summary>
   /// Defines the pull parameters class.
@@ -52,7 +53,7 @@ namespace AgentJohnson.Statements
       {
         try
         {
-          CommandProcessor.Instance.BeginCommand("PullParameters");
+          JetBrains.Application.CommandProcessing.CommandProcessor.Instance.BeginCommand("PullParameters");
 
           if (IsExpressionStatement(element))
           {
@@ -70,7 +71,7 @@ namespace AgentJohnson.Statements
         }
         finally
         {
-          CommandProcessor.Instance.EndCommand();
+          JetBrains.Application.CommandProcessing.CommandProcessor.Instance.EndCommand();
         }
       }
     }
@@ -269,7 +270,7 @@ namespace AgentJohnson.Statements
     private void HandleEmptyParentheses(IElement element)
     {
       var text = GetText(element);
-      this.TextControl.Document.InsertText(this.TextControl.CaretModel.Offset, text);
+      this.TextControl.Document.InsertText(this.TextControl.Caret.Offset(), text);
     }
 
     /// <summary>
@@ -281,7 +282,7 @@ namespace AgentJohnson.Statements
     private void HandleExpressionStatement(IElement element)
     {
       var text = GetText(element);
-      this.TextControl.Document.InsertText(this.TextControl.CaretModel.Offset, "(" + text + ");");
+      this.TextControl.Document.InsertText(this.TextControl.Caret.Offset(), "(" + text + ");");
     }
 
     /// <summary>
@@ -293,7 +294,7 @@ namespace AgentJohnson.Statements
     private void HandleReferenceExpression(IElement element)
     {
       var text = GetText(element);
-      this.TextControl.Document.InsertText(this.TextControl.CaretModel.Offset, "(" + text + ")");
+      this.TextControl.Document.InsertText(this.TextControl.Caret.Offset(), "(" + text + ")");
     }
 
     #endregion

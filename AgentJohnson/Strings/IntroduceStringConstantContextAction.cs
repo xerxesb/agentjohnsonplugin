@@ -10,7 +10,7 @@
 namespace AgentJohnson.Strings
 {
   using JetBrains.ReSharper.Intentions;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>

@@ -38,7 +38,7 @@ namespace AgentJohnson.SmartGenerate.Generators
 
         if (typeName == "string")
         {
-          this.AddAction("Surround with 'string.IsNullOrEmpty'", "3D13FE3E-7004-42B0-B205-2881C5ADBAD2", expression.GetTreeTextRange());
+          this.AddAction("Surround with 'string.IsNullOrEmpty'", "3D13FE3E-7004-42B0-B205-2881C5ADBAD2");
           return;
         }
 

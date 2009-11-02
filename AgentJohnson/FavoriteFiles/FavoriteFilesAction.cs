@@ -20,9 +20,7 @@ namespace AgentJohnson.FavoriteFiles
   using JetBrains.IDE;
   using JetBrains.ProjectModel;
   using JetBrains.UI.PopupMenu;
-  using JetBrains.UI.RichText;
-  using JetBrains.Util;
-  using JetBrains.VSIntegration.Application;
+  using JetBrains.VsIntegration.Application;
 
   /// <summary>
   /// Handles Find Text action, see Actions.xml
@@ -35,12 +33,12 @@ namespace AgentJohnson.FavoriteFiles
     /// <summary>
     /// The _current file.
     /// </summary>
-    private FavoriteFilePath _currentFile;
+    private FavoriteFilePath currentFile;
 
     /// <summary>
     /// The _solution.
     /// </summary>
-    private ISolution _solution;
+    private ISolution solution;
 
     #endregion
 
@@ -127,7 +125,7 @@ namespace AgentJohnson.FavoriteFiles
       }
 
       result.Style = MenuItemStyle.Enabled;
-      result.ShortcutText = new RichText("(" + favoriteFilePath + ")", TextStyle.FromForeColor(Color.LightGray));
+      result.ShortcutText = new global::JetBrains.UI.RichText.RichText("(" + favoriteFilePath + ")", global::JetBrains.UI.RichText.TextStyle.FromForeColor(Color.LightGray));
 
       if (index < 0 || index > 8)
       {
@@ -204,7 +202,7 @@ namespace AgentJohnson.FavoriteFiles
     /// </summary>
     private void AddCurrentFile()
     {
-      if (this._currentFile == null)
+      if (this.currentFile == null)
       {
         return;
       }
@@ -215,13 +213,13 @@ namespace AgentJohnson.FavoriteFiles
       {
         var existingFavoriteFile = favoriteFiles[n];
 
-        if (existingFavoriteFile.Path == this._currentFile.Path && existingFavoriteFile.ProjectName == this._currentFile.ProjectName)
+        if (existingFavoriteFile.Path == this.currentFile.Path && existingFavoriteFile.ProjectName == this.currentFile.ProjectName)
         {
           favoriteFiles.RemoveAt(n);
         }
       }
 
-      favoriteFiles.Add(this._currentFile);
+      favoriteFiles.Add(this.currentFile);
     }
 
     /// <summary>
@@ -234,12 +232,12 @@ namespace AgentJohnson.FavoriteFiles
     {
       var result = new SimpleMenuItem
       {
-        Text = new RichText("Add Current File")
+        Text = new global::JetBrains.UI.RichText.RichText("Add Current File")
       };
 
       result.Clicked += delegate { this.AddCurrentFile(); };
 
-      if (this._currentFile != null)
+      if (this.currentFile != null)
       {
         result.Style = MenuItemStyle.Enabled;
       }
@@ -257,12 +255,12 @@ namespace AgentJohnson.FavoriteFiles
     {
       var result = new SimpleMenuItem
       {
-        Text = new RichText("Organize...")
+        Text = new global::JetBrains.UI.RichText.RichText("Organize...")
       };
 
       result.Clicked += delegate { Organize(); };
 
-      if (this._currentFile != null)
+      if (this.currentFile != null)
       {
         result.Style = MenuItemStyle.Enabled;
       }
@@ -281,8 +279,8 @@ namespace AgentJohnson.FavoriteFiles
     /// </param>
     private void Execute(ISolution solution, IDataContext context)
     {
-      this._solution = solution;
-      this._currentFile = GetCurrentFile(this._solution, context);
+      this.solution = solution;
+      this.currentFile = GetCurrentFile(this.solution, context);
 
       var items = new List<SimpleMenuItem>();
 
@@ -298,7 +296,7 @@ namespace AgentJohnson.FavoriteFiles
         {
           var item = DescribeFavoriteFile(favoriteFilePath, index);
 
-          item.Clicked += delegate { this.menu_ItemClicked(path); };
+          item.Clicked += delegate { this.MenuItemClicked(path); };
 
           items.Add(item);
 
@@ -313,7 +311,7 @@ namespace AgentJohnson.FavoriteFiles
         {
           var item = DescribeFavoriteFile(favoriteFilePath, index);
 
-          item.Clicked += delegate { this.menu_ItemClicked(path); };
+          item.Clicked += delegate { this.MenuItemClicked(path); };
 
           items.Add(item);
 
@@ -346,7 +344,7 @@ namespace AgentJohnson.FavoriteFiles
     /// <param name="path">
     /// The path.
     /// </param>
-    private void menu_ItemClicked(FavoriteFilePath path)
+    private void MenuItemClicked(FavoriteFilePath path)
     {
       if (path.Path == "__add")
       {
@@ -370,18 +368,18 @@ namespace AgentJohnson.FavoriteFiles
     /// </param>
     private void OpenFavoriteFile(FavoriteFilePath favoriteFilePath)
     {
-      var path = new FileSystemPath(favoriteFilePath.Path);
+      var path = new global::JetBrains.Util.FileSystemPath(favoriteFilePath.Path);
 
       if (string.IsNullOrEmpty(favoriteFilePath.ProjectName))
       {
-        _DTE dte = VSShell.Instance.ApplicationObject;
+        _DTE dte = IVsServiceProviderEx.Dte(VSShell.Instance.ServiceProvider);
         dte.ItemOperations.OpenFile(favoriteFilePath.Path, Constants.vsViewKindTextView);
         return;
       }
 
       if (!string.IsNullOrEmpty(favoriteFilePath.ProjectName))
       {
-        var project = this._solution.GetProject(favoriteFilePath.ProjectName);
+        var project = this.solution.GetProject(favoriteFilePath.ProjectName);
 
         if (project == null)
         {
@@ -393,8 +391,8 @@ namespace AgentJohnson.FavoriteFiles
         path = projectPath.Combine(path);
       }
 
-      var location = this._solution.FindProjectItemsByLocation(path);
-      if (location == null || location.Length() == 0)
+      var location = this.solution.FindProjectItemsByLocation(path);
+      if (location == null || global::JetBrains.Util.CollectionUtil.Length(location) == 0)
       {
         return;
       }
@@ -420,7 +418,7 @@ namespace AgentJohnson.FavoriteFiles
         return;
       }
 
-      if (EditorManager.GetInstance(this._solution).OpenProjectFile(projectFile, true) == null)
+      if (EditorManager.GetInstance(this.solution).OpenProjectFile(projectFile, true) == null)
       {
         System.Windows.Forms.MessageBox.Show("File not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
       }

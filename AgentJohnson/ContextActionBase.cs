@@ -9,21 +9,20 @@
 
 namespace AgentJohnson
 {
-  using System;
+  extern alias ResharperUtil;
   using JetBrains.Application;
   using JetBrains.ProjectModel;
   using JetBrains.ReSharper.Feature.Services.Bulbs;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.TextControl;
-  using JetBrains.Util;
 
   /// <summary>
   /// Represents the base of a context action.
   /// </summary>
-  public abstract class ContextActionBase : CSharpContextActionBase, IBulbItem, IBulbAction
+  public abstract class ContextActionBase : CSharpContextActionBase, IBulbItem
   {
     #region Constants and Fields
 
@@ -133,17 +132,13 @@ namespace AgentJohnson
     /// <summary>
     /// Executes the specified solution.
     /// </summary>
-    /// <param name="solution">
-    /// The solution.
-    /// </param>
-    /// <param name="textControl">
-    /// The text control.
-    /// </param>
+    /// <param name="solution">The solution.</param>
+    /// <param name="textControl">The text control.</param>
     void IBulbItem.Execute(ISolution solution, ITextControl textControl)
     {
       if (this.Solution != solution || this.TextControl != textControl)
       {
-        throw new InvalidOperationException();
+        throw new System.InvalidOperationException();
       }
 
       Shell.Instance.Locks.AssertReadAccessAllowed();
@@ -156,14 +151,14 @@ namespace AgentJohnson
 
       if (this.startTransaction)
       {
-        this.Modify(delegate { this.Execute(element); });
+        this.Modify(() => this.Execute(element));
       }
       else
       {
         this.Execute(element);
       }
 
-      this.PostExecute(element);
+      this.PostExecute();
     }
 
     #endregion
@@ -192,14 +187,14 @@ namespace AgentJohnson
 
       if (this.startTransaction)
       {
-        this.Modify(delegate { this.Execute(element); });
+        this.Modify(() => this.Execute(element));
       }
       else
       {
         this.Execute(element);
       }
 
-      this.PostExecute(element);
+      this.PostExecute();
     }
 
     /// <summary>
@@ -245,10 +240,7 @@ namespace AgentJohnson
     /// <summary>
     /// Posts the execute.
     /// </summary>
-    /// <param name="element">
-    /// The element.
-    /// </param>
-    protected virtual void PostExecute(IElement element)
+    protected virtual void PostExecute()
     {
     }
 
@@ -258,7 +250,7 @@ namespace AgentJohnson
     /// <param name="handler">
     /// The handler.
     /// </param>
-    private void Modify(TransactionHandler handler)
+    private void Modify(ResharperUtil::System.Action handler)
     {
       var psiManager = PsiManager.GetInstance(this.Solution);
       if (psiManager == null)
@@ -268,7 +260,7 @@ namespace AgentJohnson
 
       using (var cookie = this.TextControl.Document.EnsureWritable())
       {
-        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+        if (cookie.EnsureWritableResult != global::JetBrains.Util.EnsureWritableResult.SUCCESS)
         {
           return;
         }

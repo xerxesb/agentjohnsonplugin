@@ -13,7 +13,6 @@ namespace AgentJohnson.Strings
   using System.Text;
   using System.Text.RegularExpressions;
   using JetBrains.Application;
-  using JetBrains.Application.Progress;
   using JetBrains.CommonControls;
   using JetBrains.DocumentModel;
   using JetBrains.IDE;
@@ -23,12 +22,11 @@ namespace AgentJohnson.Strings
   using JetBrains.ReSharper.Psi.CodeStyle;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
-  using JetBrains.ReSharper.Psi.Naming;
   using JetBrains.ReSharper.Psi.Naming.Settings;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.TextControl;
   using JetBrains.UI.PopupMenu;
-  using JetBrains.Util;
+  using AgentJohnson.Psi.CodeStyle;
 
   /// <summary>
   /// Represents a Refactoring.
@@ -40,7 +38,7 @@ namespace AgentJohnson.Strings
     /// <summary>
     /// Remove tags regular expression.
     /// </summary>
-    private static readonly Regex removeTagsRegex = new Regex("<[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex RemoveTagsRegex = new Regex("<[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     /// <summary>
     /// The current solution.
@@ -416,7 +414,7 @@ namespace AgentJohnson.Strings
     /// </returns>
     private static string RemoveTags(string text)
     {
-      return removeTagsRegex.Replace(text, string.Empty);
+      return RemoveTagsRegex.Replace(text, string.Empty);
     }
 
     /// <summary>
@@ -511,7 +509,7 @@ namespace AgentJohnson.Strings
 
       var result = expression.ReplaceBy(identifierExpression);
 
-      var languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
+      var languageService = CSharpLanguageService.CSHARP.Service;
       if (languageService == null)
       {
         return;
@@ -524,8 +522,8 @@ namespace AgentJohnson.Strings
       }
 
       var range = result.GetDocumentRange();
-      var marker = result.GetManager().CreatePsiRangeMarker(range);
-      formatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
+      var codeFormatter = new CodeFormatter();
+      codeFormatter.Format(this.Solution, range);
     }
 
     /// <summary>
@@ -547,7 +545,7 @@ namespace AgentJohnson.Strings
           {
             using (var cookie = this.TextControl.Document.EnsureWritable())
             {
-              if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+              if (cookie.EnsureWritableResult != global::JetBrains.Util.EnsureWritableResult.SUCCESS)
               {
                 return;
               }
@@ -605,13 +603,13 @@ namespace AgentJohnson.Strings
         return null;
       }
 
-      var file = PsiManager.GetInstance(this.Solution).GetPsiFile(projectFile) as ICSharpFile;
+      var file = PsiManager.GetInstance(this.Solution).GetPsiFile(projectFile, PsiLanguageType.GetByProjectFile(projectFile)) as ICSharpFile;
       if (file == null)
       {
         return null;
       }
 
-      return file.FindTokenAt(this.TextControl.CaretModel.Offset);
+      return file.FindTokenAt(new TreeOffset(this.TextControl.Caret.Offset()));
     }
 
     /// <summary>
@@ -681,9 +679,9 @@ namespace AgentJohnson.Strings
         identifier = "Text_" + identifier;
       }
 
-      var rule = CodeStyleSettingsManager.Instance.CodeStyleSettings.GetNamingSettings2().PredefinedNamingRules[NamedElementKinds.Constants].NamingRule;
-      var rulesManager = NamingManager.GetRulesProvider(classDeclaration.Language);
-      identifier = NameParser.Parse(identifier, rule, rulesManager, this.Solution).GetCanonicalName();
+      NamingRule rule = CodeStyleSettingsManager.Instance.CodeStyleSettings.GetNamingSettings2().PredefinedNamingRules[NamedElementKinds.Constants].NamingRule;
+
+      identifier = PsiManager.GetInstance(this.Solution).Naming.Parsing.Parse(identifier, rule, classDeclaration.Language.Service.LanguageType).GetCanonicalName();
 
       identifier = Clip(identifier, 64);
 
@@ -744,7 +742,7 @@ namespace AgentJohnson.Strings
 
       var editorManager = EditorManager.GetInstance(this.Solution);
 
-      var textControl2 = editorManager.GetTextControl(projectFile);
+      var textControl2 = editorManager.TryGetTextControl(projectFile);
       if (this.TextControl == null)
       {
         return;

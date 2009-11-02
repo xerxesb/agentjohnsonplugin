@@ -18,7 +18,6 @@ namespace AgentJohnson.Refactorings
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.TextControl;
-  using JetBrains.Util;
 
   /// <summary>
   /// Represents a Refactoring.
@@ -30,12 +29,12 @@ namespace AgentJohnson.Refactorings
     /// <summary>
     /// The _solution.
     /// </summary>
-    private readonly ISolution _solution;
+    private readonly ISolution solution;
 
     /// <summary>
     /// The _text control.
     /// </summary>
-    private readonly ITextControl _textControl;
+    private readonly ITextControl textControl;
 
     #endregion
 
@@ -53,8 +52,8 @@ namespace AgentJohnson.Refactorings
     /// </param>
     public InvertReturnValueRefactoring(ISolution solution, ITextControl textControl)
     {
-      this._solution = solution;
-      this._textControl = textControl;
+      this.solution = solution;
+      this.textControl = textControl;
     }
 
     #endregion
@@ -69,7 +68,7 @@ namespace AgentJohnson.Refactorings
     {
       get
       {
-        return this._solution;
+        return this.solution;
       }
     }
 
@@ -81,7 +80,7 @@ namespace AgentJohnson.Refactorings
     {
       get
       {
-        return this._textControl;
+        return this.textControl;
       }
     }
 
@@ -140,7 +139,7 @@ namespace AgentJohnson.Refactorings
 
       using (var cookie = this.TextControl.Document.EnsureWritable())
       {
-        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+        if (cookie.EnsureWritableResult != global::JetBrains.Util.EnsureWritableResult.SUCCESS)
         {
           return;
         }
@@ -211,13 +210,13 @@ namespace AgentJohnson.Refactorings
         return null;
       }
 
-      var file = PsiManager.GetInstance(this.Solution).GetPsiFile(projectFile) as ICSharpFile;
+      var file = PsiManager.GetInstance(this.Solution).GetPsiFile(projectFile, PsiLanguageType.GetByProjectFile(projectFile)) as ICSharpFile;
       if (file == null)
       {
         return null;
       }
 
-      return file.FindTokenAt(this.TextControl.CaretModel.Offset);
+      return file.FindTokenAt(new TreeOffset(this.TextControl.Caret.Offset()));
     }
 
     /// <summary>

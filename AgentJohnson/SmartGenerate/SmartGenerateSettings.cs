@@ -48,7 +48,7 @@ namespace AgentJohnson.SmartGenerate
     /// Gets or sets the allow null attribute.
     /// </summary>
     /// <value>The allow null attribute.</value>
-    [XmlExternalizable("")]
+    [global::JetBrains.Util.XmlExternalizable("")]
     public string DisabledActions
     {
       get
@@ -128,7 +128,7 @@ namespace AgentJohnson.SmartGenerate
         return;
       }
 
-      XmlExternalizationUtil.ReadFromXml(element, this);
+      global::JetBrains.Util.XmlExternalizationUtil.ReadFromXml(element, this);
     }
 
     /// <summary>
@@ -139,7 +139,7 @@ namespace AgentJohnson.SmartGenerate
     /// </param>
     public void WriteToXml(XmlElement element)
     {
-      XmlExternalizationUtil.WriteToXml(element, this);
+      global::JetBrains.Util.XmlExternalizationUtil.WriteToXml(element, this);
     }
 
     #endregion

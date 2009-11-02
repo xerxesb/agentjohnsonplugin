@@ -13,27 +13,23 @@ namespace AgentJohnson.Exceptions
   using JetBrains.ProjectModel;
   using JetBrains.ReSharper.Daemon;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
+  using JetBrains.ReSharper.Psi.Tree;
 
   /// <summary>
   /// The document thrown exception warning.
   /// </summary>
-  [ConfigurableSeverityHighlighting(NAME)]
+  [ConfigurableSeverityHighlighting(Name)]
   public class DocumentThrownExceptionWarning : SuggestionBase
   {
     #region Constants and Fields
 
     /// <summary>"UndocumentedThrownException"</summary>
-    public const string NAME = "UndocumentedThrownException";
-
-    /// <summary>
-    /// The _solution.
-    /// </summary>
-    private readonly ISolution _solution;
+    public const string Name = "UndocumentedThrownException";
 
     /// <summary>
     /// The _throw statement.
     /// </summary>
-    private readonly IThrowStatement _throwStatement;
+    private readonly IThrowStatement throwStatement;
 
     #endregion
 
@@ -48,27 +44,14 @@ namespace AgentJohnson.Exceptions
     /// <param name="throwStatement">
     /// The throw statement.
     /// </param>
-    public DocumentThrownExceptionWarning(ISolution solution, IThrowStatement throwStatement) : base(NAME, throwStatement, GetRange(throwStatement), "Thrown exception should be documented")
+    public DocumentThrownExceptionWarning(IThrowStatement throwStatement) : base(Name, throwStatement, GetRange(throwStatement), "Thrown exception should be documented [Agent Johnson]")
     {
-      this._solution = solution;
-      this._throwStatement = throwStatement;
+      this.throwStatement = throwStatement;
     }
 
     #endregion
 
     #region Properties
-
-    /// <summary>
-    /// Gets a value indicating whether this <see cref="DocumentThrownExceptionWarning"/> is enabled.
-    /// </summary>
-    /// <value><c>true</c> if enabled; otherwise, <c>false</c>.</value>
-    public static bool Enabled
-    {
-      get
-      {
-        return HighlightingSettingsManager.Instance.Settings.GetSeverity(NAME) != Severity.DO_NOT_SHOW;
-      }
-    }
 
     /// <summary>
     /// Get the severity of this highlighting
@@ -78,20 +61,8 @@ namespace AgentJohnson.Exceptions
     {
       get
       {
-        var severity = HighlightingSettingsManager.Instance.Settings.GetSeverity(NAME);
+        var severity = HighlightingSettingsManager.Instance.Settings.GetSeverity(Name);
         return severity == Severity.DO_NOT_SHOW ? severity : Severity.WARNING;
-      }
-    }
-
-    /// <summary>
-    /// Gets the solution.
-    /// </summary>
-    /// <value>The solution.</value>
-    public ISolution Solution
-    {
-      get
-      {
-        return this._solution;
       }
     }
 
@@ -103,7 +74,7 @@ namespace AgentJohnson.Exceptions
     {
       get
       {
-        return this._throwStatement;
+        return this.throwStatement;
       }
     }
 

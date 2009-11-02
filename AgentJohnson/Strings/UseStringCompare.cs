@@ -10,10 +10,11 @@
 namespace AgentJohnson.Strings
 {
   using JetBrains.ReSharper.Intentions;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
   using JetBrains.ReSharper.Intentions.Util;
   using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
 
   /// <summary>
@@ -109,7 +110,7 @@ namespace AgentJohnson.Strings
       {
         return false;
       }
-
+                                               
       if (expression.RightOperand == null)
       {
         return false;
@@ -131,7 +132,7 @@ namespace AgentJohnson.Strings
     /// </returns>
     private IEqualityExpression FindEqualityExpression()
     {
-      return this.GetSelectedElement<IEqualityExpression>(false);
+      return this.Provider.GetSelectedElement<IEqualityExpression>(true, true);
     }
 
     #endregion

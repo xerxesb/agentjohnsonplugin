@@ -32,7 +32,11 @@ namespace AgentJohnson.SmartGenerate
     /// Gets or sets the selection range.
     /// </summary>
     /// <value>The selection range.</value>
-    public TextRange SelectionRange { get; set; }
+    public global::JetBrains.Util.TextRange SelectionRange
+    {
+      get;
+      set;
+    }
 
     /// <summary>
     /// Gets or sets the tag.

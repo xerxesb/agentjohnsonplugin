@@ -9,16 +9,13 @@
 
 namespace AgentJohnson.Strings
 {
-  using JetBrains.Annotations;
-  using JetBrains.Application.Progress;
   using JetBrains.ReSharper.Intentions;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Psi;
-  using JetBrains.ReSharper.Psi.CodeStyle;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
-  using JetBrains.Util;
+  using Psi.CodeStyle;
 
   /// <summary>
   /// Represents the Context Action.
@@ -116,7 +113,7 @@ namespace AgentJohnson.Strings
         return false;
       }
 
-      TextRange range;
+      global::JetBrains.Util.TextRange range;
 
       if (assignmentExpression != null)
       {
@@ -144,11 +141,6 @@ namespace AgentJohnson.Strings
         }
 
         var reference = referenceExpression.Reference;
-        if (reference == null)
-        {
-          return false;
-        }
-
         var source = assignmentExpression.Source;
         if (source == null)
         {
@@ -157,7 +149,7 @@ namespace AgentJohnson.Strings
 
         this.name = reference.GetName();
 
-        range = new TextRange(destination.GetTreeStartOffset(), source.GetTreeStartOffset());
+        range = new global::JetBrains.Util.TextRange(destination.GetTreeStartOffset().Offset, source.GetTreeStartOffset().Offset);
       }
       else
       {
@@ -187,10 +179,10 @@ namespace AgentJohnson.Strings
           return false;
         }
 
-        range = new TextRange(declNode.NameIdentifier.GetTreeStartOffset(), initial.GetTreeStartOffset());
+        range = new global::JetBrains.Util.TextRange(declNode.NameIdentifier.GetTreeStartOffset().Offset, initial.GetTreeStartOffset().Offset);
       }
 
-      return range.IsValid() && range.Contains(this.Provider.CaretOffset);
+      return range.IsValid() && range.Contains(this.Provider.CaretOffset.Offset);
     }
 
     /// <summary>
@@ -199,7 +191,7 @@ namespace AgentJohnson.Strings
     /// <param name="localVariableDeclaration">
     /// The local variable declaration.
     /// </param>
-    private static void CheckStringAssignment(ILocalVariableDeclaration localVariableDeclaration)
+    private void CheckStringAssignment(ILocalVariableDeclaration localVariableDeclaration)
     {
       var localVariable = localVariableDeclaration.DeclaredElement as ILocalVariable;
       if (localVariable == null)
@@ -228,7 +220,7 @@ namespace AgentJohnson.Strings
         return;
       }
 
-      CheckStringAssignment(localVariableDeclaration, anchor, localVariable.ShortName);
+      this.CheckStringAssignment(localVariableDeclaration, anchor, localVariable.ShortName);
     }
 
     /// <summary>
@@ -237,7 +229,7 @@ namespace AgentJohnson.Strings
     /// <param name="assignmentExpression">
     /// The assignment expression.
     /// </param>
-    private static void CheckStringAssignment(IAssignmentExpression assignmentExpression)
+    private void CheckStringAssignment(IAssignmentExpression assignmentExpression)
     {
       var destination = assignmentExpression.Dest;
       if (destination == null)
@@ -258,29 +250,17 @@ namespace AgentJohnson.Strings
 
       var anchor = assignmentExpression.GetContainingStatement();
 
-      CheckStringAssignment(assignmentExpression, anchor, referenceExpression.Reference.GetName());
+      this.CheckStringAssignment(assignmentExpression, anchor, referenceExpression.Reference.GetName());
     }
 
     /// <summary>
     /// Inserts the assert.
     /// </summary>
-    /// <param name="element">
-    /// The element.
-    /// </param>
-    /// <param name="anchor">
-    /// The anchor.
-    /// </param>
-    /// <param name="name">
-    /// The name of the variable.
-    /// </param>
-    private static void CheckStringAssignment(IElement element, IStatement anchor, string name)
+    /// <param name="element">The element.</param>
+    /// <param name="anchor">The anchor.</param>
+    /// <param name="name">The name of the variable.</param>
+    private void CheckStringAssignment(IElement element, IStatement anchor, string name)
     {
-      var codeFormatter = GetCodeFormatter();
-      if (codeFormatter == null)
-      {
-        return;
-      }
-
       var methodDeclaration = anchor.GetContainingTypeMemberDeclaration() as IMethodDeclaration;
       if (methodDeclaration == null)
       {
@@ -306,26 +286,8 @@ namespace AgentJohnson.Strings
       var result = body.AddStatementAfter(statement, anchor);
 
       var range = result.GetDocumentRange();
-      var marker = result.GetManager().CreatePsiRangeMarker(range);
-      codeFormatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
-    }
-
-    /// <summary>
-    /// Gets the code formatter.
-    /// </summary>
-    /// <returns>
-    /// The code formatter.
-    /// </returns>
-    [CanBeNull]
-    private static CodeFormatter GetCodeFormatter()
-    {
-      var languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
-      if (languageService == null)
-      {
-        return null;
-      }
-
-      return languageService.CodeFormatter;
+      var codeFormatter = new CodeFormatter();
+      codeFormatter.Format(this.Solution, range);
     }
 
     #endregion

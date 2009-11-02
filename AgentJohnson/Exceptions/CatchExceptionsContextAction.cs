@@ -16,8 +16,8 @@ namespace AgentJohnson.Exceptions
   using JetBrains.Application;
   using JetBrains.Application.Progress;
   using JetBrains.ReSharper.Intentions;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
-  using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
+  using JetBrains.ReSharper.Psi.CodeStyle;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
@@ -28,7 +28,7 @@ namespace AgentJohnson.Exceptions
   [ContextAction(Description = "Generates try/catch clauses surrounding expressions", Name = "Catch exceptions", Priority = -1, Group = "C#")]
   public partial class CatchExceptionsContextAction : ContextActionBase, IComparer<CatchExceptionsContextAction.Pair<string, Type>>
   {
-    #region Constructors and Destructors
+    #region Constructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CatchExceptionsContextAction"/> class.
@@ -88,6 +88,8 @@ namespace AgentJohnson.Exceptions
     #endregion
 
     #region Methods
+
+    #region Protected methods
 
     /// <summary>
     /// Executes the specified solution.
@@ -185,6 +187,10 @@ namespace AgentJohnson.Exceptions
 
       return IsVisible(invocationExpression);
     }
+
+    #endregion
+
+    #region Private methods
 
     /// <summary>
     /// Examines the catches.
@@ -408,7 +414,7 @@ namespace AgentJohnson.Exceptions
 
       IStatement result = statement.ReplaceBy(tryStatement);
 
-      var languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
+      var languageService = CSharpLanguageService.CSHARP.Service;
       if (languageService == null)
       {
         return;
@@ -421,8 +427,14 @@ namespace AgentJohnson.Exceptions
       }
 
       var range = result.GetDocumentRange();
-      var marker = result.GetManager().CreatePsiRangeMarker(range);
-      formatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
+      formatter.Format(
+        this.Solution,
+        range,
+        CodeStyleSettingsManager.Instance.CodeStyleSettings,
+        CodeFormatProfile.DEFAULT,
+        true,
+        true,
+        NullProgressIndicator.Instance);
     }
 
     /// <summary>
@@ -434,7 +446,7 @@ namespace AgentJohnson.Exceptions
     /// <returns>
     /// The exceptions.
     /// </returns>
-    private List<Pair<string, Type>> GetSortedExceptions(XmlNodeList exceptionList)
+    private IEnumerable<Pair<string, Type>> GetSortedExceptions(XmlNodeList exceptionList)
     {
       var exceptions = new List<Pair<string, Type>>(exceptionList.Count);
 
@@ -472,6 +484,8 @@ namespace AgentJohnson.Exceptions
 
       return exceptions;
     }
+
+    #endregion
 
     #endregion
   }

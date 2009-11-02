@@ -50,7 +50,7 @@ namespace AgentJohnson.ValueAnalysis
     /// The type member declaration.
     /// </param>
     public ValueAnalysisSuggestion(ISolution solution, ITypeMemberDeclaration typeMemberDeclaration)
-      : base(NAME, typeMemberDeclaration, typeMemberDeclaration.GetNameDocumentRange(), "Type members should be annotated with Value Analysis attributes.")
+      : base(NAME, typeMemberDeclaration, typeMemberDeclaration.GetNameDocumentRange(), "Type members should be annotated with Value Analysis attributes. [Agent Johnson]")
     {
       this._solution = solution;
       this._typeMemberDeclaration = typeMemberDeclaration;

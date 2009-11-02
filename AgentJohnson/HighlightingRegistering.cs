@@ -35,7 +35,7 @@ namespace AgentJohnson
 
       var manager = HighlightingSettingsManager.Instance;
 
-      manager.RegisterConfigurableSeverity(DocumentThrownExceptionWarning.NAME, group,
+      manager.RegisterConfigurableSeverity(DocumentThrownExceptionWarning.Name, group,
         "Undocumented thrown exception.",
         "Thrown exceptions should be documented in XML comments.",
         Severity.WARNING);
@@ -47,7 +47,7 @@ namespace AgentJohnson
         "Annotate type members with Value Analysis attributes and assert statements.",
         "Type members should be annotated with Value Analysis attributes and have assert statements.",
         Severity.WARNING);
-      manager.RegisterConfigurableSeverity(ReturnWarning.NAME, group,
+      manager.RegisterConfigurableSeverity(ReturnWarning.Name, group,
         "Return values should be asserted.",
         "The return value must not null and should be asserted.",
         Severity.WARNING);

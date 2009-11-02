@@ -9,17 +9,14 @@
 
 namespace AgentJohnson.ValueAnalysis
 {
-  using JetBrains.Annotations;
-  using JetBrains.Application.Progress;
   using JetBrains.ReSharper.Intentions;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Psi;
-  using JetBrains.ReSharper.Psi.CodeStyle;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.ReSharper.Psi.Util;
-  using JetBrains.Util;
+  using AgentJohnson.Psi.CodeStyle;
 
   /// <summary>
   /// Represents the Context Action.
@@ -32,7 +29,7 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// The _name.
     /// </summary>
-    private string _name;
+    private string name;
 
     #endregion
 
@@ -91,7 +88,7 @@ namespace AgentJohnson.ValueAnalysis
     /// </returns>
     protected override string GetText()
     {
-      return string.Format("Check if '{0}' is null [Agent Johnson]", this._name ?? "[unknown]");
+      return string.Format("Check if '{0}' is null [Agent Johnson]", this.name ?? "[unknown]");
     }
 
     /// <summary>
@@ -107,7 +104,7 @@ namespace AgentJohnson.ValueAnalysis
     /// </returns>
     protected override bool IsAvailable(IElement element)
     {
-      this._name = null;
+      this.name = null;
 
       var localVariableDeclaration = this.Provider.GetSelectedElement<ILocalVariableDeclaration>(true, true);
       var assignmentExpression = this.Provider.GetSelectedElement<IAssignmentExpression>(true, true);
@@ -117,7 +114,7 @@ namespace AgentJohnson.ValueAnalysis
         return false;
       }
 
-      TextRange range;
+      global::JetBrains.Util.TextRange range;
       IType declaredType;
 
       if (assignmentExpression != null)
@@ -142,20 +139,15 @@ namespace AgentJohnson.ValueAnalysis
         }
 
         var reference = referenceExpression.Reference;
-        if (reference == null)
-        {
-          return false;
-        }
-
         var source = assignmentExpression.Source;
         if (source == null)
         {
           return false;
         }
 
-        this._name = reference.GetName();
+        this.name = reference.GetName();
 
-        range = new TextRange(destination.GetTreeStartOffset(), source.GetTreeStartOffset());
+        range = new global::JetBrains.Util.TextRange(destination.GetTreeStartOffset().Offset, source.GetTreeStartOffset().Offset);
       }
       else
       {
@@ -173,7 +165,7 @@ namespace AgentJohnson.ValueAnalysis
           return false;
         }
 
-        this._name = localVariable.ShortName;
+        this.name = localVariable.ShortName;
 
         IIdentifierNode identifier = declNode.NameIdentifier;
         if (identifier == null)
@@ -187,7 +179,7 @@ namespace AgentJohnson.ValueAnalysis
           return false;
         }
 
-        range = new TextRange(identifier.GetTreeStartOffset(), initial.GetTreeStartOffset());
+        range = new global::JetBrains.Util.TextRange(identifier.GetTreeStartOffset().Offset, initial.GetTreeStartOffset().Offset);
       }
 
       if (declaredType == null)
@@ -200,7 +192,7 @@ namespace AgentJohnson.ValueAnalysis
         return false;
       }
 
-      return range.IsValid() && range.Contains(this.Provider.CaretOffset);
+      return range.IsValid() && range.Contains(this.Provider.CaretOffset.Offset);
     }
 
     /// <summary>
@@ -209,7 +201,7 @@ namespace AgentJohnson.ValueAnalysis
     /// <param name="localVariableDeclaration">
     /// The local variable declaration.
     /// </param>
-    private static void CheckAssignment(ILocalVariableDeclaration localVariableDeclaration)
+    private void CheckAssignment(ILocalVariableDeclaration localVariableDeclaration)
     {
       var localVariable = localVariableDeclaration.DeclaredElement as ILocalVariable;
       if (localVariable == null)
@@ -247,7 +239,7 @@ namespace AgentJohnson.ValueAnalysis
     /// <param name="assignmentExpression">
     /// The assignment expression.
     /// </param>
-    private static void CheckAssignment(IAssignmentExpression assignmentExpression)
+    private void CheckAssignment(IAssignmentExpression assignmentExpression)
     {
       var destination = assignmentExpression.Dest;
       if (destination == null)
@@ -274,7 +266,7 @@ namespace AgentJohnson.ValueAnalysis
 
       var anchor = assignmentExpression.GetContainingStatement();
 
-      CheckAssignment(assignmentExpression, anchor, referenceExpression.Reference.GetName());
+      this.CheckAssignment(assignmentExpression, anchor, referenceExpression.Reference.GetName());
     }
 
     /// <summary>
@@ -289,14 +281,8 @@ namespace AgentJohnson.ValueAnalysis
     /// <param name="name">
     /// The name.
     /// </param>
-    private static void CheckAssignment(IElement element, IStatement anchor, string name)
+    private void CheckAssignment(IElement element, IStatement anchor, string name)
     {
-      var codeFormatter = GetCodeFormatter();
-      if (codeFormatter == null)
-      {
-        return;
-      }
-
       var functionDeclaration = anchor.GetContainingTypeMemberDeclaration() as IMethodDeclaration;
       if (functionDeclaration == null)
       {
@@ -324,26 +310,8 @@ namespace AgentJohnson.ValueAnalysis
       var result = body.AddStatementAfter(statement, anchor);
 
       var range = result.GetDocumentRange();
-      var marker = result.GetManager().CreatePsiRangeMarker(range);
-      codeFormatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
-    }
-
-    /// <summary>
-    /// Gets the code formatter.
-    /// </summary>
-    /// <returns>
-    /// The code formatter.
-    /// </returns>
-    [CanBeNull]
-    private static CodeFormatter GetCodeFormatter()
-    {
-      var languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
-      if (languageService == null)
-      {
-        return null;
-      }
-
-      return languageService.CodeFormatter;
+      var codeFormatter = new CodeFormatter();
+      codeFormatter.Format(this.Solution, range);
     }
 
     #endregion

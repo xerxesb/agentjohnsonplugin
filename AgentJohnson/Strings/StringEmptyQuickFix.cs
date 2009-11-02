@@ -94,7 +94,7 @@ namespace AgentJohnson.Strings
     /// <returns>
     /// The is available.
     /// </returns>
-    public bool IsAvailable(IUserDataHolder cache)
+    public bool IsAvailable(global::JetBrains.Util.IUserDataHolder cache)
     {
       return true;
     }
@@ -122,7 +122,7 @@ namespace AgentJohnson.Strings
 
       using (var cookie = textControl.Document.EnsureWritable())
       {
-        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+        if (cookie.EnsureWritableResult != global::JetBrains.Util.EnsureWritableResult.SUCCESS)
         {
           return;
         }

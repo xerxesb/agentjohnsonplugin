@@ -66,7 +66,7 @@ namespace AgentJohnson.SmartGenerate.Generators
         {
           GeneratorItem = item,
           DataContext = smartGenerateParameters.Context,
-          SelectionRange = TextRange.InvalidRange,
+          SelectionRange = global::JetBrains.Util.TextRange.InvalidRange,
           Text = item.Text.Text
         };
 
@@ -96,7 +96,11 @@ namespace AgentJohnson.SmartGenerate.Generators
       /// <summary>
       /// Gets or sets SelectionRange.
       /// </summary>
-      public TextRange SelectionRange { get; set; }
+      public global::JetBrains.Util.TextRange SelectionRange
+      {
+        get;
+        set;
+      }
 
       /// <summary>
       /// Gets or sets Template.

@@ -62,4 +62,4 @@ using JetBrains.UI.Application.PluginSupport;
 [assembly : PluginTitle("Agent Johnson Plugin")]
 [assembly : PluginVendor("Jakob Christensen.")]
 [assembly : PluginDescription("Smart generate, assertions, value analysis and exception fixes.")]
-[assembly : ActionsXml("AgentJohnson.Actions.xml", Precompile=false)]
+[assembly : ActionsXml("AgentJohnson.Actions.xml")]

@@ -24,7 +24,7 @@ namespace AgentJohnson.SmartGenerate
     /// <summary>
     /// The _items.
     /// </summary>
-    private List<ISmartGenerateAction> _items;
+    private List<ISmartGenerateAction> items;
 
     #endregion
 
@@ -43,11 +43,11 @@ namespace AgentJohnson.SmartGenerate
     /// </returns>
     public virtual IEnumerable<ISmartGenerateAction> GetMenuItems(SmartGenerateParameters smartGenerateParameters)
     {
-      this._items = new List<ISmartGenerateAction>();
+      this.items = new List<ISmartGenerateAction>();
 
       this.GetItems(smartGenerateParameters);
 
-      return this._items;
+      return this.items;
     }
 
     #endregion
@@ -74,29 +74,19 @@ namespace AgentJohnson.SmartGenerate
     [CanBeNull]
     protected ISmartGenerateAction AddAction([NotNull] string text, [NotNull] string template, params string[] parameters)
     {
-      return this.AddAction(text, template, TextRange.InvalidRange, parameters);
+      return this.AddAction(text, template, global::JetBrains.Util.TextRange.InvalidRange, parameters);
     }
 
     /// <summary>
     /// Adds the specified text.
     /// </summary>
-    /// <param name="text">
-    /// The text.
-    /// </param>
-    /// <param name="template">
-    /// The template.
-    /// </param>
-    /// <param name="selectionRange">
-    /// The selection range.
-    /// </param>
-    /// <param name="parameters">
-    /// The parameters.
-    /// </param>
-    /// <returns>
-    /// The menu item.
-    /// </returns>
+    /// <param name="text">The text.</param>
+    /// <param name="template">The template.</param>
+    /// <param name="selectionRange">The selection range.</param>
+    /// <param name="parameters">The parameters.</param>
+    /// <returns>The menu item.</returns>
     [CanBeNull]
-    protected ISmartGenerateAction AddAction([NotNull] string text, [NotNull] string template, TextRange selectionRange, params string[] parameters)
+    protected ISmartGenerateAction AddAction([NotNull] string text, [NotNull] string template, global::JetBrains.Util.TextRange selectionRange, params string[] parameters)
     {
       var expandedTemplate = SmartGenerateManager.Instance.GetTemplate(template);
 
@@ -136,7 +126,7 @@ namespace AgentJohnson.SmartGenerate
     /// </param>
     protected void AddAction([NotNull] ISmartGenerateAction action)
     {
-      this._items.Add(action);
+      this.items.Add(action);
     }
 
     /// <summary>

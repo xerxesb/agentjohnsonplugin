@@ -12,7 +12,6 @@ namespace AgentJohnson.SmartGenerate
   using JetBrains.Annotations;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
-  using JetBrains.Util;
 
   /// <summary>
   /// Defines the statement utility class.
@@ -30,12 +29,12 @@ namespace AgentJohnson.SmartGenerate
     /// <returns>
     /// The new statement position.
     /// </returns>
-    public static TextRange GetNewStatementPosition(IElement element)
+    public static global::JetBrains.Util.TextRange GetNewStatementPosition(IElement element)
     {
       var block = element.GetContainingElement(typeof(IBlock), true) as IBlock;
       if (block == null)
       {
-        return TextRange.InvalidRange;
+        return global::JetBrains.Util.TextRange.InvalidRange;
       }
 
       var statement = element.GetContainingElement(typeof(IStatement), true) as IStatement;
@@ -43,10 +42,10 @@ namespace AgentJohnson.SmartGenerate
       {
         var range = statement.GetTreeTextRange();
 
-        return new TextRange(range.EndOffset + 1);
+        return new global::JetBrains.Util.TextRange(range.EndOffset.Offset + 1);
       }
 
-      return TextRange.InvalidRange;
+      return global::JetBrains.Util.TextRange.InvalidRange;
     }
 
     /// <summary>
@@ -129,7 +128,7 @@ namespace AgentJohnson.SmartGenerate
       var range = statement.GetDocumentRange();
 
       var end = range.TextRange.StartOffset + range.TextRange.Length;
-      if (end > element.GetTreeTextRange().StartOffset)
+      if (end > element.GetTreeTextRange().StartOffset.Offset)
       {
         return false;
       }

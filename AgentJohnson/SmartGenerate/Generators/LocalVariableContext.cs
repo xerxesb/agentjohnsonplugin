@@ -10,6 +10,7 @@
 namespace AgentJohnson.SmartGenerate.Generators
 {
   using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Psi.ControlFlow2;
   using JetBrains.ReSharper.Psi.ControlFlow2.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
@@ -199,7 +200,7 @@ namespace AgentJohnson.SmartGenerate.Generators
     /// <param name="name">
     /// The variable name.
     /// </param>
-    private void PerformValueAnalysis(IElement element, IType type, TextRange range, string name)
+    private void PerformValueAnalysis(IElement element, IType type, global::JetBrains.Util.TextRange range, string name)
     {
       if (!type.IsReferenceType())
       {
@@ -220,7 +221,7 @@ namespace AgentJohnson.SmartGenerate.Generators
 
       var graf = CSharpControlFlowBuilder.Build(functionDeclaration);
 
-      var inspect = graf.Inspect(true);
+      var inspect = graf.Inspect(ValueAnalysisMode.OPTIMISTIC);
 
       var state = inspect.GetExpressionNullReferenceState(expression);
 

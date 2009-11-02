@@ -78,8 +78,8 @@ namespace AgentJohnson.SmartGenerate.Generators
               template.Description = template.Description.Replace("$" + key + "$", liveTemplateMenuItem.Variables[key]);
             }
 
-            var range = liveTemplateMenuItem.Range;
-            if (range == TextRange.InvalidRange)
+            global::JetBrains.Util.TextRange range = liveTemplateMenuItem.Range;
+            if (range == global::JetBrains.Util.TextRange.InvalidRange)
             {
               range = defaultRange;
             }

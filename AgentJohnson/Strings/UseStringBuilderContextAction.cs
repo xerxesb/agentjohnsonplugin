@@ -11,9 +11,10 @@ namespace AgentJohnson.Strings
 {
   using System.Collections.Generic;
   using JetBrains.ReSharper.Intentions;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
   using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
 
@@ -31,7 +32,6 @@ namespace AgentJohnson.Strings
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UseStringBuilderAction"/> class. 
-    /// Initializes a new instance of the <see cref="StringConcatenationAction"/> class.
     /// </summary>
     /// <param name="dataProvider">
     /// The data provider.
@@ -98,7 +98,7 @@ namespace AgentJohnson.Strings
 
         foreach (var expression in concatenatedStrings)
         {
-          var literalExpression = expression as ILiteralExpression;
+          var literalExpression = expression as JetBrains.ReSharper.Psi.Tree.ILiteralExpression;
           if ((literalExpression == null) || !literalExpression.Type().Equals(this.SystemString))
           {
             return true;

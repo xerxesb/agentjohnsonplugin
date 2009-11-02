@@ -28,8 +28,6 @@ namespace AgentJohnson.SmartGenerate
   using JetBrains.TextControl;
   using JetBrains.UI;
   using JetBrains.UI.PopupMenu;
-  using JetBrains.Util;
-  using JetBrains.Util.Special;
 
   /// <summary>
   /// Handles Smart Generation, see <c>Actions.xml</c>
@@ -119,10 +117,10 @@ namespace AgentJohnson.SmartGenerate
         return false;
       }
 
-      var caretLine = textControl.Document.GetCoordsByOffset(textControl.CaretModel.Offset).Line;
-      var line = textControl.Document.GetLine(caretLine);
+      var caretLine = textControl.Document.GetCoordsByOffset(textControl.Caret.Offset()).Line;
+      var line = textControl.Document.GetLineText(caretLine);
       var prefix = line.Substring(
-        0, textControl.CaretModel.Offset - textControl.Document.GetLineStartOffset(caretLine));
+        0, textControl.Caret.Offset() - textControl.Document.GetLineStartOffset(caretLine));
       if (prefix.TrimStart(new[]
       {
         ' ', '\t'
@@ -133,7 +131,7 @@ namespace AgentJohnson.SmartGenerate
 
       if ((prefix.Length != 0) && (line.Length != prefix.Length))
       {
-        return line[prefix.Length].IsAnyOf(new[]
+        return global::JetBrains.Util.Special.GeneralUtil.IsAnyOf(line[prefix.Length], new[]
         {
           ' ', '\t'
         });
@@ -175,13 +173,13 @@ namespace AgentJohnson.SmartGenerate
 
       psiManager.CommitAllDocuments();
 
-      var file = psiManager.GetPsiFile(projectFile) as ICSharpFile;
+      var file = psiManager.GetPsiFile(projectFile, PsiLanguageType.GetByProjectFile(projectFile)) as ICSharpFile;
       if (file == null)
       {
         return false;
       }
 
-      element = file.FindTokenAt(textControl.CaretModel.Offset);
+      element = file.FindTokenAt(new TreeOffset(textControl.Caret.Offset()));
 
       return true;
     }
@@ -218,14 +216,14 @@ namespace AgentJohnson.SmartGenerate
           "Previous in scope",
           Keys.Left,
           false,
-          delegate
+          delegate()
           {
             Shell.Instance.Invocator.ReentrancyGuard.ExecuteOrQueue(
               "SmartGenerate2", 
               delegate
             {
               scopeIndex++;
-              var action = ActionManager.Instance.GetAction("SmartGenerate2") as IExecutableAction;
+              var action = ActionManager.Instance.TryGetAction("SmartGenerate2") as IExecutableAction;
               if (action != null)
               {
                 ActionManager.Instance.ExecuteActionIfAvailable(action);
@@ -239,14 +237,14 @@ namespace AgentJohnson.SmartGenerate
           "Next in scope",
           Keys.None,
           false,
-          delegate
+          delegate()
           {
             Shell.Instance.Invocator.ReentrancyGuard.ExecuteOrQueue(
               "SmartGenerate2",
               delegate
               {
                 scopeIndex--;
-                var action = ActionManager.Instance.GetAction("SmartGenerate2") as IExecutableAction;
+                var action = ActionManager.Instance.TryGetAction("SmartGenerate2") as IExecutableAction;
                 if (action != null)
                 {
                   ActionManager.Instance.ExecuteActionIfAvailable(action);
@@ -374,7 +372,7 @@ namespace AgentJohnson.SmartGenerate
 
       var items = new List<SimpleMenuItem>();
 
-      var range = TextRange.InvalidRange;
+      var range = global::JetBrains.Util.TextRange.InvalidRange;
 
       var scope = Scope.Populate(element);
       if (scopeIndex >= scope.Count)
@@ -511,7 +509,7 @@ namespace AgentJohnson.SmartGenerate
 
       if (range.IsValid())
       {
-        textControl.SelectionModel.SetRange(range);
+        textControl.Selection.SetRange(range);
       }
 
       Shell.Instance.Invocator.ReentrancyGuard.ExecuteOrQueue(

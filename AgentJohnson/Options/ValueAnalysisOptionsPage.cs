@@ -14,7 +14,7 @@ namespace AgentJohnson.Options
   using ValueAnalysis;
   using EnvDTE;
   using JetBrains.UI.Options;
-  using JetBrains.VSIntegration.Application;
+  using JetBrains.VsIntegration.Application;
 
   /// <summary>
   /// The value analysis options page.
@@ -47,7 +47,7 @@ namespace AgentJohnson.Options
       this.InitializeComponent();
       instance = this;
 
-      _DTE dte = VSShell.Instance.ApplicationObject;
+      _DTE dte = IVsServiceProviderEx.Dte(VSShell.Instance.ServiceProvider);
 
       Command command;
       try

@@ -28,12 +28,12 @@ namespace AgentJohnson.Exceptions
       /// <summary>
       /// The _key.
       /// </summary>
-      private TKey _key;
+      private TKey key;
 
       /// <summary>
       /// The _value.
       /// </summary>
-      private TValue _value;
+      private TValue value;
 
       #endregion
 
@@ -47,12 +47,12 @@ namespace AgentJohnson.Exceptions
       {
         get
         {
-          return this._key;
+          return this.key;
         }
 
         set
         {
-          this._key = value;
+          this.key = value;
         }
       }
 
@@ -64,12 +64,12 @@ namespace AgentJohnson.Exceptions
       {
         get
         {
-          return this._value;
+          return this.value;
         }
 
         set
         {
-          this._value = value;
+          this.value = value;
         }
       }
 

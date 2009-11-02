@@ -38,7 +38,7 @@ namespace AgentJohnson.SmartGenerate.Generators
 
         if (typeName == "bool")
         {
-          this.AddAction("Surround with 'if'", "FA4B31AF-393D-44DB-93D3-F7E48BF97C53", expression.GetTreeTextRange());
+          this.AddAction("Surround with 'if'", "FA4B31AF-393D-44DB-93D3-F7E48BF97C53", expression.GetDocumentRange().TextRange);
           return;
         }
 

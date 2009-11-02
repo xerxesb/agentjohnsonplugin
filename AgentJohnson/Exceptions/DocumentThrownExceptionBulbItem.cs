@@ -20,7 +20,6 @@ namespace AgentJohnson.Exceptions
   using JetBrains.ReSharper.Psi.ExtensionsAPI;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.TextControl;
-  using JetBrains.Util;
 
   /// <summary>
   /// Defines the document thrown exception bulb item class.
@@ -32,7 +31,7 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// The _warning.
     /// </summary>
-    private readonly DocumentThrownExceptionWarning _warning;
+    private readonly DocumentThrownExceptionWarning warning;
 
     #endregion
 
@@ -46,7 +45,7 @@ namespace AgentJohnson.Exceptions
     /// </param>
     public DocumentThrownExceptionBulbItem(DocumentThrownExceptionWarning warning)
     {
-      this._warning = warning;
+      this.warning = warning;
     }
 
     #endregion
@@ -61,7 +60,7 @@ namespace AgentJohnson.Exceptions
     {
       get
       {
-        var throwStatement = this._warning.ThrowStatement as IThrowStatement;
+        var throwStatement = this.warning.ThrowStatement as IThrowStatement;
         if (throwStatement == null)
         {
           return string.Empty;
@@ -105,14 +104,14 @@ namespace AgentJohnson.Exceptions
 
       using (var cookie = textControl.Document.EnsureWritable())
       {
-        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+        if (cookie.EnsureWritableResult != global::JetBrains.Util.EnsureWritableResult.SUCCESS)
         {
           return;
         }
 
         using (CommandCookie.Create(string.Format("Context Action {0}", this.Text)))
         {
-          psiManager.DoTransaction(delegate { this.Execute(); });
+          psiManager.DoTransaction(() => this.Execute());
         }
       }
     }
@@ -355,7 +354,7 @@ namespace AgentJohnson.Exceptions
     /// </summary>
     private void Execute()
     {
-      var throwStatement = this._warning.ThrowStatement as IThrowStatement;
+      var throwStatement = this.warning.ThrowStatement as IThrowStatement;
       if (throwStatement == null)
       {
         return;

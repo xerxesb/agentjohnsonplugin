@@ -14,7 +14,6 @@ namespace AgentJohnson.RecentChanges
   using JetBrains.Application;
   using JetBrains.IDE;
   using JetBrains.ProjectModel;
-  using JetBrains.Util;
 
   /// <summary>
   /// Handles Find Text action, see Actions.xml
@@ -100,20 +99,20 @@ namespace AgentJohnson.RecentChanges
         return;
       }
 
-      var offset = textControl.CaretModel.Offset;
+      int offset = textControl.Caret.Position.Value.ToDocOffset();
 
       using (CommandCookie.Create(string.Format("Context Action RecentChanges")))
       {
         using (var cookie = textControl.Document.EnsureWritable())
         {
-          if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+          if (cookie.EnsureWritableResult != global::JetBrains.Util.EnsureWritableResult.SUCCESS)
           {
             return;
           }
 
           textControl.Document.InsertText(offset, form.SelectedText);
 
-          textControl.CaretModel.MoveTo(offset + form.SelectedText.Length);
+          textControl.Caret.MoveTo(textControl.Coords.FromDocOffset(offset + form.SelectedText.Length));
         }
       }
     }

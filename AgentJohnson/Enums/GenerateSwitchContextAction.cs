@@ -10,14 +10,14 @@
 namespace AgentJohnson.Enums
 {
   using System.Text;
-  using JetBrains.Application.Progress;
   using JetBrains.ReSharper.Intentions;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.ReSharper.Psi.Util;
+  using Psi.CodeStyle;
 
   /// <summary>
   /// Represents the Context Action.
@@ -49,7 +49,7 @@ namespace AgentJohnson.Enums
     /// </param>
     protected override void Execute(IElement element)
     {
-      var statement = this.GetSelectedElement<IExpressionStatement>(true);
+      var statement = this.Provider.GetSelectedElement<IExpressionStatement>(true, true);
       if (statement == null)
       {
         return;
@@ -115,21 +115,10 @@ namespace AgentJohnson.Enums
 
       result = statement.ReplaceBy(result);
 
-      var languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
-      if (languageService == null)
-      {
-        return;
-      }
-
-      var formatter = languageService.CodeFormatter;
-      if (formatter == null)
-      {
-        return;
-      }
-
       var range = result.GetDocumentRange();
-      var marker = result.GetManager().CreatePsiRangeMarker(range);
-      formatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
+
+      var codeFormatter = new CodeFormatter();
+      codeFormatter.Format(this.Solution, range);
     }
 
     /// <summary>
@@ -159,7 +148,7 @@ namespace AgentJohnson.Enums
     /// </returns>
     protected override bool IsAvailable(IElement element)
     {
-      var statement = this.GetSelectedElement<IExpressionStatement>(true);
+      var statement = this.Provider.GetSelectedElement<IExpressionStatement>(true, true);
       if (statement == null)
       {
         return false;

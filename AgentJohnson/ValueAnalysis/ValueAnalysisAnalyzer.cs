@@ -24,7 +24,7 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// The _solution.
     /// </summary>
-    private readonly ISolution _solution;
+    private readonly ISolution solution;
 
     #endregion
 
@@ -39,23 +39,7 @@ namespace AgentJohnson.ValueAnalysis
     /// </param>
     public ValueAnalysisAnalyzer(ISolution solution)
     {
-      this._solution = solution;
-    }
-
-    #endregion
-
-    #region Properties
-
-    /// <summary>
-    /// Gets the solution.
-    /// </summary>
-    /// <value>The solution.</value>
-    public ISolution Solution
-    {
-      get
-      {
-        return this._solution;
-      }
+      this.solution = solution;
     }
 
     #endregion
@@ -81,7 +65,7 @@ namespace AgentJohnson.ValueAnalysis
         return null;
       }
 
-      var valueAnalysisRefactoring = new ValueAnalysisRefactoring(typeMemberDeclaration, null);
+      var valueAnalysisRefactoring = new ValueAnalysisRefactoring(typeMemberDeclaration);
 
       if (!valueAnalysisRefactoring.IsAvailable())
       {
@@ -90,7 +74,7 @@ namespace AgentJohnson.ValueAnalysis
 
       var suggestions = new List<SuggestionBase>();
 
-      suggestions.Add(new ValueAnalysisSuggestion(this._solution, typeMemberDeclaration));
+      suggestions.Add(new ValueAnalysisSuggestion(this.solution, typeMemberDeclaration));
 
       return suggestions.ToArray();
     }

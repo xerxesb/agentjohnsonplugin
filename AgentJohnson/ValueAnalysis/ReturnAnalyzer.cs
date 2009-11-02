@@ -12,6 +12,7 @@ namespace AgentJohnson.ValueAnalysis
   using System.Collections.Generic;
   using JetBrains.ProjectModel;
   using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Psi.ControlFlow2;
   using JetBrains.ReSharper.Psi.ControlFlow2.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Util;
@@ -19,9 +20,9 @@ namespace AgentJohnson.ValueAnalysis
   /// <summary>
   /// The return analyzer.
   /// </summary>
-  public class ReturnAnalyzer : IStatementAnalyzer
+  public class ReturnAnalyzer
   {
-    #region Constants and Fields
+    #region Fields
 
     /// <summary>
     /// The solution.
@@ -30,7 +31,7 @@ namespace AgentJohnson.ValueAnalysis
 
     #endregion
 
-    #region Constructors and Destructors
+    #region Constructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ReturnAnalyzer"/> class.
@@ -61,36 +62,38 @@ namespace AgentJohnson.ValueAnalysis
 
     #endregion
 
-    #region Implemented Interfaces
+    #region Methods
 
-    #region IStatementAnalyzer
+    #region Public methods
 
     /// <summary>
-    /// Analyzes the specified statement.
+    /// Analyzes the return statement.
     /// </summary>
-    /// <param name="statement">
-    /// The statement.
+    /// <param name="returnStatement">
+    /// The return statement.
     /// </param>
     /// <returns>
     /// </returns>
-    public SuggestionBase[] Analyze(IStatement statement)
+    public IEnumerable<SuggestionBase> AnalyzeReturnStatement(IReturnStatement returnStatement)
     {
       var suggestions = new List<SuggestionBase>();
 
-      var returnStatement = statement as IReturnStatement;
-      if (returnStatement != null)
+      if (returnStatement.Value == null)
       {
-        suggestions.AddRange(this.AnalyzeReturnStatement(returnStatement));
+        return suggestions;
       }
 
-      return suggestions.ToArray();
+      if (this.RequiresAssertion(returnStatement))
+      {
+        suggestions.Add(new ReturnWarning(this.solution, returnStatement));
+      }
+
+      return suggestions;
     }
 
     #endregion
 
-    #endregion
-
-    #region Methods
+    #region Private methods
 
     /// <summary>
     /// Gets the value analysis.
@@ -116,9 +119,7 @@ namespace AgentJohnson.ValueAnalysis
 
       var graf = CSharpControlFlowBuilder.Build(functionDeclaration);
 
-      graf.Inspect(true);
-
-      var inspect = graf.Inspect(true);
+      var inspect = graf.Inspect(ValueAnalysisMode.OPTIMISTIC);
 
       var state = inspect.GetExpressionNullReferenceState(referenceExpression);
 
@@ -135,31 +136,6 @@ namespace AgentJohnson.ValueAnalysis
       }
 
       return true;
-    }
-
-    /// <summary>
-    /// Analyzes the return statement.
-    /// </summary>
-    /// <param name="returnStatement">
-    /// The return statement.
-    /// </param>
-    /// <returns>
-    /// </returns>
-    private IEnumerable<SuggestionBase> AnalyzeReturnStatement(IReturnStatement returnStatement)
-    {
-      var suggestions = new List<SuggestionBase>();
-
-      if (returnStatement.Value == null)
-      {
-        return suggestions;
-      }
-
-      if (this.RequiresAssertion(returnStatement))
-      {
-        suggestions.Add(new ReturnWarning(this.solution, returnStatement));
-      }
-
-      return suggestions;
     }
 
     /// <summary>
@@ -192,7 +168,7 @@ namespace AgentJohnson.ValueAnalysis
       var methodDeclaration = resolveResult.DeclaredElement as IMethodDeclaration;
       if (methodDeclaration != null)
       {
-        method = methodDeclaration.DeclaredElement as IMethod;
+        method = methodDeclaration.DeclaredElement;
       }
 
       if (method == null)
@@ -269,8 +245,7 @@ namespace AgentJohnson.ValueAnalysis
         return false;
       }
 
-      var creationExpression = returnStatement.Value as ICreationExpression;
-      if (creationExpression != null)
+      if (!(returnStatement.Value is ICreationExpression))
       {
         return false;
       }
@@ -328,6 +303,8 @@ namespace AgentJohnson.ValueAnalysis
 
       return GetValueAnalysis(returnStatement, function);
     }
+
+    #endregion
 
     #endregion
   }

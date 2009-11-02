@@ -14,7 +14,6 @@ namespace AgentJohnson.ValueAnalysis
   using System.Xml;
   using JetBrains.Application;
   using JetBrains.ComponentModel;
-  using JetBrains.Util;
 
   /// <summary>
   /// The value analysis settings.
@@ -60,7 +59,7 @@ namespace AgentJohnson.ValueAnalysis
     /// Gets or sets the allow null attribute.
     /// </summary>
     /// <value>The allow null attribute.</value>
-    [XmlExternalizable("")]
+    [global::JetBrains.Util.XmlExternalizable("")]
     public string AllowNullAttribute
     {
       get
@@ -78,7 +77,7 @@ namespace AgentJohnson.ValueAnalysis
     /// Gets or sets a value indicating whether GhostDoc should be executed.
     /// </summary>
     /// <value><c>true</c> if GhostDoc should be executed; otherwise, <c>false</c>.</value>
-    [XmlExternalizable(false)]
+    [global::JetBrains.Util.XmlExternalizable(false)]
     public bool ExecuteGhostDoc
     {
       get
@@ -128,7 +127,7 @@ namespace AgentJohnson.ValueAnalysis
     /// </summary>
     /// <remarks>This is for serialization only.</remarks>
     /// <value>The type assertions.</value>
-    [XmlExternalizable("")]
+    [global::JetBrains.Util.XmlExternalizable("")]
     public string SerializableTypeConfigurations
     {
       get
@@ -267,7 +266,7 @@ namespace AgentJohnson.ValueAnalysis
         return;
       }
 
-      XmlExternalizationUtil.ReadFromXml(element, this);
+      global::JetBrains.Util.XmlExternalizationUtil.ReadFromXml(element, this);
     }
 
     /// <summary>
@@ -278,7 +277,7 @@ namespace AgentJohnson.ValueAnalysis
     /// </param>
     public void WriteToXml(XmlElement element)
     {
-      XmlExternalizationUtil.WriteToXml(element, this);
+      global::JetBrains.Util.XmlExternalizationUtil.WriteToXml(element, this);
     }
 
     #endregion

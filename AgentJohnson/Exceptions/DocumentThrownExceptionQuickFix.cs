@@ -12,7 +12,6 @@ namespace AgentJohnson.Exceptions
   using System.Collections.Generic;
   using JetBrains.ReSharper.Feature.Services.Bulbs;
   using JetBrains.ReSharper.Intentions;
-  using JetBrains.Util;
 
   /// <summary>
   /// Defines the document thrown exception quick fix class.
@@ -25,7 +24,7 @@ namespace AgentJohnson.Exceptions
     /// <summary>
     /// The _warning.
     /// </summary>
-    private readonly DocumentThrownExceptionWarning _warning;
+    private readonly DocumentThrownExceptionWarning warning;
 
     #endregion
 
@@ -39,7 +38,7 @@ namespace AgentJohnson.Exceptions
     /// </param>
     public DocumentThrownExceptionQuickFix(DocumentThrownExceptionWarning warning)
     {
-      this._warning = warning;
+      this.warning = warning;
     }
 
     #endregion
@@ -56,7 +55,7 @@ namespace AgentJohnson.Exceptions
       {
         var items = new List<IBulbItem>
         {
-          new DocumentThrownExceptionBulbItem(this._warning)
+          new DocumentThrownExceptionBulbItem(this.warning)
         };
 
         return items.ToArray();
@@ -78,7 +77,7 @@ namespace AgentJohnson.Exceptions
     /// <returns>
     /// The is available.
     /// </returns>
-    public bool IsAvailable(IUserDataHolder cache)
+    public bool IsAvailable(global::JetBrains.Util.IUserDataHolder cache)
     {
       return true;
     }

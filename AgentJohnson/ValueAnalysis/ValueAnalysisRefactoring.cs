@@ -12,12 +12,10 @@ namespace AgentJohnson.ValueAnalysis
   using System;
   using System.Collections.Generic;
   using JetBrains.Annotations;
-  using JetBrains.Application.Progress;
   using JetBrains.ProjectModel;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.Caches;
-  using JetBrains.ReSharper.Psi.CodeStyle;
+  using JetBrains.ReSharper.Psi.ControlFlow2;
   using JetBrains.ReSharper.Psi.ControlFlow2.CSharp;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Parsing;
@@ -26,7 +24,7 @@ namespace AgentJohnson.ValueAnalysis
   using JetBrains.ReSharper.Psi.ExtensionsAPI.Tree;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.ReSharper.Psi.Util;
-  using JetBrains.Text;
+  using AgentJohnson.Psi.CodeStyle;
 
   /// <summary>
   /// Defines the value analysis refactoring class.
@@ -34,12 +32,6 @@ namespace AgentJohnson.ValueAnalysis
   internal class ValueAnalysisRefactoring
   {
     #region Constants and Fields
-
-    /// <summary>
-    /// The context action data provider.
-    /// </summary>
-    [NotNull]
-    private readonly ICSharpContextActionDataProvider contextActionDataProvider;
 
     /// <summary>
     /// The type member declaration.
@@ -50,22 +42,22 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// The can be null attribute clr name.
     /// </summary>
-    private CLRTypeName canBeNullAttributeCLRName;
+    private readonly CLRTypeName canBeNullAttributeClrName;
 
     /// <summary>
     /// The can be null type element.
     /// </summary>
-    private ITypeElement canBeNullTypeElement;
+    private readonly ITypeElement canBeNullTypeElement;
 
     /// <summary>
     /// The not nullable attribute clr name.
     /// </summary>
-    private CLRTypeName notNullableAttributeCLRName;
+    private readonly CLRTypeName notNullableAttributeClrName;
 
     /// <summary>
     /// The not null type element.
     /// </summary>
-    private ITypeElement notNullTypeElement;
+    private readonly ITypeElement notNullTypeElement;
 
     #endregion
 
@@ -77,13 +69,9 @@ namespace AgentJohnson.ValueAnalysis
     /// <param name="typeMemberDeclaration">
     /// The type member declaration.
     /// </param>
-    /// <param name="contextActionDataProvider">
-    /// The context action data provider.
-    /// </param>
-    public ValueAnalysisRefactoring([NotNull] ITypeMemberDeclaration typeMemberDeclaration, [NotNull] ICSharpContextActionDataProvider contextActionDataProvider)
+    public ValueAnalysisRefactoring([NotNull] ITypeMemberDeclaration typeMemberDeclaration)
     {
       this.typeMemberDeclaration = typeMemberDeclaration;
-      this.contextActionDataProvider = contextActionDataProvider;
 
       var codeAnnotationsCache = CodeAnnotationsCache.GetInstance(this.Solution);
 
@@ -95,8 +83,8 @@ namespace AgentJohnson.ValueAnalysis
         return;
       }
 
-      this.notNullableAttributeCLRName = new CLRTypeName(this.notNullTypeElement.CLRName);
-      this.canBeNullAttributeCLRName = new CLRTypeName(this.canBeNullTypeElement.CLRName);
+      this.notNullableAttributeClrName = new CLRTypeName(this.notNullTypeElement.CLRName);
+      this.canBeNullAttributeClrName = new CLRTypeName(this.canBeNullTypeElement.CLRName);
     }
 
     #endregion
@@ -319,33 +307,11 @@ namespace AgentJohnson.ValueAnalysis
     }
 
     /// <summary>
-    /// Gets the code formatter.
-    /// </summary>
-    /// <returns>
-    /// The code formatter.
-    /// </returns>
-    [CanBeNull]
-    private static CodeFormatter GetCodeFormatter()
-    {
-      var languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
-      if (languageService == null)
-      {
-        return null;
-      }
-
-      return languageService.CodeFormatter;
-    }
-
-    /// <summary>
     /// Inserts the blank line.
     /// </summary>
-    /// <param name="anchor">
-    /// The anchor.
-    /// </param>
-    /// <param name="formatter">
-    /// The formatter.
-    /// </param>
-    private static void InsertBlankLine([NotNull] IStatement anchor, [NotNull] CodeFormatter formatter)
+    /// <param name="anchor">The anchor.</param>
+    /// <param name="codeFormatter">The code formatter.</param>
+    private void InsertBlankLine([NotNull] IStatement anchor, [NotNull] CodeFormatter codeFormatter)
     {
       var anchorTreeNode = anchor.ToTreeNode();
       if (anchorTreeNode == null)
@@ -353,16 +319,16 @@ namespace AgentJohnson.ValueAnalysis
         return;
       }
 
-      StringBuffer newLineText;
+      global::JetBrains.Text.IBuffer newLineText;
 
       var whitespace = anchor.ToTreeNode().PrevSibling as IWhitespaceNode;
       if (whitespace != null)
       {
-        newLineText = new StringBuffer("\r\n" + whitespace.GetText());
+        newLineText = new global::JetBrains.Text.StringBuffer("\r\n" + whitespace.GetText());
       }
       else
       {
-        newLineText = new StringBuffer("\r\n");
+        newLineText = new global::JetBrains.Text.StringBuffer("\r\n");
       }
 
       ITreeNode element = TreeElementFactory.CreateLeafElement(CSharpTokenType.NEW_LINE, newLineText, 0, newLineText.Length);
@@ -370,8 +336,7 @@ namespace AgentJohnson.ValueAnalysis
       LowLevelModificationUtil.AddChildBefore(anchorTreeNode, element);
 
       var range = element.GetDocumentRange();
-      var marker = element.GetManager().CreatePsiRangeMarker(range);
-      formatter.Optimize(element.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
+      codeFormatter.Format(this.Solution, range);
     }
 
     /// <summary>
@@ -393,14 +358,9 @@ namespace AgentJohnson.ValueAnalysis
         return;
       }
 
-      var codeFormatter = GetCodeFormatter();
-      if (codeFormatter == null)
-      {
-        return;
-      }
-
       var factory = CSharpElementFactory.GetInstance(functionDeclaration.GetPsiModule());
       var body = functionDeclaration.Body;
+      var codeFormatter = new CodeFormatter();
 
       var accessRights = GetAccessRights(functionDeclaration);
 
@@ -460,8 +420,7 @@ namespace AgentJohnson.ValueAnalysis
         var result = body.AddStatementBefore(assertion.Statement, anchor);
 
         var range = result.GetDocumentRange();
-        var marker = result.GetManager().CreatePsiRangeMarker(range);
-        codeFormatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
+        codeFormatter.Format(this.Solution, range);
 
         hasAsserts = true;
       }
@@ -561,7 +520,7 @@ namespace AgentJohnson.ValueAnalysis
 
       var graf = CSharpControlFlowBuilder.Build(functionDeclaration);
 
-      var inspect = graf.Inspect(true);
+      var inspect = graf.Inspect(ValueAnalysisMode.OPTIMISTIC);
 
       var state = inspect.SuggestReturnValueAnnotationAttribute;
 
@@ -594,7 +553,7 @@ namespace AgentJohnson.ValueAnalysis
         return;
       }
 
-      var instances = parameterStatement.Parameter.GetAttributeInstances(this.notNullableAttributeCLRName, false);
+      var instances = parameterStatement.Parameter.GetAttributeInstances(this.notNullableAttributeClrName, false);
       if (instances != null && instances.Count > 0)
       {
         parameterStatement.Nullable = false;
@@ -602,7 +561,7 @@ namespace AgentJohnson.ValueAnalysis
         return;
       }
 
-      instances = parameterStatement.Parameter.GetAttributeInstances(this.canBeNullAttributeCLRName, false);
+      instances = parameterStatement.Parameter.GetAttributeInstances(this.canBeNullAttributeClrName, false);
       if (instances != null && instances.Count > 0)
       {
         parameterStatement.Nullable = true;
@@ -610,7 +569,7 @@ namespace AgentJohnson.ValueAnalysis
         return;
       }
 
-      instances = parameterStatement.Parameter.GetAttributeInstances(this.notNullableAttributeCLRName, true);
+      instances = parameterStatement.Parameter.GetAttributeInstances(this.notNullableAttributeClrName, true);
       if (instances != null && instances.Count > 0)
       {
         parameterStatement.Nullable = false;
@@ -618,7 +577,7 @@ namespace AgentJohnson.ValueAnalysis
         return;
       }
 
-      instances = parameterStatement.Parameter.GetAttributeInstances(this.canBeNullAttributeCLRName, true);
+      instances = parameterStatement.Parameter.GetAttributeInstances(this.canBeNullAttributeClrName, true);
       if (instances != null && instances.Count > 0)
       {
         parameterStatement.Nullable = true;

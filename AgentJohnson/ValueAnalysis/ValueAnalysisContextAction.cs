@@ -12,9 +12,9 @@ namespace AgentJohnson.ValueAnalysis
   using EnvDTE;
   using JetBrains.Annotations;
   using JetBrains.ReSharper.Intentions;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Psi.Tree;
-  using JetBrains.VSIntegration.Application;
+  using JetBrains.VsIntegration.Application;
 
   /// <summary>
   /// Represents the Context Action.
@@ -52,7 +52,7 @@ namespace AgentJohnson.ValueAnalysis
         return;
       }
 
-      var valueAnalysisRefactoring = new ValueAnalysisRefactoring(typeMemberDeclaration, this.Provider);
+      var valueAnalysisRefactoring = new ValueAnalysisRefactoring(typeMemberDeclaration);
 
       valueAnalysisRefactoring.Execute();
 
@@ -93,7 +93,7 @@ namespace AgentJohnson.ValueAnalysis
         return false;
       }
 
-      var valueAnalysisRefactoring = new ValueAnalysisRefactoring(typeMemberDeclaration, this.Provider);
+      var valueAnalysisRefactoring = new ValueAnalysisRefactoring(typeMemberDeclaration);
 
       return valueAnalysisRefactoring.IsAvailable();
     }
@@ -101,17 +101,14 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// Posts the execute.
     /// </summary>
-    /// <param name="element">
-    /// The element.
-    /// </param>
-    protected override void PostExecute(IElement element)
+    protected override void PostExecute()
     {
-      _DTE dte = VSShell.Instance.ApplicationObject;
+      _DTE dte = IVsServiceProviderEx.Dte(VSShell.Instance.ServiceProvider);
       Command command;
 
       try
       {
-        command = dte.Commands.Item("Tools.SubMain.GhostDoc.DocumentThis", -1);
+        command = dte.Commands.Item("Tools.SubMain.GhostDoc.DocumentThis");
       }
       catch
       {

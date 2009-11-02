@@ -16,7 +16,7 @@ namespace AgentJohnson.LiveMacros
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
-  using JetBrains.Util;
+  using JetBrains.TextControl;
 
   /// <summary>
   /// Defines the suggest property class.
@@ -34,7 +34,7 @@ namespace AgentJohnson.LiveMacros
     {
       get
       {
-        return EmptyArray<ParameterInfo>.Instance;
+        return global::JetBrains.Util.EmptyArray<ParameterInfo>.Instance;
       }
     }
 
@@ -133,13 +133,13 @@ namespace AgentJohnson.LiveMacros
         return false;
       }
 
-      var file = psiManager.GetPsiFile(projectFile) as ICSharpFile;
+      var file = psiManager.GetPsiFile(projectFile, PsiLanguageType.GetByProjectFile(projectFile)) as ICSharpFile;
       if (file == null)
       {
         return false;
       }
 
-      var element = file.FindTokenAt(textControl.CaretModel.Offset);
+      var element = file.FindTokenAt(new TreeOffset(textControl.Caret.Offset()));
       if (element == null)
       {
         return false;

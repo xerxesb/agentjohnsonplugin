@@ -5,8 +5,9 @@
 namespace AgentJohnson
 {
   using System;
+  using System.Collections.Generic;
   using Exceptions;
-  using JetBrains.DocumentModel;
+  using JetBrains.Annotations;
   using JetBrains.ReSharper.Daemon;
   using JetBrains.ReSharper.Daemon.CSharp.Stages;
   using JetBrains.ReSharper.Psi;
@@ -18,13 +19,14 @@ namespace AgentJohnson
   /// <summary>
   /// Defines the daemon stage process class.
   /// </summary>
-  public class DaemonStageProcess : CSharpDaemonStageProcessBase 
+  public class DaemonStageProcess : CSharpDaemonStageProcessBase
   {
     #region Fields
 
-    private readonly IStatementAnalyzer[] statementAnalyzers;
-    private readonly ITokenTypeAnalyzer[] tokenTypeAnalyzers;
-    private readonly ITypeMemberDeclarationAnalyzer[] typeMemberDeclarationAnalyzers;
+    private readonly DocumentThrownExceptionAnalyzer documentThrownExceptionAnalyzer;
+    private readonly ReturnAnalyzer returnAnalyzer;
+    private readonly StringEmptyAnalyzer stringEmptyAnalyzer;
+    private readonly ValueAnalysisAnalyzer valueAnalysisAnalyzer;
 
     #endregion
 
@@ -36,21 +38,10 @@ namespace AgentJohnson
     /// <param name="process">The process.</param>
     public DaemonStageProcess(IDaemonProcess process) : base(process)
     {
-      this.statementAnalyzers = new IStatementAnalyzer[]
-      {
-        new DocumentThrownExceptionAnalyzer(this.DaemonProcess.Solution),
-        new ReturnAnalyzer(this.DaemonProcess.Solution)
-      };
-
-      this.tokenTypeAnalyzers = new ITokenTypeAnalyzer[]
-      {
-        new StringEmptyAnalyzer(this.DaemonProcess.Solution)
-      };
-
-      this.typeMemberDeclarationAnalyzers = new ITypeMemberDeclarationAnalyzer[]
-      {
-        new ValueAnalysisAnalyzer(this.DaemonProcess.Solution)
-      };
+      this.stringEmptyAnalyzer = new StringEmptyAnalyzer(this.DaemonProcess.Solution);
+      this.returnAnalyzer = new ReturnAnalyzer(this.DaemonProcess.Solution);
+      this.documentThrownExceptionAnalyzer = new DocumentThrownExceptionAnalyzer(this.DaemonProcess.Solution);
+      this.valueAnalysisAnalyzer = new ValueAnalysisAnalyzer(this.DaemonProcess.Solution);
     }
 
     #endregion
@@ -67,20 +58,98 @@ namespace AgentJohnson
     /// <param name="commiter"></param>
     public override void Execute(Action<DaemonStageResult> commiter)
     {
-      HighlightInFile(file => file.ProcessDescendants(this), commiter);
+      this.HighlightInFile((file, consumer) => file.ProcessDescendants(this, consumer), commiter);
     }
 
     /// <summary>
-    /// Processes the before interior.
+    /// Visits the constructor declaration.
     /// </summary>
-    /// <param name="element">The element.</param>
-    public override void ProcessBeforeInterior(IElement element)
+    /// <param name="constructorDeclaration">The constructor declaration.</param>
+    /// <param name="consumer">The consumer.</param>
+    /// <returns></returns>
+    public override object VisitConstructorDeclaration(IConstructorDeclaration constructorDeclaration, IHighlightingConsumer consumer)
     {
-      this.ProcessStatements(element);
+      this.VisitTypeMember(constructorDeclaration, consumer);
+      return base.VisitConstructorDeclaration(constructorDeclaration, consumer);
+    }
 
-      this.ProcessTypeMemberDeclarations(element);
+    /// <summary>
+    /// Visits the element.
+    /// </summary>
+    /// <param name="element">The param.</param>
+    /// <param name="consumer">The context.</param>
+    /// <returns></returns>
+    public override object VisitElement(IElement element, IHighlightingConsumer consumer)
+    {
+      var tokenType = element as ITokenNode;
+      if (tokenType != null)
+      {
+        AddHighlighting(consumer, this.stringEmptyAnalyzer.Analyze(tokenType));
+      }
 
-      this.ProcessTokenTypes(element);
+      return base.VisitElement(element, consumer);
+    }
+
+    /// <summary>
+    /// Visits the indexer declaration.
+    /// </summary>
+    /// <param name="indexerDeclarationParam">The indexer declaration param.</param>
+    /// <param name="consumer">The consumer.</param>
+    /// <returns></returns>
+    public override object VisitIndexerDeclaration(IIndexerDeclaration indexerDeclarationParam, IHighlightingConsumer consumer)
+    {
+      this.VisitTypeMember(indexerDeclarationParam, consumer);
+      return base.VisitIndexerDeclaration(indexerDeclarationParam, consumer);
+    }
+
+    /// <summary>
+    /// Visits the method declaration.
+    /// </summary>
+    /// <param name="methodDeclaration">The method declaration.</param>
+    /// <param name="consumer">The consumer.</param>
+    /// <returns></returns>
+    public override object VisitMethodDeclaration(IMethodDeclaration methodDeclaration, IHighlightingConsumer consumer)
+    {
+      this.VisitTypeMember(methodDeclaration, consumer);
+      return base.VisitMethodDeclaration(methodDeclaration, consumer);
+    }
+
+    /// <summary>
+    /// Visits the property declaration.
+    /// </summary>
+    /// <param name="propertyDeclaration">The property declaration.</param>
+    /// <param name="consumer">The consumer.</param>
+    /// <returns></returns>
+    public override object VisitPropertyDeclaration(IPropertyDeclaration propertyDeclaration, IHighlightingConsumer consumer)
+    {
+      this.VisitTypeMember(propertyDeclaration, consumer);
+      return base.VisitPropertyDeclaration(propertyDeclaration, consumer);
+    }
+
+    /// <summary>
+    /// Visits the return statement.
+    /// </summary>
+    /// <param name="returnStatement">The return statement.</param>
+    /// <param name="consumer">The consumer.</param>
+    /// <returns></returns>
+    public override object VisitReturnStatement(IReturnStatement returnStatement, IHighlightingConsumer consumer)
+    {
+      AddHighlighting(consumer, this.returnAnalyzer.AnalyzeReturnStatement(returnStatement));
+
+      return base.VisitReturnStatement(returnStatement, consumer);
+    }
+
+    /// <summary>
+    /// Visits the throw statement.
+    /// </summary>
+    /// <param name="throwStatement">The throw statement.</param>
+    /// <param name="consumer">The consumer.</param>
+    /// <returns></returns>
+    public override object VisitThrowStatement(IThrowStatement throwStatement, IHighlightingConsumer consumer)
+    {
+      AddHighlighting(consumer, this.documentThrownExceptionAnalyzer.AnalyzeThrowStatement(throwStatement));
+
+      return base.VisitThrowStatement(throwStatement, consumer);
     }
 
     #endregion
@@ -90,97 +159,46 @@ namespace AgentJohnson
     /// <summary>
     /// Adds the highlighting.
     /// </summary>
-    /// <param name="highlighting">The highlighting.</param>
-    private void AddHighlighting(SuggestionBase highlighting)
+    /// <param name="consumer">The consumer.</param>
+    /// <param name="suggestions">The suggestions.</param>
+    private static void AddHighlighting(IHighlightingConsumer consumer, IEnumerable<SuggestionBase> suggestions)
     {
-      DocumentRange range = highlighting.Range;
+      if (suggestions == null)
+      {
+        return;
+      }
+
+      foreach (var highlighting in suggestions)
+      {
+        AddHighlighting(consumer, highlighting);
+      }
+    }
+
+    /// <summary>
+    /// Adds the highlighting.
+    /// </summary>
+    ///<param name="consumer">The consumer.</param>
+    ///<param name="highlighting">The highlighting.</param>
+    private static void AddHighlighting(IHighlightingConsumer consumer, SuggestionBase highlighting)
+    {
+      var range = highlighting.Range;
       if (!range.IsValid())
       {
         return;
       }
 
-      this.AddHighlighting(range, highlighting);
+      consumer.AddHighlighting(range, highlighting);
     }
 
     /// <summary>
-    /// Processes the statements.
+    /// Visits the type member.
     /// </summary>
-    /// <param name="element">The element.</param>
-    private void ProcessStatements(IElement element)
+    /// <param name="typeMemberDeclaration">The type member declaration.</param>
+    /// <param name="consumer">The consumer.</param>
+    /// <returns></returns>
+    private void VisitTypeMember(ITypeMemberDeclaration typeMemberDeclaration, IHighlightingConsumer consumer)
     {
-      var statement = element as IStatement;
-      if (statement == null)
-      {
-        return;
-      }
-
-      foreach (IStatementAnalyzer analyzer in this.statementAnalyzers)
-      {
-        SuggestionBase[] result = analyzer.Analyze(statement);
-        if (result == null)
-        {
-          continue;
-        }
-
-        foreach (SuggestionBase highlighting in result)
-        {
-          this.AddHighlighting(highlighting);
-        }
-      }
-    }
-
-    /// <summary>
-    /// Processes the token types.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    private void ProcessTokenTypes(IElement element)
-    {
-      var tokenType = element as ITokenNode;
-      if (tokenType == null)
-      {
-        return;
-      }
-
-      foreach (ITokenTypeAnalyzer analyzer in this.tokenTypeAnalyzers)
-      {
-        SuggestionBase[] result = analyzer.Analyze(tokenType);
-        if (result == null)
-        {
-          continue;
-        }
-
-        foreach (SuggestionBase highlighting in result)
-        {
-          this.AddHighlighting(highlighting);
-        }
-      }
-    }
-
-    /// <summary>
-    /// Processes the function declarations.
-    /// </summary>
-    /// <param name="element">The element.</param>
-    private void ProcessTypeMemberDeclarations(IElement element)
-    {
-      var typeMemberDeclaration = element as ITypeMemberDeclaration;
-      if (typeMemberDeclaration == null)
-      {
-        return;
-      }
-
-      foreach (ITypeMemberDeclarationAnalyzer analyzer in this.typeMemberDeclarationAnalyzers)
-      {
-        SuggestionBase[] result = analyzer.Analyze(typeMemberDeclaration);
-        if (result == null)
-        {
-          continue;
-        }
-
-        foreach (SuggestionBase highlighting in result)
-        {
-          this.AddHighlighting(highlighting);
-        }
-      }
+      AddHighlighting(consumer, this.valueAnalysisAnalyzer.Analyze(typeMemberDeclaration));
     }
 
     #endregion

@@ -12,14 +12,13 @@ namespace AgentJohnson
   using JetBrains.ProjectModel;
   using JetBrains.ReSharper.Daemon;
   using JetBrains.ReSharper.Daemon.CSharp.Stages;
-  using JetBrains.ReSharper.Daemon.CSharp.Stages.UsageChecking;
 
   /// <summary>
   /// Agent Johnson stage.
   /// </summary>
   [DaemonStage(StagesBefore = new[]
   {
-    typeof(UsageCheckingStage)
+    typeof(TypeMemberErrorStage)
   }, StagesAfter = new[]
   {
     typeof(LanguageSpecificDaemonStage)

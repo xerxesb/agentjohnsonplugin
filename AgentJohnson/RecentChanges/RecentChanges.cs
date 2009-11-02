@@ -82,7 +82,11 @@ namespace AgentJohnson.RecentChanges
 
         if (EditorManager.GetInstance(solution).IsOpenedInTextControl(projectFile))
         {
-          var textControl = EditorManager.GetInstance(solution).GetTextControl(projectFile);
+          var textControl = EditorManager.GetInstance(solution).TryGetTextControl(projectFile);
+          if (textControl == null)
+          {
+            return;
+          }
 
           var documentText = textControl.Document.GetText();
 
@@ -281,7 +285,11 @@ namespace AgentJohnson.RecentChanges
 
       if (EditorManager.GetInstance(this.solution).IsOpenedInTextControl(projectFile))
       {
-        var textControl = EditorManager.GetInstance(this.solution).GetTextControl(projectFile);
+        var textControl = EditorManager.GetInstance(this.solution).TryGetTextControl(projectFile);
+        if (textControl == null)
+        {
+          return;
+        }
 
         this.Preview.Text = textControl.Document.GetText();
       }

@@ -32,7 +32,7 @@ namespace AgentJohnson.SmartGenerate
     /// <summary>
     /// The _live template infos.
     /// </summary>
-    private List<LiveTemplateInfo> _liveTemplateInfos = new List<LiveTemplateInfo>();
+    private List<LiveTemplateInfo> liveTemplateInfos = new List<LiveTemplateInfo>();
 
     #endregion
 
@@ -73,7 +73,7 @@ namespace AgentJohnson.SmartGenerate
     {
       get
       {
-        return this._liveTemplateInfos;
+        return this.liveTemplateInfos;
       }
     }
 
@@ -194,7 +194,7 @@ namespace AgentJohnson.SmartGenerate
     {
       Shell.Instance.RegisterTypeLoadingHandler(this);
 
-      var action = ActionManager.Instance.GetAction("CompleteStatement");
+      IUpdatableAction action = ActionManager.Instance.TryGetAction("CompleteStatement") as IUpdatableAction;
       if (action != null)
       {
         action.AddHandler(new SmartGenerateContextAction());
@@ -210,7 +210,7 @@ namespace AgentJohnson.SmartGenerate
     /// </summary>
     public void Dispose()
     {
-      this._liveTemplateInfos = new List<LiveTemplateInfo>();
+      this.liveTemplateInfos = new List<LiveTemplateInfo>();
     }
 
     #endregion
@@ -247,10 +247,10 @@ namespace AgentJohnson.SmartGenerate
           Type = type
         };
 
-        this._liveTemplateInfos.Add(entry);
+        this.liveTemplateInfos.Add(entry);
       }
 
-      this._liveTemplateInfos.Sort(this);
+      this.liveTemplateInfos.Sort(this);
     }
 
     /// <summary>

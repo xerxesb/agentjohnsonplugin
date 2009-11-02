@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <actions>
-  <insert group-id="ReSharper.View" position="last">
+  <insert group-id="ReSharper.Find" position="last">
     <action id="FavoriteFiles" text="Favorite Files" shortcut="Control+Shift+X">
       <vs-shortcut>Control+Shift+X</vs-shortcut>
     </action>
@@ -20,7 +20,7 @@
   </action>
   <action id="SmartGenerate2" text="Internal Use Only"/>
 
-  <insert group-id="Refactor" position="last">
+  <insert group-id="ReSharper.Refactor" position="last">
     <separator />
     <action-ref id="AgentJohnson.IntroduceStringConstant"/>
     <action-ref id="AgentJohnson.InvertReturnValue"/>
@@ -33,7 +33,7 @@
     </action-group>
   </insert>
 
-  <insert group-id="Code" position="last">
+  <insert group-id="ReSharper.Edit" position="last">
     <separator />
     <action-ref id="AgentJohnson.DuplicateMethod" />
   </insert>

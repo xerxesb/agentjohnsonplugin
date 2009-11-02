@@ -10,20 +10,17 @@
 namespace AgentJohnson.ValueAnalysis
 {
   using System.Collections.Generic;
-  using JetBrains.Annotations;
   using JetBrains.Application;
-  using JetBrains.Application.Progress;
   using JetBrains.CommonControls;
   using JetBrains.ReSharper.Intentions;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Psi;
-  using JetBrains.ReSharper.Psi.CodeStyle;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.ReSharper.Psi.Util;
   using JetBrains.UI.PopupMenu;
-  using JetBrains.Util;
+  using AgentJohnson.Psi.CodeStyle;
 
   /// <summary>
   /// Represents the Context Action.
@@ -119,7 +116,7 @@ namespace AgentJohnson.ValueAnalysis
         return false;
       }
 
-      TextRange range;
+      global::JetBrains.Util.TextRange range;
       IType declaredType;
       PsiLanguageType language;
 
@@ -146,11 +143,6 @@ namespace AgentJohnson.ValueAnalysis
         }
 
         var reference = referenceExpression.Reference;
-        if (reference == null)
-        {
-          return false;
-        }
-
         IExpression source = assignmentExpression.Source;
         if (source == null)
         {
@@ -159,7 +151,7 @@ namespace AgentJohnson.ValueAnalysis
 
         this.name = reference.GetName();
 
-        range = new TextRange(destination.GetTreeStartOffset(), source.GetTreeStartOffset());
+        range = new global::JetBrains.Util.TextRange(destination.GetTreeStartOffset().Offset, source.GetTreeStartOffset().Offset);
       }
       else
       {
@@ -192,7 +184,7 @@ namespace AgentJohnson.ValueAnalysis
 
         this.name = localVariable.ShortName;
 
-        range = new TextRange(identifier.GetTreeStartOffset(), initial.GetTreeStartOffset());
+        range = new global::JetBrains.Util.TextRange(identifier.GetTreeStartOffset().Offset, initial.GetTreeStartOffset().Offset);
       }
 
       if (declaredType == null)
@@ -205,7 +197,7 @@ namespace AgentJohnson.ValueAnalysis
         return false;
       }
 
-      if (!range.IsValid() || !range.Contains(this.Provider.CaretOffset))
+      if (!range.IsValid() || !range.Contains(this.Provider.CaretOffset.Offset))
       {
         return false;
       }
@@ -220,24 +212,6 @@ namespace AgentJohnson.ValueAnalysis
     }
 
     /// <summary>
-    /// Gets the code formatter.
-    /// </summary>
-    /// <returns>
-    /// The code formatter.
-    /// </returns>
-    [CanBeNull]
-    private static CodeFormatter GetCodeFormatter()
-    {
-      var languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
-      if (languageService == null)
-      {
-        return null;
-      }
-
-      return languageService.CodeFormatter;
-    }
-
-    /// <summary>
     /// Inserts the assert.
     /// </summary>
     /// <param name="assertion">
@@ -246,14 +220,8 @@ namespace AgentJohnson.ValueAnalysis
     /// <param name="element">
     /// The element.
     /// </param>
-    private static void InsertAssertionCode(string assertion, IElement element)
+    private void InsertAssertionCode(string assertion, IElement element)
     {
-      var codeFormatter = GetCodeFormatter();
-      if (codeFormatter == null)
-      {
-        return;
-      }
-
       IStatement anchor = null;
       string name;
 
@@ -327,8 +295,8 @@ namespace AgentJohnson.ValueAnalysis
       var result = body.AddStatementAfter(statement, anchor);
 
       var range = result.GetDocumentRange();
-      var marker = result.GetManager().CreatePsiRangeMarker(range);
-      codeFormatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
+      var codeFormatter = new CodeFormatter();
+      codeFormatter.Format(this.Solution, range);
     }
 
     /// <summary>
@@ -352,7 +320,7 @@ namespace AgentJohnson.ValueAnalysis
       {
         using (var cookie = this.Provider.TextControl.Document.EnsureWritable())
         {
-          if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+          if (cookie.EnsureWritableResult != global::JetBrains.Util.EnsureWritableResult.SUCCESS)
           {
             return;
           }
@@ -419,15 +387,9 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// Inserts the assertion code.
     /// </summary>
-    /// <param name="type">
-    /// The type.
-    /// </param>
-    /// <param name="element">
-    /// The element.
-    /// </param>
-    /// <param name="name">
-    /// The name.
-    /// </param>
+    /// <param name="type">The type.</param>
+    /// <param name="element">The element.</param>
+    /// <param name="name">The name.</param>
     private void InsertAssertionCode(IType type, IElement element, string name)
     {
       var rule = Rule.GetRule(type, element.Language) ?? Rule.GetDefaultRule();
@@ -451,15 +413,9 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// Shows the popup menu.
     /// </summary>
-    /// <param name="element">
-    /// The element.
-    /// </param>
-    /// <param name="rule">
-    /// The rule.
-    /// </param>
-    /// <param name="name">
-    /// The name.
-    /// </param>
+    /// <param name="element">The element.</param>
+    /// <param name="rule">The rule.</param>
+    /// <param name="name">The name.</param>
     private void ShowPopupMenu(IElement element, Rule rule, string name)
     {
       var menu = new JetPopupMenu();

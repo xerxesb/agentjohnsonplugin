@@ -49,7 +49,7 @@ namespace AgentJohnson.Strings
     /// <param name="node">
     /// The node.
     /// </param>
-    public StringEmptySuggestion(ISolution solution, ITokenNode node) : base(NAME, node, node.GetDocumentRange(), "Empty string literals (\"\") should be string.Empty")
+    public StringEmptySuggestion(ISolution solution, ITokenNode node) : base(NAME, node, node.GetDocumentRange(), "Empty string literals (\"\") should be string.Empty [Agent Johnson]")
     {
       this._solution = solution;
       this._node = node;

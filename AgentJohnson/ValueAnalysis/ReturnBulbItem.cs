@@ -10,14 +10,13 @@
 namespace AgentJohnson.ValueAnalysis
 {
   using JetBrains.Application;
-  using JetBrains.Application.Progress;
   using JetBrains.ProjectModel;
   using JetBrains.ReSharper.Feature.Services.Bulbs;
   using JetBrains.ReSharper.Psi;
-  using JetBrains.ReSharper.Psi.CodeStyle;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.TextControl;
-  using JetBrains.Util;
+  using JetBrains.ReSharper.Psi.Tree;
+  using AgentJohnson.Psi.CodeStyle;
 
   /// <summary>
   /// Defines the return bulb item class.
@@ -29,7 +28,7 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// The _warning.
     /// </summary>
-    private readonly ReturnWarning _warning;
+    private readonly ReturnWarning warning;
 
     #endregion
 
@@ -43,7 +42,7 @@ namespace AgentJohnson.ValueAnalysis
     /// </param>
     public ReturnBulbItem(ReturnWarning warning)
     {
-      this._warning = warning;
+      this.warning = warning;
     }
 
     #endregion
@@ -87,14 +86,14 @@ namespace AgentJohnson.ValueAnalysis
 
       using (var cookie = textControl.Document.EnsureWritable())
       {
-        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+        if (cookie.EnsureWritableResult != global::JetBrains.Util.EnsureWritableResult.SUCCESS)
         {
           return;
         }
 
         using (CommandCookie.Create(string.Format("Context Action {0}", this.Text)))
         {
-          psiManager.DoTransaction(delegate { this.Execute(); });
+          psiManager.DoTransaction(delegate { this.Execute(solution); });
         }
       }
     }
@@ -106,27 +105,12 @@ namespace AgentJohnson.ValueAnalysis
     #region Methods
 
     /// <summary>
-    /// Gets the code formatter.
-    /// </summary>
-    /// <returns>
-    /// </returns>
-    private static CodeFormatter GetCodeFormatter()
-    {
-      var languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
-      if (languageService == null)
-      {
-        return null;
-      }
-
-      return languageService.CodeFormatter;
-    }
-
-    /// <summary>
     /// Executes this instance.
     /// </summary>
-    private void Execute()
+    /// <param name="solution">The solution.</param>
+    private void Execute(ISolution solution)
     {
-      var returnStatement = this._warning.ReturnStatement;
+      var returnStatement = this.warning.ReturnStatement;
 
       var function = returnStatement.GetContainingTypeMemberDeclaration() as IFunction;
       if (function == null)
@@ -138,12 +122,6 @@ namespace AgentJohnson.ValueAnalysis
 
       var rule = Rule.GetRule(type, function.Language) ?? Rule.GetDefaultRule();
       if (rule == null)
-      {
-        return;
-      }
-
-      var codeFormatter = GetCodeFormatter();
-      if (codeFormatter == null)
       {
         return;
       }
@@ -162,8 +140,8 @@ namespace AgentJohnson.ValueAnalysis
       var result = returnStatement.ReplaceBy(statement);
 
       var range = result.GetDocumentRange();
-      var marker = result.GetManager().CreatePsiRangeMarker(range);
-      codeFormatter.Optimize(result.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
+      CodeFormatter codeFormatter = new CodeFormatter();
+      codeFormatter.Format(solution, range);
     }
 
     #endregion

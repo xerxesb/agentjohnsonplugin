@@ -11,11 +11,12 @@ namespace AgentJohnson.ValueAnalysis
 {
   using JetBrains.Application.Progress;
   using JetBrains.ReSharper.Intentions;
-  using JetBrains.ReSharper.Intentions.CSharp.ContextActions;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
+  using AgentJohnson.Psi.CodeStyle;
 
   /// <summary>
   /// Represents the Context Action.
@@ -81,18 +82,6 @@ namespace AgentJohnson.ValueAnalysis
         return;
       }
 
-      var languageService = LanguageServiceManager.Instance.GetLanguageService(CSharpLanguageService.CSHARP);
-      if (languageService == null)
-      {
-        return;
-      }
-
-      var codeFormatter = languageService.CodeFormatter;
-      if (codeFormatter == null)
-      {
-        return;
-      }
-
       var factory = CSharpElementFactory.GetInstance(typeMemberDeclaration.GetPsiModule());
 
       var attribute = factory.CreateTypeMemberDeclaration("[" + ValueAnalysisSettings.Instance.AllowNullAttribute + "(\"" + parameter.ShortName + "\")]void Foo(){}", new object[]
@@ -116,8 +105,8 @@ namespace AgentJohnson.ValueAnalysis
       }
       */
       var range = attribute.GetDocumentRange();
-      var marker = (attribute as IElement).GetManager().CreatePsiRangeMarker(range);
-      codeFormatter.Optimize(attribute.GetContainingFile(), marker, false, true, NullProgressIndicator.Instance);
+      CodeFormatter codeFormatter = new CodeFormatter();
+      codeFormatter.Format(this.Solution, range);
     }
 
     /// <summary>

@@ -12,12 +12,12 @@ namespace AgentJohnson.SmartGenerate.Generators
   using JetBrains.Application;
   using JetBrains.Application.Progress;
   using JetBrains.ReSharper.Psi;
+  using JetBrains.ReSharper.Psi.ControlFlow2;
   using JetBrains.ReSharper.Psi.ControlFlow2.CSharp;
   using JetBrains.ReSharper.Psi.CSharp;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.ReSharper.Psi.Util;
-  using JetBrains.Util;
 
   /// <summary>
   /// Defines the generate assignment check class.
@@ -53,7 +53,7 @@ namespace AgentJohnson.SmartGenerate.Generators
         return;
       }
 
-      var range = StatementUtil.GetNewStatementPosition(element);
+      global::JetBrains.Util.TextRange range = StatementUtil.GetNewStatementPosition(element);
 
       if (type.GetPresentableName(element.Language) == "string")
       {
@@ -90,7 +90,7 @@ namespace AgentJohnson.SmartGenerate.Generators
       var psiManager = PsiManager.GetInstance(smartGenerateParameters.Solution);
       using (var cookie = smartGenerateParameters.TextControl.Document.EnsureWritable())
       {
-        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
+        if (cookie.EnsureWritableResult != global::JetBrains.Util.EnsureWritableResult.SUCCESS)
         {
           return state;
         }
@@ -162,7 +162,7 @@ namespace AgentJohnson.SmartGenerate.Generators
 
       var graf = CSharpControlFlowBuilder.Build(functionDeclaration);
 
-      var inspect = graf.Inspect(true);
+      var inspect = graf.Inspect(ValueAnalysisMode.OPTIMISTIC);
 
       return inspect.GetExpressionNullReferenceState(referenceExpression);
     }
