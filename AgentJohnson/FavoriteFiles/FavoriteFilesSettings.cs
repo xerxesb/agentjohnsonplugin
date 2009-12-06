@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using AgentJohnson.FavoriteFiles;
 using JetBrains.Application;
 using JetBrains.ComponentModel;
-using JetBrains.Util;
 
 namespace AgentJohnson.FavoriteFiles {
   /// <summary>
@@ -15,7 +13,7 @@ namespace AgentJohnson.FavoriteFiles {
   public class FavoriteFilesSettings : IXmlExternalizableShellComponent {
     #region Fields
 
-    List<FavoriteFilePath> _favoriteFiles;
+    List<FavoriteFilePath> favoriteFiles;
 
     #endregion
 
@@ -37,14 +35,14 @@ namespace AgentJohnson.FavoriteFiles {
     /// <value>The favorite files.</value>
     public List<FavoriteFilePath> FavoriteFiles {
       get {
-        if(_favoriteFiles == null){
+        if(this.favoriteFiles == null){
           InitFavoriteFiles();
         }
 
-        return _favoriteFiles;
+        return this.favoriteFiles;
       }
       set {
-        _favoriteFiles = value;
+        this.favoriteFiles = value;
       }
     }
     /// <summary>
@@ -52,7 +50,7 @@ namespace AgentJohnson.FavoriteFiles {
     /// </summary>                             
     /// <remarks>This is for serialization only.</remarks>
     /// <value>The files.</value>
-    [XmlExternalizable(true)]
+    [global::JetBrains.Util.XmlExternalizable(true)]
     public string SerializableFavoriteFiles {
       get {
         StringBuilder result = new StringBuilder();
@@ -76,7 +74,7 @@ namespace AgentJohnson.FavoriteFiles {
           return;
         }
 
-        _favoriteFiles = new List<FavoriteFilePath>();
+        this.favoriteFiles = new List<FavoriteFilePath>();
 
         string[] files = value.Split('|');
 
@@ -87,7 +85,7 @@ namespace AgentJohnson.FavoriteFiles {
 
           FavoriteFilePath path = new FavoriteFilePath(favoriteFilePath);
 
-          _favoriteFiles.Add(path);
+          this.favoriteFiles.Add(path);
         }
       }
     }
@@ -146,7 +144,7 @@ namespace AgentJohnson.FavoriteFiles {
         return;
       }
 
-      XmlExternalizationUtil.ReadFromXml(element, this);
+      global::JetBrains.Util.XmlExternalizationUtil.ReadFromXml(element, this);
     }
 
     /// <summary>
@@ -155,7 +153,7 @@ namespace AgentJohnson.FavoriteFiles {
     /// <param name="element">The element.</param>
     /// <returns></returns>
     public void WriteToXml(XmlElement element) {
-      XmlExternalizationUtil.WriteToXml(element, this);
+      global::JetBrains.Util.XmlExternalizationUtil.WriteToXml(element, this);
     }
 
     #endregion
@@ -166,7 +164,7 @@ namespace AgentJohnson.FavoriteFiles {
     /// Inits the files.
     /// </summary>
     void InitFavoriteFiles() {
-      _favoriteFiles = new List<FavoriteFilePath>();
+      this.favoriteFiles = new List<FavoriteFilePath>();
     }
 
     #endregion

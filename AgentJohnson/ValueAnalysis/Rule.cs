@@ -22,37 +22,37 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// The _can be null.
     /// </summary>
-    private bool _canBeNull;
+    private bool canBeNull;
 
     /// <summary>
     /// The _non public parameter assertion.
     /// </summary>
-    private string _nonPublicParameterAssertion;
+    private string nonPublicParameterAssertion;
 
     /// <summary>
     /// The _not null.
     /// </summary>
-    private bool _notNull;
+    private bool notNull;
 
     /// <summary>
     /// The _public parameter assertion.
     /// </summary>
-    private string _publicParameterAssertion;
+    private string publicParameterAssertion;
 
     /// <summary>
     /// The _return assertion.
     /// </summary>
-    private string _returnAssertion;
+    private string returnAssertion;
 
     /// <summary>
     /// The _type name.
     /// </summary>
-    private string _typeName;
+    private string typeName;
 
     /// <summary>
     /// The _value assertions.
     /// </summary>
-    private List<string> _valueAssertions = new List<string>();
+    private List<string> valueAssertions = new List<string>();
 
     #endregion
 
@@ -68,12 +68,12 @@ namespace AgentJohnson.ValueAnalysis
     {
       get
       {
-        return this._canBeNull;
+        return this.canBeNull;
       }
 
       set
       {
-        this._canBeNull = value;
+        this.canBeNull = value;
       }
     }
 
@@ -85,12 +85,12 @@ namespace AgentJohnson.ValueAnalysis
     {
       get
       {
-        return this._nonPublicParameterAssertion ?? string.Empty;
+        return this.nonPublicParameterAssertion ?? string.Empty;
       }
 
       set
       {
-        this._nonPublicParameterAssertion = value;
+        this.nonPublicParameterAssertion = value;
       }
     }
 
@@ -102,12 +102,12 @@ namespace AgentJohnson.ValueAnalysis
     {
       get
       {
-        return this._notNull;
+        return this.notNull;
       }
 
       set
       {
-        this._notNull = value;
+        this.notNull = value;
       }
     }
 
@@ -119,12 +119,12 @@ namespace AgentJohnson.ValueAnalysis
     {
       get
       {
-        return this._publicParameterAssertion ?? string.Empty;
+        return this.publicParameterAssertion ?? string.Empty;
       }
 
       set
       {
-        this._publicParameterAssertion = value;
+        this.publicParameterAssertion = value;
       }
     }
 
@@ -136,12 +136,12 @@ namespace AgentJohnson.ValueAnalysis
     {
       get
       {
-        return this._returnAssertion ?? string.Empty;
+        return this.returnAssertion ?? string.Empty;
       }
 
       set
       {
-        this._returnAssertion = value;
+        this.returnAssertion = value;
       }
     }
 
@@ -153,12 +153,12 @@ namespace AgentJohnson.ValueAnalysis
     {
       get
       {
-        return this._typeName ?? string.Empty;
+        return this.typeName ?? string.Empty;
       }
 
       set
       {
-        this._typeName = value;
+        this.typeName = value;
       }
     }
 
@@ -170,12 +170,12 @@ namespace AgentJohnson.ValueAnalysis
     {
       get
       {
-        return this._valueAssertions;
+        return this.valueAssertions;
       }
 
       set
       {
-        this._valueAssertions = value;
+        this.valueAssertions = value;
       }
     }
 

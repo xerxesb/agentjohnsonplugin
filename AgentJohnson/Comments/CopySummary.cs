@@ -16,6 +16,7 @@ namespace AgentJohnson.Comments
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.CSharp.Util;
   using JetBrains.ReSharper.Psi.Tree;
+  using JetBrains.Util;
 
   /// <summary>
   /// Defines the copy summary class.
@@ -256,7 +257,7 @@ namespace AgentJohnson.Comments
       {
         using (var cookie = this.TextControl.Document.EnsureWritable())
         {
-          if (cookie.EnsureWritableResult != global::JetBrains.Util.EnsureWritableResult.SUCCESS)
+          if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
           {
             return;
           }

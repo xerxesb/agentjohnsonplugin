@@ -103,7 +103,7 @@ namespace AgentJohnson.ValueAnalysis
     /// </summary>
     protected override void PostExecute()
     {
-      _DTE dte = IVsServiceProviderEx.Dte(VSShell.Instance.ServiceProvider);
+      _DTE dte = VSShell.Instance.ServiceProvider.Dte();
       Command command;
 
       try

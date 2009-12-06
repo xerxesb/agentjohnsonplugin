@@ -16,7 +16,7 @@ namespace AgentJohnson.ValueAnalysis
   /// <summary>
   /// The value analysis suggestion.
   /// </summary>
-  [ConfigurableSeverityHighlighting(NAME)]
+  [ConfigurableSeverityHighlighting(Name)]
   public class ValueAnalysisSuggestion : SuggestionBase
   {
     #region Constants and Fields
@@ -24,17 +24,17 @@ namespace AgentJohnson.ValueAnalysis
     /// <summary>
     /// The name.
     /// </summary>
-    public const string NAME = "ValueAnalysis";
+    public const string Name = "ValueAnalysis";
 
     /// <summary>
     /// The _solution.
     /// </summary>
-    private readonly ISolution _solution;
+    private readonly ISolution solution;
 
     /// <summary>
     /// The _type member declaration.
     /// </summary>
-    private readonly ITypeMemberDeclaration _typeMemberDeclaration;
+    private readonly ITypeMemberDeclaration typeMemberDeclaration;
 
     #endregion
 
@@ -50,10 +50,10 @@ namespace AgentJohnson.ValueAnalysis
     /// The type member declaration.
     /// </param>
     public ValueAnalysisSuggestion(ISolution solution, ITypeMemberDeclaration typeMemberDeclaration)
-      : base(NAME, typeMemberDeclaration, typeMemberDeclaration.GetNameDocumentRange(), "Type members should be annotated with Value Analysis attributes. [Agent Johnson]")
+      : base(Name, typeMemberDeclaration, typeMemberDeclaration.GetNameDocumentRange(), "Type members should be annotated with Value Analysis attributes. [Agent Johnson]")
     {
-      this._solution = solution;
-      this._typeMemberDeclaration = typeMemberDeclaration;
+      this.solution = solution;
+      this.typeMemberDeclaration = typeMemberDeclaration;
     }
 
     #endregion
@@ -68,7 +68,7 @@ namespace AgentJohnson.ValueAnalysis
     {
       get
       {
-        return HighlightingSettingsManager.Instance.Settings.GetSeverity(NAME) != Severity.DO_NOT_SHOW;
+        return HighlightingSettingsManager.Instance.Settings.GetSeverity(Name) != Severity.DO_NOT_SHOW;
       }
     }
 
@@ -80,7 +80,7 @@ namespace AgentJohnson.ValueAnalysis
     {
       get
       {
-        var severity = HighlightingSettingsManager.Instance.Settings.GetSeverity(NAME);
+        var severity = HighlightingSettingsManager.Instance.Settings.GetSeverity(Name);
         return severity == Severity.DO_NOT_SHOW ? severity : Severity.WARNING;
       }
     }
@@ -93,7 +93,7 @@ namespace AgentJohnson.ValueAnalysis
     {
       get
       {
-        return this._solution;
+        return this.solution;
       }
     }
 

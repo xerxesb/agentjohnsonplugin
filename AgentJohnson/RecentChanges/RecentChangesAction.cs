@@ -14,6 +14,7 @@ namespace AgentJohnson.RecentChanges
   using JetBrains.Application;
   using JetBrains.IDE;
   using JetBrains.ProjectModel;
+  using JetBrains.TextControl;
 
   /// <summary>
   /// Handles Find Text action, see Actions.xml
@@ -112,7 +113,7 @@ namespace AgentJohnson.RecentChanges
 
           textControl.Document.InsertText(offset, form.SelectedText);
 
-          textControl.Caret.MoveTo(textControl.Coords.FromDocOffset(offset + form.SelectedText.Length));
+          textControl.Caret.MoveTo(textControl.Coords.FromDocOffset(offset + form.SelectedText.Length), CaretVisualPlacement.Generic);
         }
       }
     }

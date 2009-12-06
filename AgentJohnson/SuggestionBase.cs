@@ -24,22 +24,22 @@ namespace AgentJohnson
     /// <summary>
     /// The _element.
     /// </summary>
-    private readonly IElement _element;
+    private readonly IElement element;
 
     /// <summary>
     /// The _range.
     /// </summary>
-    private readonly DocumentRange _range;
+    private readonly DocumentRange range;
 
     /// <summary>
     /// The _suggestion name.
     /// </summary>
-    private readonly string _suggestionName;
+    private readonly string suggestionName;
 
     /// <summary>
     /// The _tool tip.
     /// </summary>
-    private readonly string _toolTip;
+    private readonly string toolTip;
 
     #endregion
 
@@ -62,10 +62,10 @@ namespace AgentJohnson
     /// </param>
     public SuggestionBase(string suggestionName, IElement element, DocumentRange highlightingRange, string toolTip)
     {
-      this._range = highlightingRange;
-      this._toolTip = toolTip;
-      this._element = element;
-      this._suggestionName = suggestionName;
+      this.range = highlightingRange;
+      this.toolTip = toolTip;
+      this.element = element;
+      this.suggestionName = suggestionName;
     }
 
     #endregion
@@ -120,7 +120,7 @@ namespace AgentJohnson
     {
       get
       {
-        return this._element;
+        return this.element;
       }
     }
 
@@ -169,7 +169,7 @@ namespace AgentJohnson
     {
       get
       {
-        return this._range;
+        return this.range;
       }
     }
 
@@ -181,7 +181,7 @@ namespace AgentJohnson
     {
       get
       {
-        return HighlightingSettingsManager.Instance.Settings.GetSeverity(this._suggestionName);
+        return HighlightingSettingsManager.Instance.Settings.GetSeverity(this.suggestionName);
       }
     }
 
@@ -207,7 +207,7 @@ namespace AgentJohnson
     {
       get
       {
-        return this._toolTip;
+        return this.toolTip;
       }
     }
 

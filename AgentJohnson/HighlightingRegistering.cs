@@ -31,23 +31,23 @@ namespace AgentJohnson
     /// </summary>
     public void Init()
     {
-      const string group = "Agent Johnson";
+      const string Group = "Agent Johnson";
 
       var manager = HighlightingSettingsManager.Instance;
 
-      manager.RegisterConfigurableSeverity(DocumentThrownExceptionWarning.Name, group,
+      manager.RegisterConfigurableSeverity(DocumentThrownExceptionWarning.Name, Group,
         "Undocumented thrown exception.",
         "Thrown exceptions should be documented in XML comments.",
         Severity.WARNING);
-      manager.RegisterConfigurableSeverity(StringEmptySuggestion.NAME, group,
+      manager.RegisterConfigurableSeverity(StringEmptySuggestion.NAME, Group,
         "Replace \"\" with string.Empty.",
         "Empty string literals (\"\") should be replaced with string.Empty.",
         Severity.SUGGESTION);
-      manager.RegisterConfigurableSeverity(ValueAnalysisSuggestion.NAME, group,
+      manager.RegisterConfigurableSeverity(ValueAnalysisSuggestion.Name, Group,
         "Annotate type members with Value Analysis attributes and assert statements.",
         "Type members should be annotated with Value Analysis attributes and have assert statements.",
         Severity.WARNING);
-      manager.RegisterConfigurableSeverity(ReturnWarning.Name, group,
+      manager.RegisterConfigurableSeverity(ReturnWarning.Name, Group,
         "Return values should be asserted.",
         "The return value must not null and should be asserted.",
         Severity.WARNING);

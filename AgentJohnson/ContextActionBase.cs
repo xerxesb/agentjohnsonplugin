@@ -9,15 +9,16 @@
 
 namespace AgentJohnson
 {
-  extern alias ResharperUtil;
+  using System;
   using JetBrains.Application;
   using JetBrains.ProjectModel;
   using JetBrains.ReSharper.Feature.Services.Bulbs;
-  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Intentions.CSharp.ContextActions.Util;
+  using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
   using JetBrains.ReSharper.Psi;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.TextControl;
+  using JetBrains.Util;
 
   /// <summary>
   /// Represents the base of a context action.
@@ -138,7 +139,7 @@ namespace AgentJohnson
     {
       if (this.Solution != solution || this.TextControl != textControl)
       {
-        throw new System.InvalidOperationException();
+        throw new InvalidOperationException();
       }
 
       Shell.Instance.Locks.AssertReadAccessAllowed();
@@ -149,7 +150,7 @@ namespace AgentJohnson
         return;
       }
 
-      if (this.startTransaction)
+      if (this.StartTransaction)
       {
         this.Modify(() => this.Execute(element));
       }
@@ -250,7 +251,7 @@ namespace AgentJohnson
     /// <param name="handler">
     /// The handler.
     /// </param>
-    private void Modify(ResharperUtil::System.Action handler)
+    private void Modify(Action handler)
     {
       var psiManager = PsiManager.GetInstance(this.Solution);
       if (psiManager == null)
@@ -260,7 +261,7 @@ namespace AgentJohnson
 
       using (var cookie = this.TextControl.Document.EnsureWritable())
       {
-        if (cookie.EnsureWritableResult != global::JetBrains.Util.EnsureWritableResult.SUCCESS)
+        if (cookie.EnsureWritableResult != EnsureWritableResult.SUCCESS)
         {
           return;
         }

@@ -7,7 +7,6 @@ namespace AgentJohnson
   using System;
   using System.Collections.Generic;
   using Exceptions;
-  using JetBrains.Annotations;
   using JetBrains.ReSharper.Daemon;
   using JetBrains.ReSharper.Daemon.CSharp.Stages;
   using JetBrains.ReSharper.Psi;

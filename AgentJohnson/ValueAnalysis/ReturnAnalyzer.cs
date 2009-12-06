@@ -234,18 +234,19 @@ namespace AgentJohnson.ValueAnalysis
         return false;
       }
 
-      if (returnStatement.Value.IsConstantValue())
+      var value = returnStatement.Value;
+      if (value.IsConstantValue())
       {
         return false;
       }
 
-      var returnValue = returnStatement.Value.GetText();
+      var returnValue = value.GetText();
       if (returnValue == "string.Empty" || returnValue == "String.Empty" || returnValue == "null")
       {
         return false;
       }
 
-      if (!(returnStatement.Value is ICreationExpression))
+      if (!(value is ICreationExpression))
       {
         return false;
       }
@@ -267,23 +268,6 @@ namespace AgentJohnson.ValueAnalysis
         return false;
       }
 
-      /*
-      string canBeNullValueAttributeTypeName = CodeAnnotationsCache.GetInstance(this.Solution)..GetAttributeTypeForElement(returnStatement, canBeNullName);
-      CLRTypeName canBeNullTypeName = new CLRTypeName(canBeNullValueAttributeTypeName);
-      IList<IAttributeInstance> instances = function.GetAttributeInstances(canBeNullTypeName, true);
-      if (instances != null && instances.Count > 0)
-      {
-        return false;
-      }
-
-      string notNullValueAttributeTypeName = CodeAnnotationsCache.GetInstance(this.Solution).GetAttributeTypeForElement(notNullName);
-      CLRTypeName notNullTypeName = new CLRTypeName(notNullValueAttributeTypeName);
-      instances = function.GetAttributeInstances(notNullTypeName, true);
-      if (instances == null || instances.Count == 0)
-      {
-        return false;
-      }
-      */
       var rule = Rule.GetRule(type, function.Language) ?? Rule.GetDefaultRule();
       if (rule == null)
       {

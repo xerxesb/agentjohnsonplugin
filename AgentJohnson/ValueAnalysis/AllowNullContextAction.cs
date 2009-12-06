@@ -9,14 +9,15 @@
 
 namespace AgentJohnson.ValueAnalysis
 {
-  using JetBrains.Application.Progress;
+  using System.Linq;
   using JetBrains.ReSharper.Intentions;
   using JetBrains.ReSharper.Intentions.CSharp.DataProviders;
+  using JetBrains.ReSharper.Intentions.Util;
   using JetBrains.ReSharper.Psi;
-  using JetBrains.ReSharper.Psi.CSharp;
+  using JetBrains.ReSharper.Psi.Caches;
   using JetBrains.ReSharper.Psi.CSharp.Tree;
   using JetBrains.ReSharper.Psi.Tree;
-  using AgentJohnson.Psi.CodeStyle;
+  using JetBrains.Util;
 
   /// <summary>
   /// Represents the Context Action.
@@ -48,65 +49,33 @@ namespace AgentJohnson.ValueAnalysis
     /// </param>
     protected override void Execute(IElement element)
     {
-      if (string.IsNullOrEmpty(ValueAnalysisSettings.Instance.AllowNullAttribute))
-      {
-        return;
-      }
-
       if (!this.IsAvailableInternal())
       {
         return;
       }
 
-      var parameterDeclaration = this.Provider.GetSelectedElement<IParameterDeclaration>(true, true);
-      if (parameterDeclaration == null)
-      {
-        return;
-      }
-
-      var parameter = parameterDeclaration.DeclaredElement;
-      if (parameter == null)
-      {
-        return;
-      }
-
-      var typeMemberDeclaration = parameterDeclaration.GetContainingElement(typeof(ITypeMemberDeclaration), true) as ITypeMemberDeclaration;
-      if (typeMemberDeclaration == null)
-      {
-        return;
-      }
-
-      var attributesOwnerDeclaration = typeMemberDeclaration as IAttributesOwnerDeclaration;
+      var attributesOwnerDeclaration = this.Provider.GetSelectedElement<IAttributesOwnerDeclaration>(true, true);
       if (attributesOwnerDeclaration == null)
       {
         return;
       }
 
-      var factory = CSharpElementFactory.GetInstance(typeMemberDeclaration.GetPsiModule());
+      var psiModule = attributesOwnerDeclaration.GetPsiModule();
+      var scope = DeclarationsScopeFactory.ModuleScope(psiModule, true);
+      string allowNullAttribute = ValueAnalysisSettings.Instance.AllowNullAttribute;
 
-      var attribute = factory.CreateTypeMemberDeclaration("[" + ValueAnalysisSettings.Instance.AllowNullAttribute + "(\"" + parameter.ShortName + "\")]void Foo(){}", new object[]
+      if (!allowNullAttribute.EndsWith("Attribute"))
       {
-      }).Attributes[0];
-
-      attribute = attributesOwnerDeclaration.AddAttributeAfter(attribute, null);
-
-      var name = attribute.TypeReference.GetName();
-      if (!name.EndsWith("Attribute"))
-      {
-        return;
+        allowNullAttribute += "Attribute";
       }
 
-      /*
-      IReferenceName referenceName = factory.CreateReferenceName(name.Substring(0, name.Length - "Attribute".Length), new object[0]);
-      referenceName = attribute.Name.ReplaceBy(referenceName);
+      var typeElement = PsiManager.GetInstance(psiModule.GetSolution()).GetDeclarationsCache(scope, true).GetTypeElementsByCLRName(new CLRTypeName(allowNullAttribute)).FirstOrDefault();
 
-      if (referenceName.Reference.Resolve().DeclaredElement != typeElement) {
-        referenceName.Reference.BindTo(typeElement);
-      }
-      */
-      var range = attribute.GetDocumentRange();
-      CodeFormatter codeFormatter = new CodeFormatter();
-      codeFormatter.Format(this.Solution, range);
+      Logger.Assert(typeElement != null, "typeElement != null");
+
+      var attribute = this.Provider.ElementFactory.CreateAttribute(typeElement);
+
+      ContextActionUtils.FormatWithDefaultProfile(attributesOwnerDeclaration.AddAttributeAfter(attribute, null));
     }
 
     /// <summary>

@@ -24,20 +24,15 @@ namespace AgentJohnson.ValueAnalysis
   using JetBrains.ReSharper.Psi.ExtensionsAPI.Tree;
   using JetBrains.ReSharper.Psi.Tree;
   using JetBrains.ReSharper.Psi.Util;
-  using AgentJohnson.Psi.CodeStyle;
+  using JetBrains.Text;
+  using Psi.CodeStyle;
 
   /// <summary>
   /// Defines the value analysis refactoring class.
   /// </summary>
   internal class ValueAnalysisRefactoring
   {
-    #region Constants and Fields
-
-    /// <summary>
-    /// The type member declaration.
-    /// </summary>
-    [NotNull]
-    private readonly ITypeMemberDeclaration typeMemberDeclaration;
+    #region Fields
 
     /// <summary>
     /// The can be null attribute clr name.
@@ -50,18 +45,24 @@ namespace AgentJohnson.ValueAnalysis
     private readonly ITypeElement canBeNullTypeElement;
 
     /// <summary>
+    /// The not null type element.
+    /// </summary>
+    private readonly ITypeElement notNullTypeElement;
+
+    /// <summary>
     /// The not nullable attribute clr name.
     /// </summary>
     private readonly CLRTypeName notNullableAttributeClrName;
 
     /// <summary>
-    /// The not null type element.
+    /// The type member declaration.
     /// </summary>
-    private readonly ITypeElement notNullTypeElement;
+    [NotNull]
+    private readonly ITypeMemberDeclaration typeMemberDeclaration;
 
     #endregion
 
-    #region Constructors and Destructors
+    #region Constructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ValueAnalysisRefactoring"/> class.
@@ -307,39 +308,6 @@ namespace AgentJohnson.ValueAnalysis
     }
 
     /// <summary>
-    /// Inserts the blank line.
-    /// </summary>
-    /// <param name="anchor">The anchor.</param>
-    /// <param name="codeFormatter">The code formatter.</param>
-    private void InsertBlankLine([NotNull] IStatement anchor, [NotNull] CodeFormatter codeFormatter)
-    {
-      var anchorTreeNode = anchor.ToTreeNode();
-      if (anchorTreeNode == null)
-      {
-        return;
-      }
-
-      global::JetBrains.Text.IBuffer newLineText;
-
-      var whitespace = anchor.ToTreeNode().PrevSibling as IWhitespaceNode;
-      if (whitespace != null)
-      {
-        newLineText = new global::JetBrains.Text.StringBuffer("\r\n" + whitespace.GetText());
-      }
-      else
-      {
-        newLineText = new global::JetBrains.Text.StringBuffer("\r\n");
-      }
-
-      ITreeNode element = TreeElementFactory.CreateLeafElement(CSharpTokenType.NEW_LINE, newLineText, 0, newLineText.Length);
-
-      LowLevelModificationUtil.AddChildBefore(anchorTreeNode, element);
-
-      var range = element.GetDocumentRange();
-      codeFormatter.Format(this.Solution, range);
-    }
-
-    /// <summary>
     /// Executes the parameters.
     /// </summary>
     /// <param name="functionDeclaration">
@@ -427,7 +395,7 @@ namespace AgentJohnson.ValueAnalysis
 
       if (anchor != null && hasAsserts)
       {
-        InsertBlankLine(anchor, codeFormatter);
+        this.InsertBlankLine(anchor, codeFormatter);
       }
     }
 
@@ -697,36 +665,6 @@ namespace AgentJohnson.ValueAnalysis
     }
 
     /// <summary>
-    /// Gets the assertions.
-    /// </summary>
-    /// <param name="functionDeclaration">
-    /// The function declaration.
-    /// </param>
-    /// <param name="findStatements">
-    /// if set to <c>true</c> [find statements].
-    /// </param>
-    /// <returns>
-    /// The assertions.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    /// <c>functionDeclaration</c> is null.
-    /// </exception>
-    [NotNull]
-    private List<ParameterStatement> GetAssertions([NotNull] ICSharpFunctionDeclaration functionDeclaration, bool findStatements)
-    {
-      var result = new List<ParameterStatement>();
-
-      this.GetAssertionParameters(functionDeclaration, result);
-
-      if (findStatements)
-      {
-        this.GetAssertionStatements(functionDeclaration, result);
-      }
-
-      return result;
-    }
-
-    /// <summary>
     /// Gets the assertion statements.
     /// </summary>
     /// <param name="functionDeclaration">
@@ -847,6 +785,36 @@ namespace AgentJohnson.ValueAnalysis
     }
 
     /// <summary>
+    /// Gets the assertions.
+    /// </summary>
+    /// <param name="functionDeclaration">
+    /// The function declaration.
+    /// </param>
+    /// <param name="findStatements">
+    /// if set to <c>true</c> [find statements].
+    /// </param>
+    /// <returns>
+    /// The assertions.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// <c>functionDeclaration</c> is null.
+    /// </exception>
+    [NotNull]
+    private List<ParameterStatement> GetAssertions([NotNull] ICSharpFunctionDeclaration functionDeclaration, bool findStatements)
+    {
+      var result = new List<ParameterStatement>();
+
+      this.GetAssertionParameters(functionDeclaration, result);
+
+      if (findStatements)
+      {
+        this.GetAssertionStatements(functionDeclaration, result);
+      }
+
+      return result;
+    }
+
+    /// <summary>
     /// Gets the attribute.
     /// </summary>
     /// <param name="attributeName">
@@ -892,6 +860,39 @@ namespace AgentJohnson.ValueAnalysis
       }
 
       return false;
+    }
+
+    /// <summary>
+    /// Inserts the blank line.
+    /// </summary>
+    /// <param name="anchor">The anchor.</param>
+    /// <param name="codeFormatter">The code formatter.</param>
+    private void InsertBlankLine([NotNull] IStatement anchor, [NotNull] CodeFormatter codeFormatter)
+    {
+      var anchorTreeNode = anchor.ToTreeNode();
+      if (anchorTreeNode == null)
+      {
+        return;
+      }
+
+      IBuffer newLineText;
+
+      var whitespace = anchor.ToTreeNode().PrevSibling as IWhitespaceNode;
+      if (whitespace != null)
+      {
+        newLineText = new StringBuffer("\r\n" + whitespace.GetText());
+      }
+      else
+      {
+        newLineText = new StringBuffer("\r\n");
+      }
+
+      ITreeNode element = TreeElementFactory.CreateLeafElement(CSharpTokenType.NEW_LINE, newLineText, 0, newLineText.Length);
+
+      LowLevelModificationUtil.AddChildBefore(anchorTreeNode, element);
+
+      var range = element.GetDocumentRange();
+      codeFormatter.Format(this.Solution, range);
     }
 
     /// <summary>
